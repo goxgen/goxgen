@@ -1,0 +1,8 @@
+{{- define "DirectivesTemplate" -}}
+
+# Directives
+directive @XgenIcon(icon: String!) on OBJECT | FIELD_DEFINITION
+directive @XgenLabel(label: String!) on OBJECT | FIELD_DEFINITION
+directive @XgenDescription(description: String!) on OBJECT | FIELD_DEFINITION
+
+{{- end -}}
