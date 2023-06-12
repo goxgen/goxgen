@@ -2,15 +2,8 @@ package goxgen
 
 import (
 	"context"
+	"github.com/goxgen/goxgen/templates_engine"
 )
-
-// cliTemplateBundle contains template bundle for xgen-cli
-var cliTemplateBundle TemplateBundle = TemplateBundle{
-	TemplateDir: "templates/xgen-cli-templates",
-	FS:          templatesFS,
-	OutputFile:  "./generated_main.go",
-	Regenerate:  true,
-}
 
 // CLI contains configuration of xgen-cli
 type CLI struct {
@@ -19,21 +12,18 @@ type CLI struct {
 	ParentPackageName *string
 }
 
+// CLITemplateData contains data for xgen-cli templates
 type CLITemplateData struct {
 	ParentPackageName string
 	Projects          []Project
 }
 
-func (xc *CLI) prepareCLITemplateData(ctx context.Context) (*CLITemplateData, error) {
-	genCtx, err := GetGeneratorContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &CLITemplateData{
-		Projects:          genCtx.Projects,
-		ParentPackageName: genCtx.ParentPackageName,
-	}, nil
+// cliTemplateBundle contains template bundle for xgen-cli
+var cliTemplateBundle = templates_engine.TemplateBundle{
+	TemplateDir: "templates/xgen-cli-templates",
+	FS:          templatesFS,
+	OutputFile:  "./generated_main.go",
+	Regenerate:  true,
 }
 
 // Generate generates code from templates
@@ -44,5 +34,17 @@ func (xc *CLI) Generate(ctx context.Context) error {
 		return err
 	}
 
-	return cliTemplateBundle.generate(PString(xc.OutputDir), data)
+	return cliTemplateBundle.Generate(PString(xc.OutputDir), data)
+}
+
+func (xc *CLI) prepareCLITemplateData(ctx context.Context) (*CLITemplateData, error) {
+	genCtx, err := GetXgenContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CLITemplateData{
+		Projects:          genCtx.Projects,
+		ParentPackageName: genCtx.ParentPackageName,
+	}, nil
 }

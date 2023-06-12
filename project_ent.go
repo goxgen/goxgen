@@ -3,6 +3,7 @@ package goxgen
 import (
 	"context"
 	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/goxgen/goxgen/templates_engine"
 )
 
 type EntProject struct {
@@ -17,32 +18,32 @@ func (entp *EntProject) HandleGeneration(ctx context.Context, data *ProjectGener
 	err := entp.SimpleProject.TemplateBundleList.
 		Remove("./resolver.go").
 		Add(
-			&TemplateBundle{
-				TemplateDir: "templates/ent-templates/entc",
+			&templates_engine.TemplateBundle{
+				TemplateDir: "templates/projects/ent/entc",
 				FS:          templatesFS,
 				OutputFile:  "./ent/entc.go",
 				Regenerate:  true,
 			},
-			&TemplateBundle{
-				TemplateDir: "templates/ent-templates/gen",
+			&templates_engine.TemplateBundle{
+				TemplateDir: "templates/projects/ent/gen",
 				FS:          templatesFS,
 				OutputFile:  "./gen.go",
 				Regenerate:  true,
 			},
-			&TemplateBundle{
-				TemplateDir: "templates/ent-templates/schema/user",
+			&templates_engine.TemplateBundle{
+				TemplateDir: "templates/projects/ent/schema/user",
 				FS:          templatesFS,
 				OutputFile:  "./ent/schema/user.go",
 				Regenerate:  true,
 			},
-			&TemplateBundle{
-				TemplateDir: "templates/ent-templates/schema/car",
+			&templates_engine.TemplateBundle{
+				TemplateDir: "templates/projects/ent/schema/car",
 				FS:          templatesFS,
 				OutputFile:  "./ent/schema/car.go",
 				Regenerate:  true,
 			},
-			&TemplateBundle{
-				TemplateDir: "templates/ent-templates/schema/types",
+			&templates_engine.TemplateBundle{
+				TemplateDir: "templates/projects/ent/schema/types",
 				FS:          templatesFS,
 				OutputFile:  "./ent/schema/types/types.go",
 				Regenerate:  true,
@@ -58,9 +59,9 @@ func (entp *EntProject) HandleGeneration(ctx context.Context, data *ProjectGener
 		return err
 	}
 
-	err = (&TemplateBundleList{}).Add(
-		&TemplateBundle{
-			TemplateDir: "templates/ent-templates/resolver",
+	err = (&templates_engine.TemplateBundleList{}).Add(
+		&templates_engine.TemplateBundle{
+			TemplateDir: "templates/projects/ent/resolver",
 			FS:          templatesFS,
 			OutputFile:  "./resolver.go",
 			Regenerate:  true,
@@ -70,13 +71,21 @@ func (entp *EntProject) HandleGeneration(ctx context.Context, data *ProjectGener
 		return err
 	}
 
-	err = GenerateProjectGqlgenSet(ctx, entp.SimpleProject, func(cfg *config.Config) error {
-		cfg.AutoBind = append(cfg.AutoBind, data.ParentPackageName+"/"+PString(entp.name)+"/ent")
-		cfg.Models.Add("ID", data.ParentPackageName+"/"+PString(entp.name)+"/ent/schema/types.UUID")
-		cfg.Models.Add("Node", data.ParentPackageName+"/"+PString(entp.name)+"/ent.Noder")
-		cfg.Models.Add("Map", "github.com/99designs/gqlgen/graphql.Map")
-		return nil
-	})
+	err = GenerateProjectGqlgenSet(
+		NewGqlgenContext(
+			ctx,
+			GqlgenContext{
+				ConfigOverrideCallback: func(cfg *config.Config) error {
+					cfg.AutoBind = append(cfg.AutoBind, data.ParentPackageName+"/"+PString(entp.name)+"/ent")
+					cfg.Models.Add("ID", data.ParentPackageName+"/"+PString(entp.name)+"/ent/schema/types.UUID")
+					cfg.Models.Add("Node", data.ParentPackageName+"/"+PString(entp.name)+"/ent.Noder")
+					cfg.Models.Add("Map", "github.com/99designs/gqlgen/graphql.Map")
+					return nil
+				},
+			},
+		),
+		entp.SimpleProject,
+	)
 
 	if err != nil {
 		return err
@@ -87,6 +96,6 @@ func (entp *EntProject) HandleGeneration(ctx context.Context, data *ProjectGener
 
 func NewEntProject(name string, option ...ProjectOption) *EntProject {
 	return &EntProject{
-		SimpleProject: NewProject(name, option...),
+		SimpleProject: NewSimpleProject(name, option...),
 	}
 }

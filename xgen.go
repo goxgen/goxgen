@@ -4,10 +4,12 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/goxgen/goxgen/utils"
 )
 
 const (
-	ContextPrefix = "XGEN_CONTEXT_"
+	ContextPrefix       = "XGEN_CONTEXT_"
+	GeneratedFilePrefix = "generated_xgen_"
 )
 
 type ContextKey string
@@ -24,7 +26,7 @@ type Xgen struct {
 	CLI         *CLI
 }
 
-type GeneratorContext struct {
+type XgenContext struct {
 	ParentPackageName string
 	Projects          []Project
 }
@@ -49,7 +51,7 @@ func NewXgen(options ...XgenOption) *Xgen {
 }
 
 func (x *Xgen) prepareGeneratorContext(ctx context.Context) context.Context {
-	genCtx := GeneratorContext{
+	genCtx := XgenContext{
 		ParentPackageName: *x.PackageName,
 	}
 
@@ -58,24 +60,27 @@ func (x *Xgen) prepareGeneratorContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, GeneratorContextKey, genCtx)
 }
 
-func (x *Xgen) Generate(ctx context.Context) error {
+func (x *Xgen) Generate(ctx context.Context) (err error) {
+
+	err = utils.RemoveFromDirByPatterns("./*/" + GeneratedFilePrefix + "*")
+	if err != nil {
+		return err
+	}
 
 	ctx = x.prepareGeneratorContext(ctx)
 
-	for _, p := range x.Projects {
-		err := GenerateProject(ctx, p)
-		if err != nil {
-			return err
-		}
+	err = NewProjectGenerator(x.Projects...).Generate(ctx)
+	if err != nil {
+		return err
 	}
 
-	err := x.CLI.Generate(ctx)
+	err = x.CLI.Generate(ctx)
 	if err != nil {
 		return err
 	}
 
 	// exec command `go fmt`
-	err = ExecCommand("./", "go", "mod", "tidy")
+	err = utils.ExecCommand("./", "go", "mod", "tidy")
 	if err != nil {
 		return err
 	}
@@ -83,8 +88,8 @@ func (x *Xgen) Generate(ctx context.Context) error {
 	return nil
 }
 
-func GetGeneratorContext(ctx context.Context) (*GeneratorContext, error) {
-	gCtx, ok := ctx.Value(GeneratorContextKey).(GeneratorContext)
+func GetXgenContext(ctx context.Context) (*XgenContext, error) {
+	gCtx, ok := ctx.Value(GeneratorContextKey).(XgenContext)
 
 	if !ok {
 		return nil, fmt.Errorf("failed to get generator context")

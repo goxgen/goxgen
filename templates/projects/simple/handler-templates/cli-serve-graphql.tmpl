@@ -47,10 +47,10 @@ func {{ print (.Name | indirect) "-serve-graphql" | camelcase }} (ctx *cli.Conte
 	}
 
     srv := handler.NewDefaultServer(
-        NewExecutableSchema(
-            Config{
+        generated_gqlgen.NewExecutableSchema(
+            generated_gqlgen.Config{
                 Resolvers:  resolver,
-                Directives: DirectiveRoot{
+                Directives: generated_gqlgen.DirectiveRoot{
                 //HasPermissions: HasPermission(),
                 },
             },

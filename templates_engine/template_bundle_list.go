@@ -1,11 +1,12 @@
-package goxgen
+package templates_engine
 
+// TemplateBundleList is a list of template bundles
 type TemplateBundleList []*TemplateBundle
 
 // Generate generates the template bundle list
 func (t *TemplateBundleList) Generate(outputDir string, data any) error {
 	for _, tb := range *t {
-		if err := tb.generate(outputDir, data); err != nil {
+		if err := tb.Generate(outputDir, data); err != nil {
 			return err
 		}
 	}

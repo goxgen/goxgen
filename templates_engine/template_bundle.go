@@ -1,4 +1,4 @@
-package goxgen
+package templates_engine
 
 import (
 	"embed"
@@ -11,10 +11,11 @@ import (
 
 // TemplateBundle contains configuration of a template bundle
 type TemplateBundle struct {
-	TemplateDir string
-	OutputFile  string
-	Regenerate  bool
-	FS          embed.FS
+	TemplateDir string           // template directory in the template bundle
+	OutputFile  string           // output file
+	Regenerate  bool             // regenerate output file if it already exists
+	FS          embed.FS         //	template bundle file system
+	FuncMap     template.FuncMap // template functions
 }
 
 // getTemplateNames returns template names in templates directory of the template bundle
@@ -28,7 +29,6 @@ func (tb *TemplateBundle) getTemplateNames() ([]string, error) {
 	var templateNames []string
 	for _, entry := range dirEntries {
 		if !entry.IsDir() {
-			fmt.Println(path.Join(tb.TemplateDir, entry.Name()))
 			templateNames = append(templateNames, path.Join(tb.TemplateDir, entry.Name()))
 		}
 	}
@@ -36,7 +36,7 @@ func (tb *TemplateBundle) getTemplateNames() ([]string, error) {
 	return templateNames, nil
 }
 
-func (tb *TemplateBundle) generate(outputDir string, data any) error {
+func (tb *TemplateBundle) Generate(outputDir string, data any) error {
 	fmt.Println("Generating:", *tb)
 	outputFile := path.Join(outputDir, tb.OutputFile)
 	var err error
@@ -60,7 +60,8 @@ func (tb *TemplateBundle) generate(outputDir string, data any) error {
 		Funcs(sprig.FuncMap()).
 		Funcs(template.FuncMap{
 			"indirect": Indirect,
-		})
+		}).
+		Funcs(tb.FuncMap)
 	baseTemplate, err = baseTemplate.ParseFS(tb.FS, templateNames...)
 	if err != nil {
 		fmt.Println("Failed to parse templates:", err)

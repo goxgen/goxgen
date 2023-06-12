@@ -4,7 +4,7 @@ type XgenOption = func(xgen *Xgen) error
 
 func WithProject(name string, option ...ProjectOption) XgenOption {
 	return func(x *Xgen) (err error) {
-		x.Projects = append(x.Projects, NewProject(name, option...))
+		x.Projects = append(x.Projects, NewSimpleProject(name, option...))
 		return nil
 	}
 }

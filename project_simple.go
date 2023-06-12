@@ -2,17 +2,15 @@ package goxgen
 
 import (
 	"context"
-	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/goxgen/goxgen/templates_engine"
 	"regexp"
 )
 
 // SimpleProject is a default project configuration
 type SimpleProject struct {
-	name       *string // name of generated code
-	outputDir  *string // output directory of generated code
-	graphqlURL *string // graphql url
-
-	TemplateBundleList TemplateBundleList
+	name               *string // name of generated code
+	outputDir          *string // output directory of generated code
+	TemplateBundleList templates_engine.TemplateBundleList
 }
 
 // GetName returns project name
@@ -25,30 +23,20 @@ func (p *SimpleProject) GetOutputDir() *string {
 	return p.outputDir
 }
 
-// GetGraphqlURL returns project graphql url
-func (p *SimpleProject) GetGraphqlURL() *string {
-	return p.graphqlURL
-}
-
-func (p *SimpleProject) GqlgenProject() bool {
-	return true
-}
-
+// HandleGeneration generates project
 func (p *SimpleProject) HandleGeneration(ctx context.Context, data *ProjectGeneratorData) error {
 	err := p.TemplateBundleList.Generate(PString(p.GetOutputDir()), data)
 	if err != nil {
 		return err
 	}
 
-	err = GenerateProjectGqlgenSet(ctx, p, func(cfg *config.Config) error {
-		return nil
-	})
+	err = GenerateProjectGqlgenSet(ctx, p)
 
 	return err
 }
 
-// NewProject creates a new SimpleProject instance with default values
-func NewProject(name string, options ...ProjectOption) *SimpleProject {
+// NewSimpleProject creates a new SimpleProject instance with default values
+func NewSimpleProject(name string, options ...ProjectOption) *SimpleProject {
 
 	valid := regexp.MustCompile("^[a-z][a-z0-9_]*$").MatchString(name)
 	if !valid {
@@ -58,21 +46,15 @@ func NewProject(name string, options ...ProjectOption) *SimpleProject {
 	proj := &SimpleProject{
 		name:      StringP(name),
 		outputDir: StringP("./"),
-		TemplateBundleList: TemplateBundleList{
+		TemplateBundleList: templates_engine.TemplateBundleList{
 			{
-				TemplateDir: "templates/default-project/handler-templates",
+				TemplateDir: "templates/projects/simple/handler-templates",
 				FS:          templatesFS,
-				OutputFile:  "./generated_xgen_project_handlers.go",
+				OutputFile:  "./" + GeneratedFilePrefix + "project_handlers.go",
 				Regenerate:  true,
 			},
 			{
-				TemplateDir: "templates/default-project/graphql-templates",
-				FS:          templatesFS,
-				OutputFile:  "./generated_xgen_project_graphql.graphql",
-				Regenerate:  true,
-			},
-			{
-				TemplateDir: "templates/default-project/resolver",
+				TemplateDir: "templates/projects/simple/resolver",
 				FS:          templatesFS,
 				OutputFile:  "./resolver.go",
 				Regenerate:  false,

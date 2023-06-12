@@ -1,4 +1,4 @@
-package graphql
+package _graphql
 
 import (
 	"testing"

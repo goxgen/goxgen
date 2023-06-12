@@ -1,0 +1,45 @@
+{{- /* gotype: github.com/goxgen/goxgen/gqlgen_plugins.ResolverBuild */ -}}
+{{- define "BaseTemplate" -}}
+{
+	{{- $first := true }}
+	{{- range .Objects -}}
+	{{- if and (not .BuiltIn) (not .Root) }}
+	{{- if $first -}} {{- $first = false -}} {{- else -}} , {{- end }}
+	"{{ .Name }}": {
+		"object_def": {
+			{{- $_first := true }}
+			{{- range $i, $d := .Directives }}
+			{{- if or ($d.IsLocation "OBJECT") ($d.IsLocation "INPUT_OBJECT") }}
+			{{- if $_first -}} {{- $_first = false -}} {{- else -}} , {{- end }}
+			"{{ . | directiveName | snakecase }}": {
+				{{- $__first := true }}
+				{{- range $arg := $d.Args }}
+				{{- if $__first -}} {{- $__first = false -}} {{- else -}} , {{- end }}
+				"{{ $arg.VarName | snakecase }}": {{ $arg.Value | toJson }}
+				{{ end }}
+			}
+			{{- end }}
+			{{- end }}
+		}
+		{{- range .Fields }},
+		"{{ . | fieldName | snakecase }}": {
+			{{- $_first := true }}
+			{{- range .ImplDirectives }}
+			{{- if or (.IsLocation "FIELD_DEFINITION") (.IsLocation "INPUT_FIELD_DEFINITION") }}
+			{{- if $_first -}} {{- $_first = false -}} {{- else -}} , {{- end }}
+			"{{ . | directiveName | snakecase }}": {
+				{{- $__first := true }}
+				{{- range $arg := .Args }}
+				{{- if $__first -}} {{- $__first = false -}} {{- else -}} , {{- end }}
+				"{{ $arg.VarName | snakecase }}": {{ $arg.Value | toJson }}
+				{{- end }}
+			}
+			{{- end }}
+			{{- end }}
+		}
+		{{- end }}
+	}
+	{{- end }}
+	{{- end }}
+}
+{{- end -}}
