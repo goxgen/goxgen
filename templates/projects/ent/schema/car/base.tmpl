@@ -10,6 +10,7 @@ import (
     "entgo.io/ent/schema/edge"
     "entgo.io/ent/schema/field"
     "github.com/google/uuid"
+    "github.com/vektah/gqlparser/v2/ast"
 )
 
 type Car struct {
@@ -27,6 +28,18 @@ func (Car) Fields() []ent.Field {
             MaxLen(32).
                 Annotations(
                     entgql.OrderField("MAKE"),
+                    entgql.Directives(entgql.Directive{
+                        Name: "XgenFieldLabel",
+                        Arguments: []*ast.Argument{
+                            {
+                                Name: "Label",
+                                Value: &ast.Value{
+                                    Raw: "Make",
+									Kind: ast.StringValue,
+                                },
+                            },
+                        },
+                    }),
                 ),
         field.String("model").
             MaxLen(32).
@@ -56,6 +69,5 @@ func (Car) Annotations() []schema.Annotation {
         entgql.Mutations(entgql.MutationCreate(), entgql.MutationUpdate()),
     }
 }
-
 
 {{- end -}}

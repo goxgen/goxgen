@@ -68,7 +68,7 @@ func GenerateProjectGqlgenSet(ctx context.Context, project Project) error {
 	cfg.Model.Package = gqlgenPackage
 	cfg.Model.Filename = path.Join(gqlgenPath, "generated_gqlgen_models.go")
 
-	cfg.AutoBind = append(cfg.AutoBind, "github.com/goxgen/goxgen/gqlgen_bind")
+	//cfg.AutoBind = append(cfg.AutoBind, "github.com/goxgen/goxgen/gqlgen_bind")
 
 	if gqlgenCtx != nil && gqlgenCtx.ConfigOverrideCallback != nil {
 		err := gqlgenCtx.ConfigOverrideCallback(cfg)
