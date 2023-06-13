@@ -30,7 +30,7 @@ func (p *SimpleProject) HandleGeneration(ctx context.Context, data *ProjectGener
 		return err
 	}
 
-	err = GenerateProjectGqlgenSet(ctx, p)
+	err = GenerateProjectGraphqlSet(ctx, p)
 
 	return err
 }

@@ -71,10 +71,10 @@ func (entp *EntProject) HandleGeneration(ctx context.Context, data *ProjectGener
 		return err
 	}
 
-	err = GenerateProjectGqlgenSet(
-		NewGqlgenContext(
+	err = GenerateProjectGraphqlSet(
+		NewGraphqlContext(
 			ctx,
-			GqlgenContext{
+			GraphqlContext{
 				ConfigOverrideCallback: func(cfg *config.Config) error {
 					cfg.AutoBind = append(cfg.AutoBind, data.ParentPackageName+"/"+PString(entp.name)+"/ent")
 					cfg.Models.Add("ID", data.ParentPackageName+"/"+PString(entp.name)+"/ent/schema/types.UUID")

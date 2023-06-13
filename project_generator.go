@@ -37,7 +37,7 @@ func (pg *ProjectGenerator) Generate(ctx context.Context) error {
 
 // generateProject generates single project
 func (pg *ProjectGenerator) generateProject(ctx context.Context, project Project) error {
-	gCtx, err := GetXgenContext(ctx)
+	gCtx, err := GetContext(ctx)
 	if err != nil {
 		return err
 	}

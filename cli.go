@@ -38,7 +38,7 @@ func (xc *CLI) Generate(ctx context.Context) error {
 }
 
 func (xc *CLI) prepareCLITemplateData(ctx context.Context) (*CLITemplateData, error) {
-	genCtx, err := GetXgenContext(ctx)
+	genCtx, err := GetContext(ctx)
 	if err != nil {
 		return nil, err
 	}

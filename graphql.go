@@ -5,40 +5,68 @@ import (
 	"fmt"
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/goxgen/goxgen/directives"
 	"github.com/goxgen/goxgen/gqlgen_plugins"
+	"github.com/goxgen/goxgen/graphql"
 	"github.com/goxgen/goxgen/utils"
+	"github.com/vektah/gqlparser/v2/ast"
 	"path"
 )
 
-var GqlgenContextKey = ContextKey(ContextPrefix + "GQLGEN")
+var GraphqlContextKey = ContextKey(ContextPrefix + "GQLGEN")
 
-type GqlgenContext struct {
+type GraphqlContext struct {
 	ConfigOverrideCallback func(cfg *config.Config) error
 }
 
-func GetGqlgenContext(ctx context.Context) *GqlgenContext {
-	if ctx.Value(GqlgenContextKey) != nil {
-		return ctx.Value(GqlgenContextKey).(*GqlgenContext)
+// GetGraphqlContext returns the graphql context from the context.
+func GetGraphqlContext(ctx context.Context) *GraphqlContext {
+	if ctx.Value(GraphqlContextKey) != nil {
+		return ctx.Value(GraphqlContextKey).(*GraphqlContext)
 	}
 	return nil
 }
 
-func NewGqlgenContext(ctx context.Context, gqlgenContext GqlgenContext) context.Context {
-	return context.WithValue(ctx, GqlgenContextKey, &gqlgenContext)
+// NewGraphqlContext returns a new context with the graphql context.
+func NewGraphqlContext(ctx context.Context, gqlgenContext GraphqlContext) context.Context {
+	return context.WithValue(ctx, GraphqlContextKey, &gqlgenContext)
 }
 
-func GenerateProjectGqlgenSet(ctx context.Context, project Project) error {
+// generateDirectivesSet generates a graphql file with all the Xgen directives.
+func generateDirectivesSet(outputDir string) error {
+	schemaGenerator := graphql.SchemaGenerator{
+		Path: path.Join(outputDir, GeneratedFilePrefix+"directives.graphql"),
+		SchemaHooks: []graphql.SchemaHook{
+			func(schema *ast.Schema) error {
+				for _, directive := range directives.All {
+					schema.Directives[directive.Name] = directive
+				}
+				return nil
+			},
+		},
+	}
+	return schemaGenerator.GenerateOutput()
+}
 
-	xgenContext, err := GetXgenContext(ctx)
+// GenerateProjectGraphqlSet generates a graphql set for the project.
+// Using the gqlgen library.
+func GenerateProjectGraphqlSet(ctx context.Context, project Project) error {
+	outputDir := PString(project.GetOutputDir())
+	packageName := PString(project.GetName())
+
+	xgenContext, err := GetContext(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get xgen context: %w", err)
 	}
-	gqlgenCtx := GetGqlgenContext(ctx)
+
+	gqlgenCtx := GetGraphqlContext(ctx)
+
+	err = generateDirectivesSet(outputDir)
+	if err != nil {
+		return fmt.Errorf("failed to generate directives set: %w", err)
+	}
 
 	cfg := config.DefaultConfig()
-
-	outputDir := PString(project.GetOutputDir())
-	packageName := PString(project.GetName())
 
 	cfg.SchemaFilename = config.StringList{
 		path.Join(outputDir, "*.graphql"),

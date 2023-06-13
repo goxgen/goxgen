@@ -3,7 +3,6 @@ package goxgen
 import (
 	"context"
 	"embed"
-	"fmt"
 	"github.com/goxgen/goxgen/utils"
 )
 
@@ -12,8 +11,10 @@ const (
 	GeneratedFilePrefix = "generated_xgen_"
 )
 
+// ContextKey is a key for context
 type ContextKey string
 
+// GeneratorContextKey is a key for generator context
 var GeneratorContextKey = ContextKey(ContextPrefix + "GENERATOR")
 
 //go:embed templates/*
@@ -26,12 +27,8 @@ type Xgen struct {
 	CLI         *CLI
 }
 
-type XgenContext struct {
-	ParentPackageName string
-	Projects          []Project
-}
-
 // NewXgen creates a new Xgen instance
+// it creates a new Xgen instance with projects and CLI
 func NewXgen(options ...XgenOption) *Xgen {
 	xgen := &Xgen{
 		CLI: &CLI{
@@ -50,8 +47,11 @@ func NewXgen(options ...XgenOption) *Xgen {
 	return xgen
 }
 
+// prepareGeneratorContext prepares generator context
+// it is used to pass data between generators
+// for example, gqlgen or project generators can use data from xgen
 func (x *Xgen) prepareGeneratorContext(ctx context.Context) context.Context {
-	genCtx := XgenContext{
+	genCtx := Context{
 		ParentPackageName: *x.PackageName,
 	}
 
@@ -60,6 +60,9 @@ func (x *Xgen) prepareGeneratorContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, GeneratorContextKey, genCtx)
 }
 
+// Generate generates code
+// it is a main function of Xgen
+// it generates code for projects and CLI
 func (x *Xgen) Generate(ctx context.Context) (err error) {
 
 	err = utils.RemoveFromDirByPatterns("./*/" + GeneratedFilePrefix + "*")
@@ -86,13 +89,4 @@ func (x *Xgen) Generate(ctx context.Context) (err error) {
 	}
 
 	return nil
-}
-
-func GetXgenContext(ctx context.Context) (*XgenContext, error) {
-	gCtx, ok := ctx.Value(GeneratorContextKey).(XgenContext)
-
-	if !ok {
-		return nil, fmt.Errorf("failed to get generator context")
-	}
-	return &gCtx, nil
 }
