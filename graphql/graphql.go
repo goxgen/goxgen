@@ -47,7 +47,7 @@ func generateDirectivesSet(outputDir string, generatedFilePrefix string) error {
 		WithSchemaHooks(func(_document *ast.SchemaDocument) error {
 			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, enum.All...)
 			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, inputs.XgenPaginationInput)
-			_document.Directives = append(_document.Directives, directives.All...)
+			_document.Directives = append(_document.Directives, directives.All.DirectiveDefinitionList()...)
 			return nil
 		})
 	return schemaGenerator.GenerateOutput()

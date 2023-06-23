@@ -8,30 +8,45 @@ import (
 )
 
 var (
-	XgenResourceListAction = ast.DirectiveDefinition{
-		Name:        "XgenResourceListAction",
-		Description: `This directive is used to mark the object as a resource list action`,
-		Position:    pos,
-		Arguments: ast.ArgumentDefinitionList{
-			{
-				Name: "Resource",
-				Type: ast.NonNullNamedType("String", nil),
+	xgenResourceListAction = XgenInputObjectDirectiveDefinition{
+		Definition: &ast.DirectiveDefinition{
+			Name:        XgenResourceListActionDirectiveName,
+			Description: `This directive is used to mark the object as a resource list action`,
+			Position:    pos,
+			Arguments: ast.ArgumentDefinitionList{
+				{
+					Name: "Resource",
+					Type: ast.NonNullNamedType("String", nil),
+				},
+				{
+					Name: "Action",
+					Type: ast.NonNullNamedType(enum.XgenResourceListActionType.Name, nil),
+				},
+				{
+					Name: "Route",
+					Type: ast.NamedType("String", nil),
+				},
+				{
+					Name: "Pagination",
+					Type: ast.NamedType("Boolean", nil),
+				},
 			},
-			{
-				Name: "Action",
-				Type: ast.NonNullNamedType(enum.XgenResourceListActionType.Name, nil),
-			},
-			{
-				Name: "Route",
-				Type: ast.NamedType("String", nil),
-			},
-			{
-				Name: "Pagination",
-				Type: ast.NamedType("Boolean", nil),
+			Locations: []ast.DirectiveLocation{
+				ast.LocationInputObject,
 			},
 		},
-		Locations: []ast.DirectiveLocation{
-			ast.LocationInputObject,
+		Validate: func(dir *ast.Directive, def *ast.Definition) error {
+			config, err := GetResourceListConfig(def)
+			if err != nil {
+				return err
+			}
+			if config.Action == enum.ListActionTypeBrowseQuery {
+				idField := def.Fields.ForName("id")
+				if idField == nil {
+					return fmt.Errorf("id field required for %s action", enum.ListActionTypeBrowseQuery)
+				}
+			}
+			return nil
 		},
 	}
 )
@@ -47,9 +62,9 @@ func GetResourceListConfig(def *ast.Definition) (*XgenResourceListActionStruct, 
 	if def == nil {
 		return nil, fmt.Errorf("definition is nil")
 	}
-	directive := def.Directives.ForName(XgenResourceListAction.Name)
+	directive := def.Directives.ForName(XgenResourceListActionDirectiveName)
 	if directive == nil {
-		return nil, fmt.Errorf("directive %s not found", XgenResourceListAction.Name)
+		return nil, fmt.Errorf("directive %s not found", XgenResourceListActionDirectiveName)
 	}
 	resource, err := directive.Arguments.ForName("Resource").Value.Value(nil)
 	if err != nil {
@@ -85,7 +100,7 @@ func IsResourceListPaginationEnabled(def *ast.Definition) (bool, error) {
 	if def == nil {
 		return false, fmt.Errorf("definition is nil")
 	}
-	directive := def.Directives.ForName(XgenResourceListAction.Name)
+	directive := def.Directives.ForName(XgenResourceListActionDirectiveName)
 	if directive == nil {
 		return false, nil
 	}

@@ -51,7 +51,24 @@ func {{ print (.Name | indirect) "-serve-graphql" | camelcase }} (ctx *cli.Conte
             generated_gqlgen.Config{
                 Resolvers:  resolver,
                 Directives: generated_gqlgen.DirectiveRoot{
-                //HasPermissions: HasPermission(),
+                    XgenResourceListAction: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated_gqlgen.XgenResourceListActionType, route *string, pagination *bool) (res interface{}, err error) {
+                        return next(ctx)
+                    },
+                    XgenResourceAction: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated_gqlgen.XgenResourceActionType, route *string) (res interface{}, err error) {
+                        return next(ctx)
+                    },
+                    XgenResource: func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, route *string, primary *bool) (res interface{}, err error) {
+                        return next(ctx)
+                    },
+                    XgenCustomConf: func(ctx context.Context, obj interface{}, next graphql.Resolver, asd *string) (res interface{}, err error) {
+                        return next(ctx)
+                    },
+                    XgenResourceActionField: func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string) (res interface{}, err error) {
+                        return next(ctx)
+                    },
+                    XgenResourceField: func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string) (res interface{}, err error) {
+                        return next(ctx)
+                    },
                 },
             },
 	    ),

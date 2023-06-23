@@ -2,6 +2,15 @@ package enum
 
 import "github.com/vektah/gqlparser/v2/ast"
 
+const (
+	ActionTypeCreateMutation          = "CREATE_MUTATION"
+	ActionTypeReadQuery               = "READ_QUERY"
+	ActionTypeUpdateMutation          = "UPDATE_MUTATION"
+	ActionTypeDeleteMutation          = "DELETE_MUTATION"
+	ListActionTypeBrowseQuery         = "BROWSE_QUERY"
+	ListActionTypeBatchDeleteMutation = "BATCH_DELETE_MUTATION"
+)
+
 var (
 	// XgenResourceActionType is the enum type for the XgenResourceActionType enum
 	// Values are always in upper case and snake case and should be ended with _QUERY or _MUTATION
@@ -18,16 +27,16 @@ var (
 		Name: "XgenResourceActionType",
 		EnumValues: []*ast.EnumValueDefinition{
 			{
-				Name: "CREATE_MUTATION",
+				Name: ActionTypeCreateMutation,
 			},
 			{
-				Name: "READ_QUERY",
+				Name: ActionTypeReadQuery,
 			},
 			{
-				Name: "UPDATE_MUTATION",
+				Name: ActionTypeUpdateMutation,
 			},
 			{
-				Name: "DELETE_MUTATION",
+				Name: ActionTypeDeleteMutation,
 			},
 		},
 	}
@@ -36,10 +45,10 @@ var (
 		Name: "XgenResourceListActionType",
 		EnumValues: []*ast.EnumValueDefinition{
 			{
-				Name: "LIST_QUERY",
+				Name: ListActionTypeBrowseQuery,
 			},
 			{
-				Name: "BATCH_DELETE_MUTATION",
+				Name: ListActionTypeBatchDeleteMutation,
 			},
 		},
 	}

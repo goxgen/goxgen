@@ -1,106 +1,117 @@
 package directives
 
 import (
-	"github.com/goxgen/goxgen/graphql/enum"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
+type XgenObjectDirectiveDefinition struct {
+	Definition *ast.DirectiveDefinition
+	Validator  func(directive *ast.Directive, object *ast.Definition) error
+}
+
+type XgenInputObjectDirectiveDefinition struct {
+	Definition *ast.DirectiveDefinition
+	Validate   func(directive *ast.Directive, object *ast.Definition) error
+}
+
+type XgenFieldDirectiveDefinition struct {
+	Definition *ast.DirectiveDefinition
+	Validator  func(directive *ast.Directive, field *ast.Field) error
+}
+type XgenInputFieldDirectiveDefinition struct {
+	Definition *ast.DirectiveDefinition
+	Validator  func(directive *ast.Directive, field *ast.Field) error
+}
+
+type XgenDirectiveDefinitionList struct {
+	Object      []*XgenObjectDirectiveDefinition
+	InputObject []*XgenInputObjectDirectiveDefinition
+	Field       []*XgenFieldDirectiveDefinition
+	InputField  []*XgenInputFieldDirectiveDefinition
+}
+
+func (xddl *XgenDirectiveDefinitionList) GetObjectDirectiveDefinition(name string) *XgenObjectDirectiveDefinition {
+	for _, xdd := range xddl.Object {
+		if xdd.Definition.Name == name {
+			return xdd
+		}
+	}
+	return nil
+}
+
+func (xddl *XgenDirectiveDefinitionList) GetInputObjectDirectiveDefinition(name string) *XgenInputObjectDirectiveDefinition {
+	for _, xdd := range xddl.InputObject {
+		if xdd.Definition.Name == name {
+			return xdd
+		}
+	}
+	return nil
+}
+
+func (xddl *XgenDirectiveDefinitionList) GetFieldDirectiveDefinition(name string) *XgenFieldDirectiveDefinition {
+	for _, xdd := range xddl.Field {
+		if xdd.Definition.Name == name {
+			return xdd
+		}
+	}
+	return nil
+}
+
+func (xddl *XgenDirectiveDefinitionList) GetInputFieldDirectiveDefinition(name string) *XgenInputFieldDirectiveDefinition {
+	for _, xdd := range xddl.InputField {
+		if xdd.Definition.Name == name {
+			return xdd
+		}
+	}
+	return nil
+}
+
+const (
+	XgenResourceDirectiveName            = "XgenResource"
+	XgenResourceActionDirectiveName      = "XgenResourceAction"
+	XgenResourceFieldDirectiveName       = "XgenResourceField"
+	XgenResourceListActionDirectiveName  = "XgenResourceListAction"
+	XgenResourceActionFieldDirectiveName = "XgenResourceActionField"
+)
+
+func (xddl *XgenDirectiveDefinitionList) DirectiveDefinitionList() ast.DirectiveDefinitionList {
+	ddl := ast.DirectiveDefinitionList{}
+	for _, xdd := range xddl.Object {
+		ddl = append(ddl, xdd.Definition)
+	}
+	for _, xdd := range xddl.InputObject {
+		ddl = append(ddl, xdd.Definition)
+	}
+	for _, xdd := range xddl.Field {
+		ddl = append(ddl, xdd.Definition)
+	}
+	for _, xdd := range xddl.InputField {
+		ddl = append(ddl, xdd.Definition)
+	}
+	return ddl
+}
+
 var (
-	pos         = &ast.Position{Src: &ast.Source{BuiltIn: false}}
-	XgenVersion = ast.DirectiveDefinition{
-		Name:        "XgenVersion",
-		Description: `This directive is used to specify the version of the schema.`,
-		Position:    pos,
-		Arguments: ast.ArgumentDefinitionList{
-			{
-				Name: "version",
-				Type: ast.NonNullNamedType("String", nil),
-			},
-		},
-		Locations: []ast.DirectiveLocation{
-			ast.LocationSchema,
-		},
-	}
-	XgenResource = ast.DirectiveDefinition{
-		Name:        "XgenResource",
-		Description: `This directive is used to mark the object as a resource`,
-		Position:    pos,
-		Arguments: ast.ArgumentDefinitionList{
-			{
-				Name: "Name",
-				Type: ast.NonNullNamedType("String", nil),
-			},
-			{
-				Name: "Route",
-				Type: ast.NamedType("String", nil),
-			},
-			{
-				Name: "Primary",
-				Type: ast.NamedType("Boolean", nil),
-			},
-		},
-		Locations: []ast.DirectiveLocation{
-			ast.LocationObject,
-		},
-	}
-	XgenResourceAction = ast.DirectiveDefinition{
-		Name:        "XgenResourceAction",
-		Description: `This directive is used to mark the object as a resource action`,
-		Position:    pos,
-		Arguments: ast.ArgumentDefinitionList{
-			{
-				Name: "Resource",
-				Type: ast.NonNullNamedType("String", nil),
-			},
-			{
-				Name: "Action",
-				Type: ast.NonNullNamedType(enum.XgenResourceActionType.Name, nil),
-			},
-			{
-				Name: "Route",
-				Type: ast.NamedType("String", nil),
-			},
-		},
-		Locations: []ast.DirectiveLocation{
-			ast.LocationInputObject,
-		},
-	}
-	XgenResourceField = ast.DirectiveDefinition{
-		Name:        "XgenResourceField",
-		Description: `This directive is used to mark the object as a resource field`,
-		Position:    pos,
-		Arguments: ast.ArgumentDefinitionList{
-			{
-				Name: "Label",
-				Type: ast.NamedType("String", nil),
-			},
-			{
-				Name: "Description",
-				Type: ast.NamedType("String", nil),
-			},
-		},
-		Locations: []ast.DirectiveLocation{
-			ast.LocationFieldDefinition,
-		},
-	}
-	XgenResourceActionField = mergeDirectiveDefs(XgenResourceField, ast.DirectiveDefinition{
-		Name:      "XgenResourceActionField",
-		Locations: []ast.DirectiveLocation{ast.LocationInputFieldDefinition},
-	})
+	pos = &ast.Position{Src: &ast.Source{BuiltIn: false}}
 
-	All = []*ast.DirectiveDefinition{
-		&XgenVersion,
-
-		// Resource related directives
-		&XgenResource,
-		&XgenResourceAction,
-		&XgenResourceListAction,
-		&XgenResourceField,
-		&XgenResourceActionField,
+	All = &XgenDirectiveDefinitionList{
+		Object: []*XgenObjectDirectiveDefinition{
+			&xgenResource,
+		},
+		InputObject: []*XgenInputObjectDirectiveDefinition{
+			&xgenResourceAction,
+			&xgenResourceListAction,
+		},
+		Field: []*XgenFieldDirectiveDefinition{
+			&xgenResourceField,
+		},
+		InputField: []*XgenInputFieldDirectiveDefinition{
+			&xgenResourceActionField,
+		},
 	}
 )
 
-func mergeDirectiveDefs(directive ast.DirectiveDefinition, new ast.DirectiveDefinition) ast.DirectiveDefinition {
+func mergeDirectiveDefs(directive ast.DirectiveDefinition, new ast.DirectiveDefinition) *ast.DirectiveDefinition {
 	directive.Name = new.Name
 
 	if len(new.Locations) != 0 {
@@ -116,5 +127,5 @@ func mergeDirectiveDefs(directive ast.DirectiveDefinition, new ast.DirectiveDefi
 		directive.Description = new.Description
 	}
 
-	return directive
+	return &directive
 }
