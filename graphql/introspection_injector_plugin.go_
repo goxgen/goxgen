@@ -1,0 +1,40 @@
+package graphql
+
+type IntrospectionInjectorPlugin struct {
+	Plugin *Plugin
+}
+
+func (m *IntrospectionInjectorPlugin) Name() string {
+	return "xgen_introspection_types_injector"
+}
+
+//func (m *IntrospectionInjectorPlugin) InjectSourceEarly() *ast.Source {
+//	schemaRaw, err := os.ReadFile(m.Plugin.introspectionGraphqlFilePath)
+//	if err != nil {
+//		panic(fmt.Errorf("unable to open schema: %w", err))
+//	}
+//	return &ast.Source{
+//		BuiltIn: false,
+//		Name:    m.Plugin.introspectionGraphqlFileName,
+//		Input:   string(schemaRaw),
+//	}
+//}
+
+//
+//func (m *IntrospectionInjectorPlugin) GenerateCode(data *codegen.Data) error {
+//	resolverBuild := &ResolverBuild{
+//		PackageName:               m.Plugin.name,
+//		ParentPackageName:         m.Plugin.parentPackageName,
+//		IntrospectionJsonFileName: m.Plugin.introspectionJsonFileName,
+//	}
+//
+//	tbs := &templates_engine.TemplateBundleList{
+//		&templates_engine.TemplateBundle{
+//			TemplateDir: "templates/resolver",
+//			OutputFile:  m.Plugin.resolverFilePath,
+//			Regenerate:  true,
+//			FS:          templateFs,
+//		},
+//	}
+//	return tbs.Generate("./", resolverBuild)
+//}
