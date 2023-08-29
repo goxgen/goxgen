@@ -702,12 +702,11 @@ input XgenResourceFieldDbConfigInput {
   annotation: XgenAnnotationMap
   object: XgenObjectMap
 }
-"""This directive is used to mark the object as a resource action"""
-type Action {
-  Resource: String!
-  Action: XgenResourceActionType!
+"""This directive is used to mark the object as a resource"""
+type Resource {
+  Name: String!
   Route: String
-  SchemaFieldName: String
+  Primary: Boolean
 }
 """This directive is used to mark the object as a resource list action"""
 type ListAction {
@@ -718,29 +717,26 @@ type ListAction {
   SchemaFieldName: String
 }
 """This directive is used to mark the object as a resource field"""
-type ActionField {
-  Label: String
-  Description: String
-}
-"""This directive is used to mark the object as a resource"""
-type Resource {
-  Name: String!
-  Route: String
-  Primary: Boolean
-}
-"""This directive is used to mark the object as a resource field"""
 type Field {
   Label: String
   Description: String
 }
+"""This directive is used to mark the object as a resource action"""
+type Action {
+  Resource: String!
+  Action: XgenResourceActionType!
+  Route: String
+  SchemaFieldName: String
+}
+"""This directive is used to mark the object as a resource field"""
+type ActionField {
+  Label: String
+  Description: String
+}
 type XgenAnnotationMap {
-  Action: [ActionAnnotationSingle!]!
   ListAction: [ListActionAnnotationSingle!]!
   Resource: [ResourceAnnotationSingle!]!
-}
-type ActionAnnotationSingle {
-  name: String
-  value: Action
+  Action: [ActionAnnotationSingle!]!
 }
 type ListActionAnnotationSingle {
   name: String
@@ -750,13 +746,17 @@ type ResourceAnnotationSingle {
   name: String
   value: Resource
 }
+type ActionAnnotationSingle {
+  name: String
+  value: Action
+}
 type XgenFieldDef {
   Field: Field
   ActionField: ActionField
 }
 type XgenObjectDefinition {
-  ListAction: ListAction
   Resource: Resource
+  ListAction: ListAction
   Action: Action
 }
 type XgenObjectField {
@@ -764,14 +764,14 @@ type XgenObjectField {
   definition: XgenFieldDef
 }
 type XgenObjectMap {
-  XgenPaginationInput: XgenPaginationInputXgenDef
-  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
-  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
-  XgenResourceActionType: XgenResourceActionTypeXgenDef
   XgenResourceListActionType: XgenResourceListActionTypeXgenDef
+  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
+  XgenResourceActionType: XgenResourceActionTypeXgenDef
   XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
+  XgenPaginationInput: XgenPaginationInputXgenDef
+  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
 }
-type XgenPaginationInputXgenDef {
+type XgenResourceListActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -779,19 +779,19 @@ type XgenResourceDbConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenResourceFieldDbConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
 type XgenResourceActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenResourceListActionTypeXgenDef {
+type XgenCursorPaginationInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenCursorPaginationInputXgenDef {
+type XgenPaginationInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceFieldDbConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -2188,56 +2188,6 @@ func (ec *executionContext) fieldContext_ResourceAnnotationSingle_value(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _XgenAnnotationMap_Action(ctx context.Context, field graphql.CollectedField, obj *XgenAnnotationMap) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_XgenAnnotationMap_Action(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Action, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*ActionAnnotationSingle)
-	fc.Result = res
-	return ec.marshalNActionAnnotationSingle2ᚕᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐActionAnnotationSingleᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_XgenAnnotationMap_Action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "XgenAnnotationMap",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_ActionAnnotationSingle_name(ctx, field)
-			case "value":
-				return ec.fieldContext_ActionAnnotationSingle_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ActionAnnotationSingle", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _XgenAnnotationMap_ListAction(ctx context.Context, field graphql.CollectedField, obj *XgenAnnotationMap) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_XgenAnnotationMap_ListAction(ctx, field)
 	if err != nil {
@@ -2338,6 +2288,56 @@ func (ec *executionContext) fieldContext_XgenAnnotationMap_Resource(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _XgenAnnotationMap_Action(ctx context.Context, field graphql.CollectedField, obj *XgenAnnotationMap) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_XgenAnnotationMap_Action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*ActionAnnotationSingle)
+	fc.Result = res
+	return ec.marshalNActionAnnotationSingle2ᚕᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐActionAnnotationSingleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_XgenAnnotationMap_Action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "XgenAnnotationMap",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_ActionAnnotationSingle_name(ctx, field)
+			case "value":
+				return ec.fieldContext_ActionAnnotationSingle_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ActionAnnotationSingle", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _XgenCursorPaginationInputXgenDef_object(ctx context.Context, field graphql.CollectedField, obj *XgenCursorPaginationInputXgenDef) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_XgenCursorPaginationInputXgenDef_object(ctx, field)
 	if err != nil {
@@ -2374,10 +2374,10 @@ func (ec *executionContext) fieldContext_XgenCursorPaginationInputXgenDef_object
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ListAction":
-				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+			case "ListAction":
+				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Action":
 				return ec.fieldContext_XgenObjectDefinition_Action(ctx, field)
 			}
@@ -2567,12 +2567,12 @@ func (ec *executionContext) fieldContext_XgenIntrospection_annotation(ctx contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Action":
-				return ec.fieldContext_XgenAnnotationMap_Action(ctx, field)
 			case "ListAction":
 				return ec.fieldContext_XgenAnnotationMap_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenAnnotationMap_Resource(ctx, field)
+			case "Action":
+				return ec.fieldContext_XgenAnnotationMap_Action(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type XgenAnnotationMap", field.Name)
 		},
@@ -2616,20 +2616,69 @@ func (ec *executionContext) fieldContext_XgenIntrospection_object(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "XgenPaginationInput":
-				return ec.fieldContext_XgenObjectMap_XgenPaginationInput(ctx, field)
-			case "XgenResourceDbConfigInput":
-				return ec.fieldContext_XgenObjectMap_XgenResourceDbConfigInput(ctx, field)
-			case "XgenResourceFieldDbConfigInput":
-				return ec.fieldContext_XgenObjectMap_XgenResourceFieldDbConfigInput(ctx, field)
-			case "XgenResourceActionType":
-				return ec.fieldContext_XgenObjectMap_XgenResourceActionType(ctx, field)
 			case "XgenResourceListActionType":
 				return ec.fieldContext_XgenObjectMap_XgenResourceListActionType(ctx, field)
+			case "XgenResourceDbConfigInput":
+				return ec.fieldContext_XgenObjectMap_XgenResourceDbConfigInput(ctx, field)
+			case "XgenResourceActionType":
+				return ec.fieldContext_XgenObjectMap_XgenResourceActionType(ctx, field)
 			case "XgenCursorPaginationInput":
 				return ec.fieldContext_XgenObjectMap_XgenCursorPaginationInput(ctx, field)
+			case "XgenPaginationInput":
+				return ec.fieldContext_XgenObjectMap_XgenPaginationInput(ctx, field)
+			case "XgenResourceFieldDbConfigInput":
+				return ec.fieldContext_XgenObjectMap_XgenResourceFieldDbConfigInput(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type XgenObjectMap", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _XgenObjectDefinition_Resource(ctx context.Context, field graphql.CollectedField, obj *XgenObjectDefinition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Resource, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Resource)
+	fc.Result = res
+	return ec.marshalOResource2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐResource(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_XgenObjectDefinition_Resource(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "XgenObjectDefinition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Name":
+				return ec.fieldContext_Resource_Name(ctx, field)
+			case "Route":
+				return ec.fieldContext_Resource_Route(ctx, field)
+			case "Primary":
+				return ec.fieldContext_Resource_Primary(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Resource", field.Name)
 		},
 	}
 	return fc, nil
@@ -2683,55 +2732,6 @@ func (ec *executionContext) fieldContext_XgenObjectDefinition_ListAction(ctx con
 				return ec.fieldContext_ListAction_SchemaFieldName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ListAction", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _XgenObjectDefinition_Resource(ctx context.Context, field graphql.CollectedField, obj *XgenObjectDefinition) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Resource, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*Resource)
-	fc.Result = res
-	return ec.marshalOResource2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐResource(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_XgenObjectDefinition_Resource(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "XgenObjectDefinition",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "Name":
-				return ec.fieldContext_Resource_Name(ctx, field)
-			case "Route":
-				return ec.fieldContext_Resource_Route(ctx, field)
-			case "Primary":
-				return ec.fieldContext_Resource_Primary(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Resource", field.Name)
 		},
 	}
 	return fc, nil
@@ -2876,8 +2876,8 @@ func (ec *executionContext) fieldContext_XgenObjectField_definition(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _XgenObjectMap_XgenPaginationInput(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_XgenObjectMap_XgenPaginationInput(ctx, field)
+func (ec *executionContext) _XgenObjectMap_XgenResourceListActionType(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_XgenObjectMap_XgenResourceListActionType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2890,7 +2890,7 @@ func (ec *executionContext) _XgenObjectMap_XgenPaginationInput(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.XgenPaginationInput, nil
+		return obj.XgenResourceListActionType, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2899,12 +2899,12 @@ func (ec *executionContext) _XgenObjectMap_XgenPaginationInput(ctx context.Conte
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*XgenPaginationInputXgenDef)
+	res := resTmp.(*XgenResourceListActionTypeXgenDef)
 	fc.Result = res
-	return ec.marshalOXgenPaginationInputXgenDef2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐXgenPaginationInputXgenDef(ctx, field.Selections, res)
+	return ec.marshalOXgenResourceListActionTypeXgenDef2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐXgenResourceListActionTypeXgenDef(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_XgenObjectMap_XgenPaginationInput(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_XgenObjectMap_XgenResourceListActionType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "XgenObjectMap",
 		Field:      field,
@@ -2913,11 +2913,11 @@ func (ec *executionContext) fieldContext_XgenObjectMap_XgenPaginationInput(ctx c
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "object":
-				return ec.fieldContext_XgenPaginationInputXgenDef_object(ctx, field)
+				return ec.fieldContext_XgenResourceListActionTypeXgenDef_object(ctx, field)
 			case "field":
-				return ec.fieldContext_XgenPaginationInputXgenDef_field(ctx, field)
+				return ec.fieldContext_XgenResourceListActionTypeXgenDef_field(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type XgenPaginationInputXgenDef", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type XgenResourceListActionTypeXgenDef", field.Name)
 		},
 	}
 	return fc, nil
@@ -2970,53 +2970,6 @@ func (ec *executionContext) fieldContext_XgenObjectMap_XgenResourceDbConfigInput
 	return fc, nil
 }
 
-func (ec *executionContext) _XgenObjectMap_XgenResourceFieldDbConfigInput(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_XgenObjectMap_XgenResourceFieldDbConfigInput(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.XgenResourceFieldDbConfigInput, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*XgenResourceFieldDbConfigInputXgenDef)
-	fc.Result = res
-	return ec.marshalOXgenResourceFieldDbConfigInputXgenDef2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐXgenResourceFieldDbConfigInputXgenDef(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_XgenObjectMap_XgenResourceFieldDbConfigInput(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "XgenObjectMap",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "object":
-				return ec.fieldContext_XgenResourceFieldDbConfigInputXgenDef_object(ctx, field)
-			case "field":
-				return ec.fieldContext_XgenResourceFieldDbConfigInputXgenDef_field(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type XgenResourceFieldDbConfigInputXgenDef", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _XgenObjectMap_XgenResourceActionType(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_XgenObjectMap_XgenResourceActionType(ctx, field)
 	if err != nil {
@@ -3059,53 +3012,6 @@ func (ec *executionContext) fieldContext_XgenObjectMap_XgenResourceActionType(ct
 				return ec.fieldContext_XgenResourceActionTypeXgenDef_field(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type XgenResourceActionTypeXgenDef", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _XgenObjectMap_XgenResourceListActionType(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_XgenObjectMap_XgenResourceListActionType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.XgenResourceListActionType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*XgenResourceListActionTypeXgenDef)
-	fc.Result = res
-	return ec.marshalOXgenResourceListActionTypeXgenDef2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐXgenResourceListActionTypeXgenDef(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_XgenObjectMap_XgenResourceListActionType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "XgenObjectMap",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "object":
-				return ec.fieldContext_XgenResourceListActionTypeXgenDef_object(ctx, field)
-			case "field":
-				return ec.fieldContext_XgenResourceListActionTypeXgenDef_field(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type XgenResourceListActionTypeXgenDef", field.Name)
 		},
 	}
 	return fc, nil
@@ -3158,6 +3064,100 @@ func (ec *executionContext) fieldContext_XgenObjectMap_XgenCursorPaginationInput
 	return fc, nil
 }
 
+func (ec *executionContext) _XgenObjectMap_XgenPaginationInput(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_XgenObjectMap_XgenPaginationInput(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.XgenPaginationInput, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*XgenPaginationInputXgenDef)
+	fc.Result = res
+	return ec.marshalOXgenPaginationInputXgenDef2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐXgenPaginationInputXgenDef(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_XgenObjectMap_XgenPaginationInput(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "XgenObjectMap",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "object":
+				return ec.fieldContext_XgenPaginationInputXgenDef_object(ctx, field)
+			case "field":
+				return ec.fieldContext_XgenPaginationInputXgenDef_field(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type XgenPaginationInputXgenDef", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _XgenObjectMap_XgenResourceFieldDbConfigInput(ctx context.Context, field graphql.CollectedField, obj *XgenObjectMap) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_XgenObjectMap_XgenResourceFieldDbConfigInput(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.XgenResourceFieldDbConfigInput, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*XgenResourceFieldDbConfigInputXgenDef)
+	fc.Result = res
+	return ec.marshalOXgenResourceFieldDbConfigInputXgenDef2ᚖgithubᚗcomᚋgoxgenᚋgoxgenᚋruntimeᚋgorm_initialᚋgeneratedᚐXgenResourceFieldDbConfigInputXgenDef(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_XgenObjectMap_XgenResourceFieldDbConfigInput(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "XgenObjectMap",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "object":
+				return ec.fieldContext_XgenResourceFieldDbConfigInputXgenDef_object(ctx, field)
+			case "field":
+				return ec.fieldContext_XgenResourceFieldDbConfigInputXgenDef_field(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type XgenResourceFieldDbConfigInputXgenDef", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _XgenPaginationInputXgenDef_object(ctx context.Context, field graphql.CollectedField, obj *XgenPaginationInputXgenDef) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_XgenPaginationInputXgenDef_object(ctx, field)
 	if err != nil {
@@ -3194,10 +3194,10 @@ func (ec *executionContext) fieldContext_XgenPaginationInputXgenDef_object(ctx c
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ListAction":
-				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+			case "ListAction":
+				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Action":
 				return ec.fieldContext_XgenObjectDefinition_Action(ctx, field)
 			}
@@ -3293,10 +3293,10 @@ func (ec *executionContext) fieldContext_XgenResourceActionTypeXgenDef_object(ct
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ListAction":
-				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+			case "ListAction":
+				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Action":
 				return ec.fieldContext_XgenObjectDefinition_Action(ctx, field)
 			}
@@ -3392,10 +3392,10 @@ func (ec *executionContext) fieldContext_XgenResourceDbConfigInputXgenDef_object
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ListAction":
-				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+			case "ListAction":
+				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Action":
 				return ec.fieldContext_XgenObjectDefinition_Action(ctx, field)
 			}
@@ -3491,10 +3491,10 @@ func (ec *executionContext) fieldContext_XgenResourceFieldDbConfigInputXgenDef_o
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ListAction":
-				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+			case "ListAction":
+				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Action":
 				return ec.fieldContext_XgenObjectDefinition_Action(ctx, field)
 			}
@@ -3590,10 +3590,10 @@ func (ec *executionContext) fieldContext_XgenResourceListActionTypeXgenDef_objec
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ListAction":
-				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Resource":
 				return ec.fieldContext_XgenObjectDefinition_Resource(ctx, field)
+			case "ListAction":
+				return ec.fieldContext_XgenObjectDefinition_ListAction(ctx, field)
 			case "Action":
 				return ec.fieldContext_XgenObjectDefinition_Action(ctx, field)
 			}
@@ -6096,11 +6096,6 @@ func (ec *executionContext) _XgenAnnotationMap(ctx context.Context, sel ast.Sele
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("XgenAnnotationMap")
-		case "Action":
-			out.Values[i] = ec._XgenAnnotationMap_Action(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "ListAction":
 			out.Values[i] = ec._XgenAnnotationMap_ListAction(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -6108,6 +6103,11 @@ func (ec *executionContext) _XgenAnnotationMap(ctx context.Context, sel ast.Sele
 			}
 		case "Resource":
 			out.Values[i] = ec._XgenAnnotationMap_Resource(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Action":
+			out.Values[i] = ec._XgenAnnotationMap_Action(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6262,10 +6262,10 @@ func (ec *executionContext) _XgenObjectDefinition(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("XgenObjectDefinition")
-		case "ListAction":
-			out.Values[i] = ec._XgenObjectDefinition_ListAction(ctx, field, obj)
 		case "Resource":
 			out.Values[i] = ec._XgenObjectDefinition_Resource(ctx, field, obj)
+		case "ListAction":
+			out.Values[i] = ec._XgenObjectDefinition_ListAction(ctx, field, obj)
 		case "Action":
 			out.Values[i] = ec._XgenObjectDefinition_Action(ctx, field, obj)
 		default:
@@ -6340,18 +6340,18 @@ func (ec *executionContext) _XgenObjectMap(ctx context.Context, sel ast.Selectio
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("XgenObjectMap")
-		case "XgenPaginationInput":
-			out.Values[i] = ec._XgenObjectMap_XgenPaginationInput(ctx, field, obj)
-		case "XgenResourceDbConfigInput":
-			out.Values[i] = ec._XgenObjectMap_XgenResourceDbConfigInput(ctx, field, obj)
-		case "XgenResourceFieldDbConfigInput":
-			out.Values[i] = ec._XgenObjectMap_XgenResourceFieldDbConfigInput(ctx, field, obj)
-		case "XgenResourceActionType":
-			out.Values[i] = ec._XgenObjectMap_XgenResourceActionType(ctx, field, obj)
 		case "XgenResourceListActionType":
 			out.Values[i] = ec._XgenObjectMap_XgenResourceListActionType(ctx, field, obj)
+		case "XgenResourceDbConfigInput":
+			out.Values[i] = ec._XgenObjectMap_XgenResourceDbConfigInput(ctx, field, obj)
+		case "XgenResourceActionType":
+			out.Values[i] = ec._XgenObjectMap_XgenResourceActionType(ctx, field, obj)
 		case "XgenCursorPaginationInput":
 			out.Values[i] = ec._XgenObjectMap_XgenCursorPaginationInput(ctx, field, obj)
+		case "XgenPaginationInput":
+			out.Values[i] = ec._XgenObjectMap_XgenPaginationInput(ctx, field, obj)
+		case "XgenResourceFieldDbConfigInput":
+			out.Values[i] = ec._XgenObjectMap_XgenResourceFieldDbConfigInput(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
