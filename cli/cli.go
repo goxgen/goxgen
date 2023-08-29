@@ -5,7 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/goxgen/goxgen/projects"
-	"github.com/goxgen/goxgen/templates_engine"
+	"github.com/goxgen/goxgen/tmpl"
 )
 
 // ContextKey is a key for context
@@ -56,7 +56,7 @@ func (xc *CLI) Generate(ctx context.Context) error {
 		return err
 	}
 
-	tb := templates_engine.TemplateBundle{
+	tb := tmpl.TemplateBundle{
 		TemplateDir: "templates",
 		FS:          templatesFS,
 		OutputFile:  "./" + genCtx.GeneratedFilePrefix + "cli.go",

@@ -1,9 +1,0 @@
-{{- /* gotype: github.com/goxgen/goxgen.ProjectGeneratorData*/ -}}
-
-{{- define "BaseTemplate" -}}
-
-package {{ $.Name }}
-
-//go:generate go run -mod=mod ./ent/entc.go
-
-{{ end -}}

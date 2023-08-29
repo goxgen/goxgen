@@ -3,7 +3,7 @@ package inputs
 import "github.com/vektah/gqlparser/v2/ast"
 
 var (
-	XgenPaginationInput = &ast.Definition{
+	PaginationInput = &ast.Definition{
 		Kind: ast.InputObject,
 		Name: "XgenPaginationInput",
 		Fields: ast.FieldList{
@@ -18,9 +18,9 @@ var (
 		},
 	}
 
-	XgenCursorPaginationInput = &ast.Definition{
+	CursorPaginationInput = &ast.Definition{
 		Kind: ast.InputObject,
-		Name: "XgenPaginationInput",
+		Name: "XgenCursorPaginationInput",
 		Fields: ast.FieldList{
 			{
 				Name: "first",

@@ -5,8 +5,12 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/99designs/gqlgen/codegen"
+	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/generator"
-	"github.com/goxgen/goxgen/templates_engine"
+	"github.com/goxgen/goxgen/graphql/introspection"
+	"github.com/goxgen/goxgen/graphql/resource"
+	"github.com/goxgen/goxgen/graphql/validation"
+	"github.com/goxgen/goxgen/tmpl"
 	"github.com/vektah/gqlparser/v2/ast"
 	"os"
 	"path"
@@ -15,11 +19,12 @@ import (
 //go:embed templates/*
 var templateFs embed.FS
 
-const introspectionQueryField = "_xgen_introspection"
+const IntrospectionQueryField = "_xgen_introspection"
 
 type Plugin struct {
+	generatedFilePrefix          string
+	schemaGeneratorHooks         []InjectorHook
 	name                         string
-	GeneratedFilePrefix          string
 	parentPackageName            string
 	introspectionGraphqlFileName string
 	introspectionGraphqlFilePath string
@@ -29,12 +34,14 @@ type Plugin struct {
 	introspectionJsonFilePath    string
 	commonsFileName              string
 	commonsFilePath              string
+	introspectionBuildHooks      []introspection.BuilderHook
 }
 
 type ResolverBuild struct {
-	ParentPackageName         string
-	PackageName               string
-	IntrospectionJsonFileName string
+	ParentPackageName          string
+	PackageName                string
+	IntrospectionJsonFileName  string
+	GeneratedGqlgenPackageName string
 }
 
 // NewPlugin creates a new plugin
@@ -42,23 +49,30 @@ func NewPlugin(
 	name string,
 	parentPackageName string,
 	generatedFilePrefix string,
+	schemaGeneratorHooks ...InjectorHook,
 ) *Plugin {
 	p := &Plugin{
-		name:                name,
-		parentPackageName:   parentPackageName,
-		GeneratedFilePrefix: generatedFilePrefix,
+		name:                 name,
+		parentPackageName:    parentPackageName,
+		generatedFilePrefix:  generatedFilePrefix,
+		schemaGeneratorHooks: schemaGeneratorHooks,
+	}
+	p.introspectionBuildHooks = []introspection.BuilderHook{
+		introspection.BuildAnnotationIntroHook,
+		introspection.BuildPerObjectIntroHook,
+		introspection.BuildPerResourceIntroHook,
 	}
 
-	p.introspectionGraphqlFileName = p.GeneratedFilePrefix + "introspection.graphql"
+	p.introspectionGraphqlFileName = p.generatedFilePrefix + "introspection.graphql"
 	p.introspectionGraphqlFilePath = path.Join(p.name, p.introspectionGraphqlFileName)
 
-	p.resourcesGraphqlFileName = p.GeneratedFilePrefix + "resources.graphql"
+	p.resourcesGraphqlFileName = p.generatedFilePrefix + "resources.graphql"
 	p.resourcesGraphqlFilePath = path.Join(p.name, p.resourcesGraphqlFileName)
 
-	p.commonsFileName = p.GeneratedFilePrefix + "commons.go"
+	p.commonsFileName = p.generatedFilePrefix + "commons.go"
 	p.commonsFilePath = path.Join(p.name, p.commonsFileName)
 
-	p.introspectionJsonFileName = p.GeneratedFilePrefix + "introspection.json"
+	p.introspectionJsonFileName = p.generatedFilePrefix + "introspection.json"
 	p.introspectionJsonFilePath = path.Join(p.name, p.introspectionJsonFileName)
 
 	return p
@@ -70,18 +84,35 @@ func (m *Plugin) Name() string {
 }
 
 func (m *Plugin) Implement(field *codegen.Field) string {
-	if field.Name == introspectionQueryField {
+	if field.Name == IntrospectionQueryField {
 		return "return r.Resolver.XgenIntrospection()"
 	}
 	return fmt.Sprintf("panic(fmt.Errorf(\"not implemented: %v - %v\"))", field.GoFieldName, field.Name)
 }
 
+type InjectorHook func(schema *ast.Schema) generator.SchemaHook
+
 func (m *Plugin) InjectSourceLate(schema *ast.Schema) *ast.Source {
+	var schemaHooks []generator.SchemaHook
+	for _, hook := range m.schemaGeneratorHooks {
+		schemaHooks = append(schemaHooks, hook(schema))
+	}
 	introspectionSchemaGenerator := generator.NewSchemaGenerator().
 		WithPath(m.introspectionGraphqlFilePath).
 		WithSchemaHooks(
-			m.schemaIntrospectionHook(schema),
-			m.schemaResourcesHook(schema),
+			append(
+				[]generator.SchemaHook{
+					validation.SchemaGeneratorHook(schema),
+					introspection.SchemaGeneratorHook(
+						schema,
+						IntrospectionQueryField,
+						m.introspectionJsonFilePath,
+						m.introspectionBuildHooks...,
+					),
+					resource.SchemaGeneratorHook(schema),
+				},
+				schemaHooks...,
+			)...,
 		)
 	if err := introspectionSchemaGenerator.GenerateOutput(); err != nil {
 		panic(err)
@@ -93,47 +124,25 @@ func (m *Plugin) InjectSourceLate(schema *ast.Schema) *ast.Source {
 	}
 	return &ast.Source{
 		BuiltIn: false,
-		Name:    "xgen-app",
+		Name:    "schema",
 		Input:   string(schemaRaw),
 	}
 }
 
 func (m *Plugin) GenerateCode(_ *codegen.Data) error {
-	resolverBuild := &ResolverBuild{
-		PackageName:               m.name,
-		ParentPackageName:         m.parentPackageName,
-		IntrospectionJsonFileName: m.introspectionJsonFileName,
+	data := &ResolverBuild{
+		PackageName:                m.name,
+		ParentPackageName:          m.parentPackageName,
+		IntrospectionJsonFileName:  m.introspectionJsonFileName,
+		GeneratedGqlgenPackageName: consts.GeneratedGqlgenPackageName,
 	}
-
-	tbs := &templates_engine.TemplateBundleList{
-		&templates_engine.TemplateBundle{
+	tbs := &tmpl.TemplateBundleList{
+		&tmpl.TemplateBundle{
 			TemplateDir: "templates/commons",
 			OutputFile:  m.commonsFilePath,
 			Regenerate:  true,
 			FS:          templateFs,
 		},
 	}
-	return tbs.Generate("./", resolverBuild)
-}
-
-func (m *Plugin) getObjects(schema *ast.Schema) *map[string]*ast.Definition {
-	objs := make(map[string]*ast.Definition)
-	for name, _type := range schema.Types {
-		if _type.BuiltIn ||
-			_type.Name == "Query" ||
-			_type.Name == "Mutation" {
-			continue
-		}
-		objs[name] = _type
-	}
-	return &objs
-}
-
-func (m *Plugin) appendFieldIfNotExists(fields []*ast.FieldDefinition, field *ast.FieldDefinition) []*ast.FieldDefinition {
-	for _, f := range fields {
-		if f.Name == field.Name {
-			return fields
-		}
-	}
-	return append(fields, field)
+	return tbs.Generate("./", data)
 }

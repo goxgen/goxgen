@@ -2,7 +2,6 @@ package projects
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"github.com/goxgen/goxgen/utils"
 )
@@ -30,9 +29,6 @@ func GetContext(ctx context.Context) (*Context, error) {
 	}
 	return gCtx, nil
 }
-
-//go:embed templates/*
-var templatesFS embed.FS
 
 // Project is a project configuration
 type Project interface {

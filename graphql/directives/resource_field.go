@@ -1,11 +1,14 @@
 package directives
 
-import "github.com/vektah/gqlparser/v2/ast"
+import (
+	"github.com/goxgen/goxgen/consts"
+	"github.com/vektah/gqlparser/v2/ast"
+)
 
 var (
-	xgenResourceField = XgenFieldDirectiveDefinition{
+	resourceFieldDirective = FieldDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
-			Name:        XgenResourceFieldDirectiveName,
+			Name:        consts.ResourceFieldDirectiveName,
 			Description: `This directive is used to mark the object as a resource field`,
 			Position:    pos,
 			Arguments: ast.ArgumentDefinitionList{
@@ -16,6 +19,13 @@ var (
 				{
 					Name: "Description",
 					Type: ast.NamedType("String", nil),
+				},
+				{
+					Name: "DB",
+					Type: ast.NamedType("XgenResourceFieldDbConfigInput", nil),
+					Directives: ast.DirectiveList{
+						{Name: consts.ExcludeArgumentFromType},
+					},
 				},
 			},
 			Locations: []ast.DirectiveLocation{

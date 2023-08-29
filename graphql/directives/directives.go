@@ -1,37 +1,39 @@
 package directives
 
 import (
+	"github.com/goxgen/goxgen/consts"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
-type XgenObjectDirectiveDefinition struct {
+type ObjectDirectiveDefinition struct {
 	Definition *ast.DirectiveDefinition
 	Validator  func(directive *ast.Directive, object *ast.Definition) error
 }
 
-type XgenInputObjectDirectiveDefinition struct {
+type InputObjectDirectiveDefinition struct {
 	Definition *ast.DirectiveDefinition
 	Validate   func(directive *ast.Directive, object *ast.Definition) error
 }
 
-type XgenFieldDirectiveDefinition struct {
-	Definition *ast.DirectiveDefinition
-	Validator  func(directive *ast.Directive, field *ast.Field) error
-}
-type XgenInputFieldDirectiveDefinition struct {
+type FieldDirectiveDefinition struct {
 	Definition *ast.DirectiveDefinition
 	Validator  func(directive *ast.Directive, field *ast.Field) error
 }
 
-type XgenDirectiveDefinitionList struct {
-	Object      []*XgenObjectDirectiveDefinition
-	InputObject []*XgenInputObjectDirectiveDefinition
-	Field       []*XgenFieldDirectiveDefinition
-	InputField  []*XgenInputFieldDirectiveDefinition
+type InputFieldDirectiveDefinition struct {
+	Definition *ast.DirectiveDefinition
+	Validator  func(directive *ast.Directive, field *ast.Field) error
 }
 
-func (xddl *XgenDirectiveDefinitionList) GetObjectDirectiveDefinition(name string) *XgenObjectDirectiveDefinition {
-	for _, xdd := range xddl.Object {
+type DirectiveDefinitionBundle struct {
+	Object      []*ObjectDirectiveDefinition
+	InputObject []*InputObjectDirectiveDefinition
+	Field       []*FieldDirectiveDefinition
+	InputField  []*InputFieldDirectiveDefinition
+}
+
+func (ddb *DirectiveDefinitionBundle) GetObjectDirectiveDefinition(name string) *ObjectDirectiveDefinition {
+	for _, xdd := range ddb.Object {
 		if xdd.Definition.Name == name {
 			return xdd
 		}
@@ -39,8 +41,8 @@ func (xddl *XgenDirectiveDefinitionList) GetObjectDirectiveDefinition(name strin
 	return nil
 }
 
-func (xddl *XgenDirectiveDefinitionList) GetInputObjectDirectiveDefinition(name string) *XgenInputObjectDirectiveDefinition {
-	for _, xdd := range xddl.InputObject {
+func (ddb *DirectiveDefinitionBundle) GetInputObjectDirectiveDefinition(name string) *InputObjectDirectiveDefinition {
+	for _, xdd := range ddb.InputObject {
 		if xdd.Definition.Name == name {
 			return xdd
 		}
@@ -48,8 +50,8 @@ func (xddl *XgenDirectiveDefinitionList) GetInputObjectDirectiveDefinition(name 
 	return nil
 }
 
-func (xddl *XgenDirectiveDefinitionList) GetFieldDirectiveDefinition(name string) *XgenFieldDirectiveDefinition {
-	for _, xdd := range xddl.Field {
+func (ddb *DirectiveDefinitionBundle) GetFieldDirectiveDefinition(name string) *FieldDirectiveDefinition {
+	for _, xdd := range ddb.Field {
 		if xdd.Definition.Name == name {
 			return xdd
 		}
@@ -57,8 +59,8 @@ func (xddl *XgenDirectiveDefinitionList) GetFieldDirectiveDefinition(name string
 	return nil
 }
 
-func (xddl *XgenDirectiveDefinitionList) GetInputFieldDirectiveDefinition(name string) *XgenInputFieldDirectiveDefinition {
-	for _, xdd := range xddl.InputField {
+func (ddb *DirectiveDefinitionBundle) GetInputFieldDirectiveDefinition(name string) *InputFieldDirectiveDefinition {
+	for _, xdd := range ddb.InputField {
 		if xdd.Definition.Name == name {
 			return xdd
 		}
@@ -66,50 +68,51 @@ func (xddl *XgenDirectiveDefinitionList) GetInputFieldDirectiveDefinition(name s
 	return nil
 }
 
-const (
-	XgenResourceDirectiveName            = "XgenResource"
-	XgenResourceActionDirectiveName      = "XgenResourceAction"
-	XgenResourceFieldDirectiveName       = "XgenResourceField"
-	XgenResourceListActionDirectiveName  = "XgenResourceListAction"
-	XgenResourceActionFieldDirectiveName = "XgenResourceActionField"
-)
-
-func (xddl *XgenDirectiveDefinitionList) DirectiveDefinitionList() ast.DirectiveDefinitionList {
-	ddl := ast.DirectiveDefinitionList{}
-	for _, xdd := range xddl.Object {
-		ddl = append(ddl, xdd.Definition)
+func (ddb *DirectiveDefinitionBundle) DirectiveDefinitionList() ast.DirectiveDefinitionList {
+	_ddl := ast.DirectiveDefinitionList{}
+	for _, xdd := range ddb.Object {
+		_ddl = append(_ddl, xdd.Definition)
 	}
-	for _, xdd := range xddl.InputObject {
-		ddl = append(ddl, xdd.Definition)
+	for _, xdd := range ddb.InputObject {
+		_ddl = append(_ddl, xdd.Definition)
 	}
-	for _, xdd := range xddl.Field {
-		ddl = append(ddl, xdd.Definition)
+	for _, xdd := range ddb.Field {
+		_ddl = append(_ddl, xdd.Definition)
 	}
-	for _, xdd := range xddl.InputField {
-		ddl = append(ddl, xdd.Definition)
+	for _, xdd := range ddb.InputField {
+		_ddl = append(_ddl, xdd.Definition)
 	}
-	return ddl
+	return _ddl
 }
 
 var (
 	pos = &ast.Position{Src: &ast.Source{BuiltIn: false}}
 
-	All = &XgenDirectiveDefinitionList{
-		Object: []*XgenObjectDirectiveDefinition{
-			&xgenResource,
+	Bundle = &DirectiveDefinitionBundle{
+		Object: []*ObjectDirectiveDefinition{
+			&resourceDirective,
 		},
-		InputObject: []*XgenInputObjectDirectiveDefinition{
-			&xgenResourceAction,
-			&xgenResourceListAction,
+		InputObject: []*InputObjectDirectiveDefinition{
+			&resourceActionDirective,
+			&resourceListActionDirective,
+			&excludeArgumentFromTypeDirective,
 		},
-		Field: []*XgenFieldDirectiveDefinition{
-			&xgenResourceField,
+		Field: []*FieldDirectiveDefinition{
+			&resourceFieldDirective,
 		},
-		InputField: []*XgenInputFieldDirectiveDefinition{
-			&xgenResourceActionField,
+		InputField: []*InputFieldDirectiveDefinition{
+			&resourceActionFieldDirective,
 		},
 	}
 )
+
+func GetResourceActionDirectives(definition *ast.Definition) []*ast.Directive {
+	dirs := definition.Directives.ForNames(consts.ResourceActionDirectiveName)
+	return append(
+		dirs,
+		definition.Directives.ForNames(consts.ResourceListActionDirectiveName)...,
+	)
+}
 
 func mergeDirectiveDefs(directive ast.DirectiveDefinition, new ast.DirectiveDefinition) *ast.DirectiveDefinition {
 	directive.Name = new.Name

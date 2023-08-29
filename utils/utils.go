@@ -16,8 +16,9 @@ func ExecCommand(dir string, command string, args ...string) error {
 }
 
 // RemoveFromDirByPatterns removes files and dirs from the specified directory by pattern
-// eg ./*/dir1/*_qwe.go
+// eg
 //
+//	./*/dir1/*_qwe.go
 //	./dir1/*_dir2
 func RemoveFromDirByPatterns(patterns ...string) error {
 	for _, pattern := range patterns {

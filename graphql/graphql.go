@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/directives"
 	"github.com/goxgen/goxgen/graphql/enum"
 	"github.com/goxgen/goxgen/graphql/generator"
@@ -25,6 +26,8 @@ type GraphqlContext struct {
 	ConfigOverrideCallback      func(cfg *config.Config) error
 	CustomDirectivesDefinitions []*ast.DirectiveDefinition
 	CustomSchemaFiles           config.StringList
+	SchemaInjectorHooks         []InjectorHook
+	GeneratorApiOptions         []api.Option
 }
 
 // GetGraphqlContext returns the graphql context from the context.
@@ -46,8 +49,8 @@ func generateDirectivesSet(outputDir string, generatedFilePrefix string) error {
 		WithPath(path.Join(outputDir, generatedFilePrefix+"directives.graphql")).
 		WithSchemaHooks(func(_document *ast.SchemaDocument) error {
 			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, enum.All...)
-			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, inputs.XgenPaginationInput)
-			_document.Directives = append(_document.Directives, directives.All.DirectiveDefinitionList()...)
+			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, inputs.All...)
+			_document.Directives = append(_document.Directives, directives.Bundle.DirectiveDefinitionList()...)
 			return nil
 		})
 	return schemaGenerator.GenerateOutput()
@@ -69,20 +72,19 @@ func Generate(ctx context.Context, name string) error {
 	cfg := config.DefaultConfig()
 
 	cfg.SchemaFilename = append(config.StringList{
-		path.Join(name, "app.*.graphql"),
-		path.Join(name, "app.*.graphqls"),
+		path.Join(name, "schema.*.graphql"),
+		path.Join(name, "schema.*.graphqls"),
 		path.Join(name, gqlgenCtx.GeneratedFilePrefix+"directives.graphql"),
 	}, gqlgenCtx.CustomSchemaFiles...)
 
-	gqlgenPackage := "generated_gqlgen"
-	gqlgenPath := path.Join(name, gqlgenPackage)
+	gqlgenPath := path.Join(name, consts.GeneratedGqlgenPackageName)
 
 	err = utils.RemoveFromDirByPatterns(gqlgenPath)
 	if err != nil {
 		return fmt.Errorf("failed to remove old gqlgen_generated files: %w", err)
 	}
 
-	cfg.Exec.Package = gqlgenPackage
+	cfg.Exec.Package = consts.GeneratedGqlgenPackageName
 	cfg.Exec.Filename = path.Join(gqlgenPath, "generated_gqlgen.go")
 
 	cfg.Resolver.DirName = name
@@ -91,7 +93,7 @@ func Generate(ctx context.Context, name string) error {
 	cfg.Resolver.Package = name
 	cfg.Resolver.Layout = "follow-schema"
 
-	cfg.Model.Package = gqlgenPackage
+	cfg.Model.Package = consts.GeneratedGqlgenPackageName
 	cfg.Model.Filename = path.Join(gqlgenPath, "generated_gqlgen_models.go")
 
 	if gqlgenCtx != nil && gqlgenCtx.ConfigOverrideCallback != nil {
@@ -110,8 +112,16 @@ func Generate(ctx context.Context, name string) error {
 		name,
 		gqlgenCtx.ParentPackageName,
 		gqlgenCtx.GeneratedFilePrefix,
+		gqlgenCtx.SchemaInjectorHooks...,
 	)
-	if err = api.Generate(cfg, api.AddPlugin(injectorPlugin)); err != nil {
+
+	if err = api.Generate(
+		cfg,
+		append(
+			[]api.Option{api.AddPlugin(injectorPlugin)},
+			gqlgenCtx.GeneratorApiOptions...,
+		)...,
+	); err != nil {
 		return fmt.Errorf("failed to generate gqlgen files phase 1: %w", err)
 	}
 

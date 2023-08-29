@@ -9,15 +9,8 @@ import (
 )
 
 const (
-	ContextPrefix       = "XGEN_CONTEXT_"
 	GeneratedFilePrefix = "generated_xgen_"
 )
-
-// ContextKey is a key for context
-type ContextKey string
-
-// GeneratorContextKey is a key for generator context
-var GeneratorContextKey = ContextKey(ContextPrefix + "GENERATOR")
 
 // Xgen main struct
 type Xgen struct {
@@ -47,12 +40,6 @@ func NewXgen(options ...XgenOption) *Xgen {
 // it is a main function of Xgen
 // it generates code for projects and CLI
 func (x *Xgen) Generate(ctx context.Context) (err error) {
-
-	//err = utils.RemoveFromDirByPatterns("./*/" + GeneratedFilePrefix + "*")
-	//if err != nil {
-	//	return err
-	//}
-
 	projCtx := projects.PrepareCommonContext(
 		ctx,
 		&projects.Context{
