@@ -60,9 +60,9 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
+	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
 	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
-	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
 }
 
 type XgenCursorPaginationInput struct {
@@ -89,8 +89,8 @@ type XgenIntrospection struct {
 
 type XgenObjectDefinition struct {
 	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
-	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
 	Action     *Action     `json:"Action,omitempty" gorm:""`
+	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
 }
 
 type XgenObjectField struct {
@@ -99,11 +99,11 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
 	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
 }
 
