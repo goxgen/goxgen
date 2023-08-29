@@ -1,0 +1,40 @@
+{{- /* gotype: github.com/goxgen/goxgen.ProjectGeneratorData*/ -}}
+{{- define "BaseTemplate" -}}
+
+package {{ $.Name }}
+
+import (
+	"context"
+	"github.com/urfave/cli/v2"
+	_ "github.com/mattn/go-sqlite3"
+	"{{.ParentPackageName}}/{{.Name}}/ent"
+)
+
+type Resolver struct{ client *ent.Client }
+
+func NewResolver(ctx *cli.Context) (*Resolver, error) {
+	client, err := InitClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Resolver{client: client}, nil
+}
+
+func InitClient(ctx *cli.Context) (*ent.Client, error) {
+	client, err := ent.Open(
+		ctx.String("DatabaseDriver"),
+		ctx.String("DatabaseSourceName"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if err := client.Schema.Create(
+		context.Background(),
+		//migrate.WithGlobalUniqueID(true),
+	); err != nil {
+		return nil, err
+	}
+	return client, nil
+}
+
+{{ end -}}

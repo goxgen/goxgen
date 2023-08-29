@@ -1,0 +1,42 @@
+{{- /* gotype: github.com/goxgen/goxgen/projects/gorm.TemplateData*/ -}}
+
+{{- define "BaseTemplate" -}}
+
+package {{.Name}}
+
+import (
+	"{{.ParentPackageName}}/{{.Name}}/{{.GeneratedGqlgenPackageName}}"
+	"github.com/urfave/cli/v2"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"fmt"
+)
+
+type Resolver struct {
+	DB *gorm.DB
+}
+
+func NewResolver(ctx *cli.Context) (*Resolver, error) {
+	r := &Resolver{}
+
+	// Open the database connection
+	db, err := gorm.Open(sqlite.Open("{{.ProjectGeneratorData.Name}}.db"), &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	// Migrate the schema
+	err = db.AutoMigrate(
+		{{- range .Resources }}
+		&{{ $.GqlgenPackageName }}.{{.}}{},
+		{{- end }}
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to migrate database: %w", err)
+	}
+
+	r.DB = db
+	return r, nil
+}
+
+{{- end -}}
