@@ -70,7 +70,7 @@ func BuildPerObjectIntroHook(schema *ast.Schema, document *ast.SchemaDocument, i
 		objectMapType,
 	)
 
-	introspectionType := document.Definitions.ForName(IntrospectionTypeName)
+	introspectionType := document.Definitions.ForName(TypeName)
 	if introspectionType == nil {
 		return fmt.Errorf("failed to find XgenIntrospection type")
 	}

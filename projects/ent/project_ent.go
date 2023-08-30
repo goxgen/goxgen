@@ -95,6 +95,6 @@ func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, dat
 // NewEntProject creates a new ent project
 func NewEntProject(option ...projects.ProjectOption) *Project {
 	return &Project{
-		Project: simple.New(option...),
+		Project: simple.NewPlugin(option...),
 	}
 }

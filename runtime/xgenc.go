@@ -14,11 +14,11 @@ func main() {
 		xgen.WithPackageName("github.com/goxgen/goxgen/runtime"),
 		xgen.WithProject(
 			"simple_initial",
-			simple.New(),
+			simple.NewPlugin(),
 		),
 		xgen.WithProject(
 			"gorm_initial",
-			gorm.New(),
+			gorm.NewPlugin(),
 		),
 		//xgen.WithProject(
 		//	"entproj",

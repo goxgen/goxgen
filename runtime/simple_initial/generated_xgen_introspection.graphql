@@ -2,6 +2,12 @@ type XgenIntrospection {
   annotation: XgenAnnotationMap
   object: XgenObjectMap
 }
+"""This directive is used to mark the object as a resource"""
+type Resource {
+  Name: String!
+  Route: String
+  Primary: Boolean
+}
 """This directive is used to mark the object as a resource list action"""
 type ListAction {
   Resource: String!
@@ -20,12 +26,6 @@ type ActionField {
   Label: String
   Description: String
 }
-"""This directive is used to mark the object as a resource"""
-type Resource {
-  Name: String!
-  Route: String
-  Primary: Boolean
-}
 """This directive is used to mark the object as a resource action"""
 type Action {
   Resource: String!
@@ -35,29 +35,29 @@ type Action {
 }
 type XgenAnnotationMap {
   Resource: [ResourceAnnotationSingle!]!
-  Action: [ActionAnnotationSingle!]!
   ListAction: [ListActionAnnotationSingle!]!
+  Action: [ActionAnnotationSingle!]!
 }
 type ResourceAnnotationSingle {
   name: String
   value: Resource
 }
-type ActionAnnotationSingle {
-  name: String
-  value: Action
-}
 type ListActionAnnotationSingle {
   name: String
   value: ListAction
+}
+type ActionAnnotationSingle {
+  name: String
+  value: Action
 }
 type XgenFieldDef {
   Field: Field
   ActionField: ActionField
 }
 type XgenObjectDefinition {
+  Action: Action
   ListAction: ListAction
   Resource: Resource
-  Action: Action
 }
 type XgenObjectField {
   name: String
@@ -65,25 +65,13 @@ type XgenObjectField {
 }
 type XgenObjectMap {
   XgenResourceActionType: XgenResourceActionTypeXgenDef
-  XgenPaginationInput: XgenPaginationInputXgenDef
-  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
-  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
   XgenResourceListActionType: XgenResourceListActionTypeXgenDef
+  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
+  XgenPaginationInput: XgenPaginationInputXgenDef
   XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
+  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
 }
 type XgenResourceActionTypeXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenPaginationInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceDbConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceFieldDbConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -91,7 +79,19 @@ type XgenResourceListActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
+type XgenResourceFieldDbConfigInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenPaginationInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
 type XgenCursorPaginationInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceDbConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }

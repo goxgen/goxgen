@@ -154,7 +154,7 @@ func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument,
 		return nil
 	}
 
-	introspectionType := document.Definitions.ForName(IntrospectionTypeName)
+	introspectionType := document.Definitions.ForName(TypeName)
 	if introspectionType == nil {
 		return fmt.Errorf("failed to find XgenIntrospection type")
 	}

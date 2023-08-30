@@ -1,32 +1,38 @@
 package introspection
 
 import (
-	"encoding/json"
+	"embed"
 	"fmt"
+	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/common"
 	"github.com/goxgen/goxgen/graphql/generator"
+	"github.com/goxgen/goxgen/tmpl"
 	"github.com/vektah/gqlparser/v2/ast"
-	"os"
 )
 
-const IntrospectionTypeName = "XgenIntrospection"
+//go:embed templates/*
+var templateFs embed.FS
+
+const TypeName = "XgenIntrospection"
 
 type BuilderHook = func(schema *ast.Schema, document *ast.SchemaDocument, introValue *map[string]any) error
 
 // SchemaGeneratorHook is a hook that creates a new schema based on the original schema
-func SchemaGeneratorHook(schema *ast.Schema, queryFieldName string, generatedJsonFilePath string, introspectionBuildHooks ...BuilderHook) generator.SchemaHook {
+func SchemaGeneratorHook(
+	schema *ast.Schema,
+	queryFieldName string,
+	generatedFilePath string,
+	packageName string,
+	parentPackageName string,
+	introspectionBuildHooks ...BuilderHook) generator.SchemaHook {
 	return func(document *ast.SchemaDocument) error {
 		var (
-			pos = &ast.Position{Src: &ast.Source{BuiltIn: false}}
-
+			pos               = &ast.Position{Src: &ast.Source{BuiltIn: false}}
 			introspectionType = &ast.Definition{
 				Kind:     ast.Object,
-				Name:     IntrospectionTypeName,
+				Name:     TypeName,
 				Position: pos,
-				Fields:   []*ast.FieldDefinition{
-					//perObjectField,
-					//perDefField,
-				},
+				Fields:   []*ast.FieldDefinition{},
 			}
 		)
 
@@ -67,14 +73,42 @@ func SchemaGeneratorHook(schema *ast.Schema, queryFieldName string, generatedJso
 			}
 		}
 
-		if err := saveIntrospectionValuesToFile(generatedJsonFilePath, introValue); err != nil {
+		if err := saveIntrospectionValuesToFile(
+			generatedFilePath,
+			introValue,
+			packageName,
+			parentPackageName,
+		); err != nil {
 			return fmt.Errorf("failed to save introspection values to file: %w", err)
 		}
 
 		return nil
 	}
 }
-func saveIntrospectionValuesToFile(generatedJsonFilePath string, values any) error {
-	jsonBytes, _ := json.MarshalIndent(values, "", "  ")
-	return os.WriteFile(generatedJsonFilePath, jsonBytes, 0644)
+
+type ResolverBuild struct {
+	ParentPackageName          string
+	PackageName                string
+	GeneratedGqlgenPackageName string
+	IntrospectionData          any
+}
+
+func saveIntrospectionValuesToFile(generatedFilePath string, values any, packageName string, parentPackageName string) error {
+	//jsonBytes, _ := json.MarshalIndent(values, "", "  ")
+
+	data := &ResolverBuild{
+		PackageName:                packageName,
+		ParentPackageName:          parentPackageName,
+		GeneratedGqlgenPackageName: consts.GeneratedGqlgenPackageName,
+		IntrospectionData:          values,
+	}
+	tbs := &tmpl.TemplateBundleList{
+		&tmpl.TemplateBundle{
+			TemplateDir: "templates",
+			OutputFile:  generatedFilePath,
+			Regenerate:  true,
+			FS:          templateFs,
+		},
+	}
+	return tbs.Generate("./", data)
 }

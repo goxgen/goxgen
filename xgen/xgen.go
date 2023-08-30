@@ -3,7 +3,7 @@ package xgen
 import (
 	"context"
 	"fmt"
-	"github.com/goxgen/goxgen/cli"
+	"github.com/goxgen/goxgen/plugins"
 	"github.com/goxgen/goxgen/projects"
 	"github.com/goxgen/goxgen/utils"
 )
@@ -16,14 +16,13 @@ const (
 type Xgen struct {
 	PackageName *string                     `yaml:"package_name" json:"package_name"`
 	Projects    map[string]projects.Project `yaml:"projects" json:"projects"`
-	CLI         *cli.CLI                    `yaml:"cli" json:"cli"`
+	Plugins     []plugins.Plugin            `yaml:"plugin" json:"plugins"`
 }
 
 // NewXgen creates a new Xgen instance
 // it creates a new Xgen instance with projects and CLI
-func NewXgen(options ...XgenOption) *Xgen {
+func NewXgen(options ...Option) *Xgen {
 	xgen := &Xgen{
-		CLI:      &cli.CLI{},
 		Projects: map[string]projects.Project{},
 	}
 
@@ -54,18 +53,20 @@ func (x *Xgen) Generate(ctx context.Context) (err error) {
 		return fmt.Errorf("failed to generate projects: %w", err)
 	}
 
-	cliContext := cli.PrepareContext(
-		ctx,
-		&cli.Context{
-			ParentPackageName:   utils.PString(x.PackageName),
-			GeneratedFilePrefix: GeneratedFilePrefix,
-			Projects:            x.Projects,
-			OutputDir:           ".",
-		},
-	)
-	err = x.CLI.Generate(cliContext)
-	if err != nil {
-		return err
+	for _, plugin := range x.Plugins {
+		pluginCtx := plugins.PrepareContext(
+			ctx,
+			&plugins.Context{
+				ParentPackageName:   utils.PString(x.PackageName),
+				GeneratedFilePrefix: GeneratedFilePrefix,
+				Projects:            x.Projects,
+				OutputDir:           ".",
+			},
+		)
+		err = plugin.Generate(pluginCtx)
+		if err != nil {
+			return err
+		}
 	}
 
 	// exec command `go fmt`

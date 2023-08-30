@@ -1,23 +1,17 @@
 package graphql
 
 import (
-	"embed"
 	_ "embed"
 	"fmt"
 	"github.com/99designs/gqlgen/codegen"
-	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/generator"
 	"github.com/goxgen/goxgen/graphql/introspection"
 	"github.com/goxgen/goxgen/graphql/resource"
 	"github.com/goxgen/goxgen/graphql/validation"
-	"github.com/goxgen/goxgen/tmpl"
 	"github.com/vektah/gqlparser/v2/ast"
 	"os"
 	"path"
 )
-
-//go:embed templates/*
-var templateFs embed.FS
 
 const IntrospectionQueryField = "_xgen_introspection"
 
@@ -30,18 +24,11 @@ type Plugin struct {
 	introspectionGraphqlFilePath string
 	resourcesGraphqlFileName     string
 	resourcesGraphqlFilePath     string
-	introspectionJsonFileName    string
-	introspectionJsonFilePath    string
+	introspectionFileName        string
+	introspectionFilePath        string
 	commonsFileName              string
 	commonsFilePath              string
 	introspectionBuildHooks      []introspection.BuilderHook
-}
-
-type ResolverBuild struct {
-	ParentPackageName          string
-	PackageName                string
-	IntrospectionJsonFileName  string
-	GeneratedGqlgenPackageName string
 }
 
 // NewPlugin creates a new plugin
@@ -72,8 +59,8 @@ func NewPlugin(
 	p.commonsFileName = p.generatedFilePrefix + "commons.go"
 	p.commonsFilePath = path.Join(p.name, p.commonsFileName)
 
-	p.introspectionJsonFileName = p.generatedFilePrefix + "introspection.json"
-	p.introspectionJsonFilePath = path.Join(p.name, p.introspectionJsonFileName)
+	p.introspectionFileName = p.generatedFilePrefix + "introspection.go"
+	p.introspectionFilePath = path.Join(p.name, p.introspectionFileName)
 
 	return p
 }
@@ -106,7 +93,9 @@ func (m *Plugin) InjectSourceLate(schema *ast.Schema) *ast.Source {
 					introspection.SchemaGeneratorHook(
 						schema,
 						IntrospectionQueryField,
-						m.introspectionJsonFilePath,
+						m.introspectionFilePath,
+						m.name,
+						m.parentPackageName,
 						m.introspectionBuildHooks...,
 					),
 					resource.SchemaGeneratorHook(schema),
@@ -127,22 +116,4 @@ func (m *Plugin) InjectSourceLate(schema *ast.Schema) *ast.Source {
 		Name:    "schema",
 		Input:   string(schemaRaw),
 	}
-}
-
-func (m *Plugin) GenerateCode(_ *codegen.Data) error {
-	data := &ResolverBuild{
-		PackageName:                m.name,
-		ParentPackageName:          m.parentPackageName,
-		IntrospectionJsonFileName:  m.introspectionJsonFileName,
-		GeneratedGqlgenPackageName: consts.GeneratedGqlgenPackageName,
-	}
-	tbs := &tmpl.TemplateBundleList{
-		&tmpl.TemplateBundle{
-			TemplateDir: "templates/commons",
-			OutputFile:  m.commonsFilePath,
-			Regenerate:  true,
-			FS:          templateFs,
-		},
-	}
-	return tbs.Generate("./", data)
 }

@@ -28,7 +28,7 @@ func BuildAnnotationIntroHook(schema *ast.Schema, document *ast.SchemaDocument, 
 			},
 		}
 	)
-	introspectionType := document.Definitions.ForName(IntrospectionTypeName)
+	introspectionType := document.Definitions.ForName(TypeName)
 	if introspectionType == nil {
 		return fmt.Errorf("failed to find XgenIntrospection type")
 	}

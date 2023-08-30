@@ -1,4 +1,4 @@
-{{- /* gotype: github.com/goxgen/goxgen/graphql.ResolverBuild */ -}}
+{{- /* gotype: github.com/goxgen/goxgen/graphql/introspection.ResolverBuild*/ -}}
 
 {{- define "BaseTemplate" -}}
 
@@ -12,13 +12,13 @@ import (
     "{{.ParentPackageName}}/{{.GeneratedGqlgenPackageName}}"
 )
 
-//go:embed {{ .IntrospectionJsonFileName }}
-var xgenIntrospectionJson []byte
-
 // XgenIntrospection is the resolver for the XgenIntrospection field.
 func (r *Resolver) XgenIntrospection() (*{{.GeneratedGqlgenPackageName}}.XgenIntrospection, error) {
     var intr {{.GeneratedGqlgenPackageName}}.XgenIntrospection
-    err := json.Unmarshal(xgenIntrospectionJson, &intr)
+    err := json.Unmarshal(
+		[]byte(`{{ .IntrospectionData | toJson }}`),
+		&intr,
+	)
     if err != nil {
         panic(err)
         return nil, err

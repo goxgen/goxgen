@@ -81,8 +81,8 @@ func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, dat
 	), nil
 }
 
-// New creates a new Project instance with default values
-func New(options ...projects.ProjectOption) *Project {
+// NewPlugin creates a new Project instance with default values
+func NewPlugin(options ...projects.ProjectOption) *Project {
 	proj := &Project{}
 	for _, opt := range options {
 		if err := opt(proj); err != nil {

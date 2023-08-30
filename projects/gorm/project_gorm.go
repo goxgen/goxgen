@@ -251,9 +251,9 @@ func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, dat
 	), nil
 }
 
-func New(option ...projects.ProjectOption) *Project {
+func NewPlugin(option ...projects.ProjectOption) *Project {
 	return &Project{
-		Project: simple.New(option...),
+		Project: simple.NewPlugin(option...),
 	}
 }
 

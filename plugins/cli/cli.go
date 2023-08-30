@@ -3,36 +3,21 @@ package cli
 import (
 	"context"
 	"embed"
-	"fmt"
+	"github.com/goxgen/goxgen/plugins"
 	"github.com/goxgen/goxgen/projects"
 	"github.com/goxgen/goxgen/tmpl"
 )
 
-// ContextKey is a key for context
-type ContextKey string
-
-var CLIContextKey = ContextKey("CLI")
-
-// Context is a context for CLI
-type Context struct {
-	ParentPackageName   string
-	GeneratedFilePrefix string
-	Projects            map[string]projects.Project
-	OutputDir           string
-}
-
-// GetContext gets generator context from context
-func GetContext(ctx context.Context) (*Context, error) {
-	gCtx, ok := ctx.Value(CLIContextKey).(*Context)
-
-	if !ok {
-		return nil, fmt.Errorf("failed to CLI generator context")
-	}
-	return gCtx, nil
-}
-
 // CLI contains configuration of xgen-cli
 type CLI struct {
+}
+
+func NewPlugin() *CLI {
+	return &CLI{}
+}
+
+func (xc *CLI) Name() string {
+	return "xgen-cli"
 }
 
 // templateData contains data for xgen-cli templates
@@ -46,7 +31,7 @@ var templatesFS embed.FS
 
 // Generate generates code from templates
 func (xc *CLI) Generate(ctx context.Context) error {
-	genCtx, err := GetContext(ctx)
+	genCtx, err := plugins.GetContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -66,14 +51,9 @@ func (xc *CLI) Generate(ctx context.Context) error {
 	return tb.Generate(genCtx.OutputDir, data)
 }
 
-func (xc *CLI) prepareCLITemplateData(genCtx *Context) (*templateData, error) {
+func (xc *CLI) prepareCLITemplateData(genCtx *plugins.Context) (*templateData, error) {
 	return &templateData{
 		Projects:          genCtx.Projects,
 		ParentPackageName: genCtx.ParentPackageName,
 	}, nil
-}
-
-func PrepareContext(ctx context.Context, cliCtx *Context) context.Context {
-
-	return context.WithValue(ctx, CLIContextKey, cliCtx)
 }
