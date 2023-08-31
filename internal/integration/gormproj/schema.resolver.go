@@ -13,6 +13,13 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// DeleteUsers is the resolver for the delete_users field.
+func (r *mutationResolver) DeleteUsers(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
+	var users []*generated.User
+	r.DB.Delete(&users, input.Ids)
+	return users, nil
+}
+
 // NewUser is the resolver for the new_user field.
 func (r *mutationResolver) NewUser(ctx context.Context, input *generated.NewUser) (*generated.User, error) {
 	cars := make([]*generated.Car, len(input.Cars))
@@ -34,13 +41,6 @@ func (r *mutationResolver) NewUser(ctx context.Context, input *generated.NewUser
 	return user, nil
 }
 
-// DeleteUsers is the resolver for the delete_users field.
-func (r *mutationResolver) DeleteUsers(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
-	var users []*generated.User
-	r.DB.Delete(&users, input.Ids)
-	return users, nil
-}
-
 // NewCar is the resolver for the new_car field.
 func (r *mutationResolver) NewCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
 	panic(fmt.Errorf("not implemented: NewCar - new_car"))
@@ -54,22 +54,6 @@ func (r *mutationResolver) UpdateCar(ctx context.Context, input *generated.CarIn
 // XgenIntrospection is the resolver for the _xgen_introspection field.
 func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenIntrospection, error) {
 	return r.Resolver.XgenIntrospection()
-}
-
-// ListCars is the resolver for the list_cars field.
-func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
-	var cars []*generated.Car
-	res := r.DB.Where(&[]*generated.Car{
-		{
-			ID:     utils.Deref(input.ID),
-			UserID: utils.Deref(input.UserID),
-		},
-	}).Find(&cars)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return cars, nil
 }
 
 // ListUser is the resolver for the list_user field.
@@ -87,6 +71,22 @@ func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser)
 	}
 
 	return users, nil
+}
+
+// ListCars is the resolver for the list_cars field.
+func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
+	var cars []*generated.Car
+	res := r.DB.Where(&[]*generated.Car{
+		{
+			ID:     utils.Deref(input.ID),
+			UserID: utils.Deref(input.UserID),
+		},
+	}).Find(&cars)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return cars, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -25,7 +25,7 @@ You should create two files in your project
     
     ```
 2. Xgen config file `xgenc.go`
-   https://github.com/goxgen/goxgen/blob/main/internal/integration/xgenc.go#L12-L34
+   https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/xgenc.go#L12-L34
 
 Then run `go generate` command, and goxgen will generate project structure
 
@@ -68,11 +68,11 @@ The connection to the GORM database can be configured from the gqlgen standard `
 
 > `resolver.go` is designed to support your custom dependency injection (DI) and any services you've provided.
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/resolver.go#L11-L35
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/resolver.go#L11-L35
 
 ### Example of schema file `schema.main.graphql`
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/schema.main.graphql
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/schema.main.graphql
 
 The directives used in the example above are standard `xgen` directives, intended to provide metadata.
 
@@ -84,7 +84,7 @@ The directives used in the example above are standard `xgen` directives, intende
 
 The definitions of these directives are located in the `generated_xgen_directives.graphql` file.
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/generated_xgen_directives.graphql#L1-L12
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/generated_xgen_directives.graphql#L1-L12
 
 After writing a custom schema You should run again `gogen` command.
 
@@ -95,7 +95,7 @@ go generate
 After regenerating the code, the `schema.resolver.go` file will be updated based on your schema. 
 You can expect to see changes similar to the following:
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/schema.resolver.go#L16-L90
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/schema.resolver.go#L16-L90
 
 You can add your own implementation for each function in the updated `schema.resolver.go` file.
 For more information,
@@ -107,7 +107,7 @@ So take a look at the implemented functions, for example `NewUser`, `ListUser` o
 In those functions, you can see that the `r.DB` instance is used, 
 which is provided from the `resolver.go` file.
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/resolver.go#L11-L13
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/resolver.go#L11-L13
 
 Great, you're all set to launch your GraphQL application.
 
@@ -138,14 +138,14 @@ This interface will allow you to test queries, mutations, and subscriptions in r
 
 Then we see graphql playground, let's run some mutation query to add two new users
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/examples/new_user_mutation.graphql
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/examples/new_user_mutation.graphql
 
 After execution of this mutation, graphql should be return result like this
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/examples/new_user_mutation_result.json
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/examples/new_user_mutation_result.json
 
 One more example, let's list our new users by query
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/examples/list_user_query.graphql
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/examples/list_user_query.graphql
 
 The result of this query should be like this
 
-https://github.com/goxgen/goxgen/blob/main/internal/integration/gormproj/examples/list_user_query_result.json
+https://github.com/goxgen/goxgen/blob/release/0.0.1/internal/integration/gormproj/examples/list_user_query_result.json
