@@ -1,0 +1,18 @@
+mutation{
+    user1: new_user(input: {name: "My user 1", cars: {make:"BMW"}}){
+        id
+        name
+        cars {
+            make
+            id
+        }
+    }
+    user2: new_user(input: {name: "My user 2", cars: {make:"BMW"}}){
+        id
+        name
+        cars {
+            make
+            id
+        }
+    }
+}

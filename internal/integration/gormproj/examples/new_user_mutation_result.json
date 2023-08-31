@@ -1,0 +1,24 @@
+{
+  "data": {
+    "user1": {
+      "id": 1,
+      "name": "My user 1",
+      "cars": [
+        {
+          "make": "BMW",
+          "id": 12
+        }
+      ]
+    },
+    "user2": {
+      "id": 2,
+      "name": "My user 2",
+      "cars": [
+        {
+          "make": "BMW",
+          "id": 13
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "data": {
+    "list_user": [
+      {
+        "id": 1,
+        "name": "My user 1"
+      },
+      {
+        "id": 2,
+        "name": "My user 2"
+      }
+    ]
+  }
+}

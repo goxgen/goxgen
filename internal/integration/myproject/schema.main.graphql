@@ -1,0 +1,7 @@
+# Custom action for resource
+extend enum XgenResourceActionType{
+    CUSTOM_MUTATION
+}
+
+# Custom directive for resource
+directive @XgenCustomConf(Asd: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | OBJECT | INPUT_OBJECT

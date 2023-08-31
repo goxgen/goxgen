@@ -1,0 +1,28 @@
+type User
+    @Resource(Name: "user")
+{
+    id: ID!
+    name: String!
+}
+
+input NewUser
+@Action(Resource: "user", Action: CREATE_MUTATION)
+{
+    id: ID!
+    name: String!
+}
+
+input UserList
+@ListAction(Resource: "user", Action: BROWSE_QUERY, Pagination: true)
+{
+    id: ID @ActionField(Label: "ID")
+    name: String @ActionField(Label: "Name")
+}
+
+
+input UpdateUser
+    @Action(Resource: "user", Action: UPDATE_MUTATION)
+{
+    id: ID!
+    name: String!
+}

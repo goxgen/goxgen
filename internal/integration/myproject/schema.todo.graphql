@@ -1,0 +1,51 @@
+type Todo
+@Resource(Name: "todo", Primary: true, Route: "td", DB: {Table: "Test"})
+@XgenCustomConf(Asd: "jiji")
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "ID"})
+    text: String! @Field(Label: "Text", Description: "Text of the todo", DB: {Column: "Text"})
+    done: Boolean! @Field(Label: "Done", Description: "Done of the todo", DB: {Column: "Done"})
+    user: User! @Field(Label: "User", Description: "User of the todo", DB: {Column: "User"})
+}
+
+input NewTodo
+@Action(Resource: "todo", Action: CREATE_MUTATION, Route: "new", SchemaFieldName: "new_todo")
+{
+    text: String! @ActionField(Label: "Text", Description: "Text of the todo")
+    userId: ID! @ActionField(Label: "User ID", Description: "User ID of the todo")
+    code: String! @ActionField(Label: "Code", Description: "Code of the todo")
+}
+
+input ListTodo
+@ListAction(Resource: "todo", Action: BROWSE_QUERY, Route: "list", Pagination: true)
+{
+    id: ID! @ActionField(Label: "ID", Description: "ID of the todo")
+    text: String! @ActionField(Label: "Text", Description: "Text of the todo")
+    done: Boolean! @ActionField(Label: "Done", Description: "Done of the todo")
+    userId: ID! @ActionField(Label: "User ID", Description: "User ID of the todo")
+    code: String! @ActionField(Label: "Code", Description: "Code of the todo")
+}
+
+input CustomTodo
+@Action(Resource: "todo", Action: CUSTOM_MUTATION)
+{
+    text: String!
+    userId: ID!
+    code: String!
+    custom: String!
+    custom2: String!
+}
+
+input UpdateTodo
+@Action(Resource: "todo", Action: UPDATE_MUTATION)
+{
+    text: String!
+    userId: ID!
+    code: String!
+}
+
+input DeleteTodo
+@Action(Resource: "todo", Action: DELETE_MUTATION)
+{
+    id: ID!
+}

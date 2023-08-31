@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
 // This directive is used to mark the object as a resource action
@@ -25,6 +27,41 @@ type ActionAnnotationSingle struct {
 type ActionField struct {
 	Label       *string `json:"Label,omitempty" gorm:""`
 	Description *string `json:"Description,omitempty" gorm:""`
+}
+
+type Car struct {
+	ID          int    `json:"id" gorm:"column:id;primaryKey;"`
+	Make        string `json:"make" gorm:"column:make;"`
+	Done        bool   `json:"done" gorm:"column:done;"`
+	User        *User  `json:"user" gorm:""`
+	UserID      int    ``
+	*gorm.Model ``
+}
+
+type CarInput struct {
+	ID   *int    `json:"id,omitempty" gorm:""`
+	Make *string `json:"make,omitempty" gorm:""`
+	Done *bool   `json:"done,omitempty" gorm:""`
+	User *int    `json:"user,omitempty" gorm:""`
+}
+
+type CarInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type CarXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type DeleteUsers struct {
+	Ids []int `json:"ids,omitempty" gorm:""`
+}
+
+type DeleteUsersXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
 }
 
 // This directive is used to mark the object as a resource field
@@ -47,6 +84,37 @@ type ListActionAnnotationSingle struct {
 	Value *ListAction `json:"value,omitempty" gorm:""`
 }
 
+type ListCars struct {
+	ID     *int    `json:"id,omitempty" gorm:""`
+	UserID *int    `json:"userId,omitempty" gorm:""`
+	Make   *string `json:"make,omitempty" gorm:""`
+}
+
+type ListCarsXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type ListUser struct {
+	ID   *int    `json:"id,omitempty" gorm:""`
+	Name *string `json:"name,omitempty" gorm:""`
+}
+
+type ListUserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type NewUser struct {
+	Name string      `json:"name" gorm:""`
+	Cars []*CarInput `json:"cars,omitempty" gorm:""`
+}
+
+type NewUserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
 // This directive is used to mark the object as a resource
 type Resource struct {
 	Name    string  `json:"Name" gorm:""`
@@ -57,6 +125,18 @@ type Resource struct {
 type ResourceAnnotationSingle struct {
 	Name  *string   `json:"name,omitempty" gorm:""`
 	Value *Resource `json:"value,omitempty" gorm:""`
+}
+
+type User struct {
+	ID          int    `json:"id" gorm:"column:id;primaryKey;"`
+	Name        string `json:"name" gorm:"column:name;unique;"`
+	Cars        []*Car `json:"cars" gorm:""`
+	*gorm.Model ``
+}
+
+type UserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
+	Field  []*XgenObjectField    `json:"field" gorm:""`
 }
 
 type XgenAnnotationMap struct {
@@ -85,12 +165,13 @@ type XgenFieldDef struct {
 type XgenIntrospection struct {
 	Annotation *XgenAnnotationMap `json:"annotation,omitempty" gorm:""`
 	Object     *XgenObjectMap     `json:"object,omitempty" gorm:""`
+	Resource   *XgenResourceMap   `json:"resource,omitempty" gorm:""`
 }
 
 type XgenObjectDefinition struct {
 	Action     *Action     `json:"Action,omitempty" gorm:""`
-	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
 	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
+	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
 }
 
 type XgenObjectField struct {
@@ -99,12 +180,19 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
+	DeleteUsers                    *DeleteUsersXgenDef                    `json:"DeleteUsers,omitempty" gorm:""`
 	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
+	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
+	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
+	Car                            *CarXgenDef                            `json:"Car,omitempty" gorm:""`
+	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty" gorm:""`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
+	ListCars                       *ListCarsXgenDef                       `json:"ListCars,omitempty" gorm:""`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
+	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {
@@ -115,6 +203,13 @@ type XgenPaginationInput struct {
 type XgenPaginationInputXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
 	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type XgenResourceAction struct {
+	Resource        string                 `json:"Resource" gorm:""`
+	Action          XgenResourceActionType `json:"Action" gorm:""`
+	Route           *string                `json:"Route,omitempty" gorm:""`
+	SchemaFieldName *string                `json:"SchemaFieldName,omitempty" gorm:""`
 }
 
 type XgenResourceActionTypeXgenDef struct {
@@ -129,6 +224,12 @@ type XgenResourceDbConfigInput struct {
 type XgenResourceDbConfigInputXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
 	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type XgenResourceDefinition struct {
+	ObjectName *string               `json:"objectName,omitempty" gorm:""`
+	Properties *XgenResourceProperty `json:"properties,omitempty" gorm:""`
+	Actions    []*XgenResourceAction `json:"actions" gorm:""`
 }
 
 type XgenResourceFieldDbConfigInput struct {
@@ -154,6 +255,17 @@ type XgenResourceFieldDbConfigInputXgenDef struct {
 type XgenResourceListActionTypeXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
 	Field  []*XgenObjectField    `json:"field" gorm:""`
+}
+
+type XgenResourceMap struct {
+	Car  *XgenResourceDefinition `json:"car,omitempty" gorm:""`
+	User *XgenResourceDefinition `json:"user,omitempty" gorm:""`
+}
+
+type XgenResourceProperty struct {
+	Name    string  `json:"Name" gorm:""`
+	Route   *string `json:"Route,omitempty" gorm:""`
+	Primary *bool   `json:"Primary,omitempty" gorm:""`
 }
 
 type XgenResourceActionType string

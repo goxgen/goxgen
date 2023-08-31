@@ -1,0 +1,54 @@
+type User
+@Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "id", PrimaryKey: true})
+    name: String! @Field(Label: "Text", Description: "Text of the todo", DB: {Column: "name", Unique: true})
+    cars: [Car!]! @Field(Label: "Cars", Description: "Cars of the todo", DB: {})
+}
+
+type Car
+@Resource(Name: "car", Primary: true, Route: "car", DB: {Table: "car"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "id", PrimaryKey: true})
+    make: String! @Field(Label: "Make", Description: "Car make", DB: {Column: "make"})
+    done: Boolean! @Field(Label: "Done", Description: "Done of the todo", DB: {Column: "done"})
+    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
+}
+
+input CarInput
+@Action(Resource: "car", Action: CREATE_MUTATION, Route: "new", SchemaFieldName: "new_car")
+@Action(Resource: "car", Action: UPDATE_MUTATION, Route: "update", SchemaFieldName: "update_car")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID of the todo")
+    make: String @ActionField(Label: "Make", Description: "Text of the todo")
+    done: Boolean @ActionField(Label: "Done", Description: "Done of the todo")
+    user: ID @ActionField(Label: "User", Description: "User of the todo")
+}
+
+input NewUser
+@Action(Resource: "user", Action: CREATE_MUTATION, Route: "new", SchemaFieldName: "new_user")
+{
+    name: String! @ActionField(Label: "Name", Description: "Name")
+    cars: [CarInput!] @ActionField(Label: "Cars", Description: "Cars of the todo")
+}
+
+input DeleteUsers
+@ListAction(Resource: "user", Action: BATCH_DELETE_MUTATION, Route: "delete", SchemaFieldName: "delete_users")
+{
+    ids: [ID!] @ActionField(Label: "IDs", Description: "IDs of users")
+}
+
+input ListUser
+@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", SchemaFieldName: "list_user")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID")
+    name: String @ActionField(Label: "Name", Description: "Name")
+}
+
+input ListCars
+@ListAction(Resource: "car", Action: BROWSE_QUERY, Route: "list", SchemaFieldName: "list_cars")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID")
+    userId: ID @ActionField(Label: "User ID", Description: "User ID")
+    make: String @ActionField(Label: "Make", Description: "Make")
+}
