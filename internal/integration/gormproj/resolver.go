@@ -17,7 +17,7 @@ func NewResolver(ctx *cli.Context) (*Resolver, error) {
 	r := &Resolver{}
 
 	// Open the database connection
-	db, err := gorm.Open(sqlite.Open("gormproj.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("./internal/integration/gormproj.db"), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
