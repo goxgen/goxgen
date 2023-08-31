@@ -140,9 +140,9 @@ type UserXgenDef struct {
 }
 
 type XgenAnnotationMap struct {
-	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
-	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
+	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
 }
 
 type XgenCursorPaginationInput struct {
@@ -158,8 +158,8 @@ type XgenCursorPaginationInputXgenDef struct {
 }
 
 type XgenFieldDef struct {
-	Field       *Field       `json:"Field,omitempty" gorm:""`
 	ActionField *ActionField `json:"ActionField,omitempty" gorm:""`
+	Field       *Field       `json:"Field,omitempty" gorm:""`
 }
 
 type XgenIntrospection struct {
@@ -170,8 +170,8 @@ type XgenIntrospection struct {
 
 type XgenObjectDefinition struct {
 	Action     *Action     `json:"Action,omitempty" gorm:""`
-	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
 	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
+	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
 }
 
 type XgenObjectField struct {
@@ -180,19 +180,19 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	DeleteUsers                    *DeleteUsersXgenDef                    `json:"DeleteUsers,omitempty" gorm:""`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
-	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
-	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
-	Car                            *CarXgenDef                            `json:"Car,omitempty" gorm:""`
-	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty" gorm:""`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
-	ListCars                       *ListCarsXgenDef                       `json:"ListCars,omitempty" gorm:""`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
-	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
 	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
+	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
+	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
+	DeleteUsers                    *DeleteUsersXgenDef                    `json:"DeleteUsers,omitempty" gorm:""`
+	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
+	ListCars                       *ListCarsXgenDef                       `json:"ListCars,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
+	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
+	Car                            *CarXgenDef                            `json:"Car,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {

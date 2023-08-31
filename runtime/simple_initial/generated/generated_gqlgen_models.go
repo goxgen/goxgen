@@ -60,9 +60,9 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
+	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 	Action     []*ActionAnnotationSingle     `json:"Action"`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
-	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -88,9 +88,9 @@ type XgenIntrospection struct {
 }
 
 type XgenObjectDefinition struct {
-	ListAction *ListAction `json:"ListAction,omitempty"`
 	Resource   *Resource   `json:"Resource,omitempty"`
 	Action     *Action     `json:"Action,omitempty"`
+	ListAction *ListAction `json:"ListAction,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -99,12 +99,12 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
 	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
 	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
 	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
 }
 
 type XgenPaginationInput struct {

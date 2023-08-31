@@ -4,4 +4,4 @@ pre-commit:
 	$(MAKE) integrations-generate
 
 integrations-generate:
-	cd ./internal/integrations && go generate
+	cd ./internal/integration && go generate

@@ -3,28 +3,28 @@ type XgenIntrospection {
   object: XgenObjectMap
   resource: XgenResourceMap
 }
-"""This directive is used to mark the object as a resource"""
-type Resource {
-  Name: String!
-  Route: String
-  Primary: Boolean
-}
-"""This directive is used to mark the object as a resource field"""
-type Field {
-  Label: String
-  Description: String
-}
-"""This directive is used to mark the object as a resource field"""
-type ActionField {
-  Label: String
-  Description: String
-}
 """This directive is used to mark the object as a resource action"""
 type Action {
   Resource: String!
   Action: XgenResourceActionType!
   Route: String
   SchemaFieldName: String
+}
+"""This directive is used to mark the object as a resource field"""
+type ActionField {
+  Label: String
+  Description: String
+}
+"""This directive is used to mark the object as a resource field"""
+type Field {
+  Label: String
+  Description: String
+}
+"""This directive is used to mark the object as a resource"""
+type Resource {
+  Name: String!
+  Route: String
+  Primary: Boolean
 }
 """This directive is used to mark the object as a resource list action"""
 type ListAction {
@@ -35,79 +35,51 @@ type ListAction {
   SchemaFieldName: String
 }
 type XgenAnnotationMap {
-  Action: [ActionAnnotationSingle!]!
-  ListAction: [ListActionAnnotationSingle!]!
   Resource: [ResourceAnnotationSingle!]!
-}
-type ActionAnnotationSingle {
-  name: String
-  value: Action
-}
-type ListActionAnnotationSingle {
-  name: String
-  value: ListAction
+  ListAction: [ListActionAnnotationSingle!]!
+  Action: [ActionAnnotationSingle!]!
 }
 type ResourceAnnotationSingle {
   name: String
   value: Resource
 }
+type ListActionAnnotationSingle {
+  name: String
+  value: ListAction
+}
+type ActionAnnotationSingle {
+  name: String
+  value: Action
+}
 type XgenFieldDef {
-  Field: Field
   ActionField: ActionField
+  Field: Field
 }
 type XgenObjectDefinition {
   Action: Action
-  ListAction: ListAction
   Resource: Resource
+  ListAction: ListAction
 }
 type XgenObjectField {
   name: String
   definition: XgenFieldDef
 }
 type XgenObjectMap {
-  DeleteUsers: DeleteUsersXgenDef
-  XgenResourceActionType: XgenResourceActionTypeXgenDef
-  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
-  CarInput: CarInputXgenDef
-  User: UserXgenDef
-  Car: CarXgenDef
-  NewUser: NewUserXgenDef
-  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
-  XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
-  ListCars: ListCarsXgenDef
-  XgenPaginationInput: XgenPaginationInputXgenDef
-  ListUser: ListUserXgenDef
   XgenResourceListActionType: XgenResourceListActionTypeXgenDef
+  XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
+  NewUser: NewUserXgenDef
+  XgenResourceActionType: XgenResourceActionTypeXgenDef
+  XgenPaginationInput: XgenPaginationInputXgenDef
+  User: UserXgenDef
+  DeleteUsers: DeleteUsersXgenDef
+  CarInput: CarInputXgenDef
+  ListCars: ListCarsXgenDef
+  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
+  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
+  ListUser: ListUserXgenDef
+  Car: CarXgenDef
 }
-type DeleteUsersXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceActionTypeXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceDbConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type CarInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type UserXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type CarXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type NewUserXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceFieldDbConfigInputXgenDef {
+type XgenResourceListActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -115,7 +87,11 @@ type XgenCursorPaginationInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type ListCarsXgenDef {
+type NewUserXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -123,11 +99,35 @@ type XgenPaginationInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
+type UserXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type DeleteUsersXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type CarInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type ListCarsXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceDbConfigInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceFieldDbConfigInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
 type ListUserXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenResourceListActionTypeXgenDef {
+type CarXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -155,12 +155,12 @@ extend type Query {
   _xgen_introspection: XgenIntrospection
 }
 extend type Query {
-  list_user(input: ListUser): [User]!
   list_cars(input: ListCars): [Car]!
+  list_user(input: ListUser): [User]!
 }
 extend type Mutation {
   delete_users(input: DeleteUsers): [User]!
-  new_user(input: NewUser): User
   new_car(input: CarInput): Car
   update_car(input: CarInput): Car
+  new_user(input: NewUser): User
 }

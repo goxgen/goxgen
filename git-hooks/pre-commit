@@ -1,0 +1,5 @@
+#!/bin/sh
+
+make pre-commit && git add --all
+
+exit 0
