@@ -1,3 +1,6 @@
+init:
+	git config core.hooksPath git-hooks
+
 pre-commit:
 	cd ./runtime && go generate
 	go fmt && go mod tidy

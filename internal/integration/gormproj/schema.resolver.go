@@ -13,23 +13,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// DeleteUsers is the resolver for the delete_users field.
-func (r *mutationResolver) DeleteUsers(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
-	var users []*generated.User
-	r.DB.Delete(&users, input.Ids)
-	return users, nil
-}
-
-// NewCar is the resolver for the new_car field.
-func (r *mutationResolver) NewCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
-	panic(fmt.Errorf("not implemented: NewCar - new_car"))
-}
-
-// UpdateCar is the resolver for the update_car field.
-func (r *mutationResolver) UpdateCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
-	panic(fmt.Errorf("not implemented: UpdateCar - update_car"))
-}
-
 // NewUser is the resolver for the new_user field.
 func (r *mutationResolver) NewUser(ctx context.Context, input *generated.NewUser) (*generated.User, error) {
 	cars := make([]*generated.Car, len(input.Cars))
@@ -49,6 +32,23 @@ func (r *mutationResolver) NewUser(ctx context.Context, input *generated.NewUser
 		return nil, res.Error
 	}
 	return user, nil
+}
+
+// DeleteUsers is the resolver for the delete_users field.
+func (r *mutationResolver) DeleteUsers(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
+	var users []*generated.User
+	r.DB.Delete(&users, input.Ids)
+	return users, nil
+}
+
+// NewCar is the resolver for the new_car field.
+func (r *mutationResolver) NewCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
+	panic(fmt.Errorf("not implemented: NewCar - new_car"))
+}
+
+// UpdateCar is the resolver for the update_car field.
+func (r *mutationResolver) UpdateCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
+	panic(fmt.Errorf("not implemented: UpdateCar - update_car"))
 }
 
 // XgenIntrospection is the resolver for the _xgen_introspection field.

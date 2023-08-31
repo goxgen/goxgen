@@ -61,8 +61,8 @@ type ResourceAnnotationSingle struct {
 
 type XgenAnnotationMap struct {
 	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
-	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
 	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
+	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
 }
 
 type XgenCursorPaginationInput struct {
@@ -88,9 +88,9 @@ type XgenIntrospection struct {
 }
 
 type XgenObjectDefinition struct {
-	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
 	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
 	Action     *Action     `json:"Action,omitempty" gorm:""`
+	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
 }
 
 type XgenObjectField struct {
@@ -99,12 +99,12 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
 	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
 	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {
