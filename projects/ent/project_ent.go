@@ -7,6 +7,7 @@ import (
 	"github.com/goxgen/goxgen/graphql"
 	"github.com/goxgen/goxgen/projects"
 	"github.com/goxgen/goxgen/projects/simple"
+	"github.com/goxgen/goxgen/tmpl"
 )
 
 // Project is a project configuration for ent projects
@@ -92,8 +93,8 @@ func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, dat
 	), nil
 }
 
-// NewEntProject creates a new ent project
-func NewEntProject(option ...projects.ProjectOption) *Project {
+// New creates a new ent project
+func New(option ...projects.ProjectOption) *Project {
 	return &Project{
 		Project: simple.NewPlugin(option...),
 	}
