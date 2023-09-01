@@ -15,7 +15,7 @@ import(
     "fmt"
     "strconv"
     "strings"
-	"github.com/goxgen/goxgen/internal/integration/myproject/generated"
+	"github.com/goxgen/goxgen/cmd/internal/integration/myproject/generated"
 )
 
 func MyprojectServeGraphql (ctx *cli.Context) error {

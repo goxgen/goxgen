@@ -1,5 +1,11 @@
 # goxgen
 
+[![GitHub license](https://img.shields.io/github/license/goxgen/goxgen)](https://github.com/goxgen/goxgen)
+[![GitHub stars](https://img.shields.io/github/stars/goxgen/goxgen)](https://github.com/goxgen/goxgen/stargazers)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/goxgen/goxgen)
+[![Go Report Card](https://goreportcard.com/badge/github.com/goxgen/goxgen)](https://goreportcard.com/report/github.com/goxgen/goxgen)
+[![codecov](https://codecov.io/gh/goxgen/goxgen/branch/main/graph/badge.svg?token=SDEXU6YQH9)](https://codecov.io/gh/goxgen/goxgen)
+
 Your One-Stop Solution for GraphQL Application Generation
 
 `goxgen` is a powerful library designed to simplify the creation of GraphQL applications.
@@ -26,11 +32,11 @@ and a Command-Line Interface for server operations.
 - [gorm](https://gorm.io/index.html)
 - [urfave/cli](https://cli.urfave.org)
 
-# 🚀Quick Start
+# 🚀 Quick Start
 
-## 👣Step-by-step guide
+## 👣 Step-by-step guide
 
-### 📄Creating the necessary files
+### 📄 Creating the necessary files
 
 You should create two files in your project
 
@@ -44,7 +50,7 @@ Then run `go generate` command, and goxgen will generate project structure
 go generate
 ```
 
-### 📁Structure of a generated project
+### 📁 Structure of a generated project
 
 After running `go generate` command, goxgen will generate project structure like this
 
@@ -69,7 +75,7 @@ demoproj/
 |-- xgenc.go
 ```
 
-### 📑Providing schema
+### 📑 Providing schema
 
 You should provide a schema for each project and run `go generate` again.
 

@@ -60,8 +60,8 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
-	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
 	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
 }
 
@@ -99,12 +99,12 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
 	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
 	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {

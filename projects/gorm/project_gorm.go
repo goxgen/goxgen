@@ -13,7 +13,7 @@ import (
 	"github.com/goxgen/goxgen/graphql/generator"
 	"github.com/goxgen/goxgen/projects"
 	"github.com/goxgen/goxgen/projects/simple"
-	"github.com/goxgen/goxgen/runtime/gorm_initial/generated_gqlgen"
+	"github.com/goxgen/goxgen/runtime/gorm_initial/generated"
 	"github.com/goxgen/goxgen/tmpl"
 	"github.com/mitchellh/mapstructure"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -104,14 +104,14 @@ func (p *Project) MutateHook() modelgen.BuildMutateHook {
 	}
 }
 
-func (p *Project) getDbConfigFieldDirective(dir *ast.Directive) (*generated_gqlgen.XgenResourceFieldDbConfigInput, error) {
+func (p *Project) getDbConfigFieldDirective(dir *ast.Directive) (*generated.XgenResourceFieldDbConfigInput, error) {
 	dbArg := dir.Arguments.ForName("DB")
 	dbArgVal, err := dbArg.Value.Value(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	conf := &generated_gqlgen.XgenResourceFieldDbConfigInput{}
+	conf := &generated.XgenResourceFieldDbConfigInput{}
 	err = mapstructure.Decode(dbArgVal, conf)
 	if err != nil {
 		fmt.Println("can't decode db config", err)

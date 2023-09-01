@@ -180,19 +180,19 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
-	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty" gorm:""`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
-	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
 	DeleteUsers                    *DeleteUsersXgenDef                    `json:"DeleteUsers,omitempty" gorm:""`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
-	ListCars                       *ListCarsXgenDef                       `json:"ListCars,omitempty" gorm:""`
-	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
-	Car                            *CarXgenDef                            `json:"Car,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
 	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
+	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
+	Car                            *CarXgenDef                            `json:"Car,omitempty" gorm:""`
+	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
+	ListCars                       *ListCarsXgenDef                       `json:"ListCars,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {
@@ -258,8 +258,8 @@ type XgenResourceListActionTypeXgenDef struct {
 }
 
 type XgenResourceMap struct {
-	User *XgenResourceDefinition `json:"user,omitempty" gorm:""`
 	Car  *XgenResourceDefinition `json:"car,omitempty" gorm:""`
+	User *XgenResourceDefinition `json:"user,omitempty" gorm:""`
 }
 
 type XgenResourceProperty struct {

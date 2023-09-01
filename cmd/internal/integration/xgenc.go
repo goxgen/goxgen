@@ -12,7 +12,7 @@ import (
 func main() {
 	xg := xgen.NewXgen(
 		xgen.WithPlugin(cli.NewPlugin()),
-		xgen.WithPackageName("github.com/goxgen/goxgen/internal/integration"),
+		xgen.WithPackageName("github.com/goxgen/goxgen/cmd/internal/integration"),
 		xgen.WithProject(
 			"myproject",
 			simple.NewPlugin(),

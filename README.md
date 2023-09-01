@@ -1,5 +1,11 @@
 # goxgen
 
+[![GitHub license](https://img.shields.io/github/license/goxgen/goxgen)](https://github.com/goxgen/goxgen)
+[![GitHub stars](https://img.shields.io/github/stars/goxgen/goxgen)](https://github.com/goxgen/goxgen/stargazers)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/goxgen/goxgen)
+[![Go Report Card](https://goreportcard.com/badge/github.com/goxgen/goxgen)](https://goreportcard.com/report/github.com/goxgen/goxgen)
+[![codecov](https://codecov.io/gh/goxgen/goxgen/branch/main/graph/badge.svg?token=SDEXU6YQH9)](https://codecov.io/gh/goxgen/goxgen)
+
 Your One-Stop Solution for GraphQL Application Generation
 
 `goxgen` is a powerful library designed to simplify the creation of GraphQL applications.
@@ -26,11 +32,11 @@ and a Command-Line Interface for server operations.
 - [gorm](https://gorm.io/index.html)
 - [urfave/cli](https://cli.urfave.org)
 
-# 🚀Quick Start
+# 🚀 Quick Start
 
-## 👣Step-by-step guide
+## 👣 Step-by-step guide
 
-### 📄Creating the necessary files
+### 📄 Creating the necessary files
 
 You should create two files in your project
 
@@ -57,7 +63,7 @@ You should create two files in your project
     func main() {
     	xg := xgen.NewXgen(
     		xgen.WithPlugin(cli.NewPlugin()),
-    		xgen.WithPackageName("github.com/goxgen/goxgen/internal/integration"),
+    		xgen.WithPackageName("github.com/goxgen/goxgen/cmd/internal/integration"),
     		xgen.WithProject(
     			"myproject",
     			simple.NewPlugin(),
@@ -85,7 +91,7 @@ Then run `go generate` command, and goxgen will generate project structure
 go generate
 ```
 
-### 📁Structure of a generated project
+### 📁 Structure of a generated project
 
 After running `go generate` command, goxgen will generate project structure like this
 
@@ -110,7 +116,7 @@ demoproj/
 |-- xgenc.go
 ```
 
-### 📑Providing schema
+### 📑 Providing schema
 
 You should provide a schema for each project and run `go generate` again.
 
@@ -348,6 +354,22 @@ func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenI
 	return r.Resolver.XgenIntrospection()
 }
 
+// ListCars is the resolver for the list_cars field.
+func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
+	var cars []*generated.Car
+	res := r.DB.Where(&[]*generated.Car{
+		{
+			ID:     utils.Deref(input.ID),
+			UserID: utils.Deref(input.UserID),
+		},
+	}).Find(&cars)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return cars, nil
+}
+
 // ListUser is the resolver for the list_user field.
 func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser) ([]*generated.User, error) {
 	var users []*generated.User
@@ -363,22 +385,6 @@ func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser)
 	}
 
 	return users, nil
-}
-
-// ListCars is the resolver for the list_cars field.
-func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
-	var cars []*generated.Car
-	res := r.DB.Where(&[]*generated.Car{
-		{
-			ID:     utils.Deref(input.ID),
-			UserID: utils.Deref(input.UserID),
-		},
-	}).Find(&cars)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return cars, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -532,35 +538,3 @@ query{
 ```
 
 The result of this query should be like this
-```json
-{
-  "data": {
-    "list_user": [
-      {
-        "id": 1,
-        "name": "My user 1"
-      },
-      {
-        "id": 2,
-        "name": "My user 2"
-      }
-    ]
-  }
-}
-```
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-## 📝 License
-
-Apache 2.0
-
-## 📞 Contact
-
-For more information, feel free to open an issue in the repository.
-
----
-
-Enjoy the power of single-syntax API and domain definitions with `goxgen`! 🚀
