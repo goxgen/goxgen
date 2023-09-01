@@ -354,22 +354,6 @@ func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenI
 	return r.Resolver.XgenIntrospection()
 }
 
-// ListCars is the resolver for the list_cars field.
-func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
-	var cars []*generated.Car
-	res := r.DB.Where(&[]*generated.Car{
-		{
-			ID:     utils.Deref(input.ID),
-			UserID: utils.Deref(input.UserID),
-		},
-	}).Find(&cars)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return cars, nil
-}
-
 // ListUser is the resolver for the list_user field.
 func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser) ([]*generated.User, error) {
 	var users []*generated.User
@@ -385,6 +369,22 @@ func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser)
 	}
 
 	return users, nil
+}
+
+// ListCars is the resolver for the list_cars field.
+func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
+	var cars []*generated.Car
+	res := r.DB.Where(&[]*generated.Car{
+		{
+			ID:     utils.Deref(input.ID),
+			UserID: utils.Deref(input.UserID),
+		},
+	}).Find(&cars)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return cars, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

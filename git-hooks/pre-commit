@@ -2,4 +2,4 @@
 
 make pre-commit && git add --all
 
-exit 0
+exit $?

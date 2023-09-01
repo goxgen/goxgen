@@ -60,9 +60,9 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
+	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
 	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
 	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
-	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
 }
 
 type XgenCursorPaginationInput struct {
@@ -78,8 +78,8 @@ type XgenCursorPaginationInputXgenDef struct {
 }
 
 type XgenFieldDef struct {
-	Field       *Field       `json:"Field,omitempty" gorm:""`
 	ActionField *ActionField `json:"ActionField,omitempty" gorm:""`
+	Field       *Field       `json:"Field,omitempty" gorm:""`
 }
 
 type XgenIntrospection struct {
@@ -99,12 +99,12 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
 	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
 	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {
