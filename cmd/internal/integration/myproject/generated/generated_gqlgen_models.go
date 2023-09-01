@@ -27,6 +27,28 @@ type ActionField struct {
 	Description *string `json:"Description,omitempty"`
 }
 
+type CustomTodo struct {
+	Text    string `json:"text"`
+	UserID  int    `json:"userId"`
+	Code    string `json:"code"`
+	Custom  string `json:"custom"`
+	Custom2 string `json:"custom2"`
+}
+
+type CustomTodoXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type DeleteTodo struct {
+	ID int `json:"id"`
+}
+
+type DeleteTodoXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
 // This directive is used to mark the object as a resource field
 type Field struct {
 	Label       *string `json:"Label,omitempty"`
@@ -47,6 +69,40 @@ type ListActionAnnotationSingle struct {
 	Value *ListAction `json:"value,omitempty"`
 }
 
+type ListTodo struct {
+	ID     int    `json:"id"`
+	Text   string `json:"text"`
+	Done   bool   `json:"done"`
+	UserID int    `json:"userId"`
+	Code   string `json:"code"`
+}
+
+type ListTodoXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type NewTodo struct {
+	Text   string `json:"text"`
+	UserID int    `json:"userId"`
+	Code   string `json:"code"`
+}
+
+type NewTodoXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type NewUser struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type NewUserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
 // This directive is used to mark the object as a resource
 type Resource struct {
 	Name    string  `json:"Name"`
@@ -59,10 +115,63 @@ type ResourceAnnotationSingle struct {
 	Value *Resource `json:"value,omitempty"`
 }
 
+type Todo struct {
+	ID   int    `json:"id"`
+	Text string `json:"text"`
+	Done bool   `json:"done"`
+	User *User  `json:"user"`
+}
+
+type TodoXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type UpdateTodo struct {
+	Text   string `json:"text"`
+	UserID int    `json:"userId"`
+	Code   string `json:"code"`
+}
+
+type UpdateTodoXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type UpdateUser struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type UpdateUserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type User struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type UserList struct {
+	ID   *int    `json:"id,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+type UserListXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type UserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
 type XgenAnnotationMap struct {
+	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
 	Action     []*ActionAnnotationSingle     `json:"Action"`
 	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
-	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -78,19 +187,20 @@ type XgenCursorPaginationInputXgenDef struct {
 }
 
 type XgenFieldDef struct {
-	Field       *Field       `json:"Field,omitempty"`
 	ActionField *ActionField `json:"ActionField,omitempty"`
+	Field       *Field       `json:"Field,omitempty"`
 }
 
 type XgenIntrospection struct {
 	Annotation *XgenAnnotationMap `json:"annotation,omitempty"`
 	Object     *XgenObjectMap     `json:"object,omitempty"`
+	Resource   *XgenResourceMap   `json:"resource,omitempty"`
 }
 
 type XgenObjectDefinition struct {
+	Resource   *Resource   `json:"Resource,omitempty"`
 	Action     *Action     `json:"Action,omitempty"`
 	ListAction *ListAction `json:"ListAction,omitempty"`
-	Resource   *Resource   `json:"Resource,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -99,12 +209,22 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	CustomTodo                     *CustomTodoXgenDef                     `json:"CustomTodo,omitempty"`
+	UserList                       *UserListXgenDef                       `json:"UserList,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	UpdateTodo                     *UpdateTodoXgenDef                     `json:"UpdateTodo,omitempty"`
+	Todo                           *TodoXgenDef                           `json:"Todo,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	User                           *UserXgenDef                           `json:"User,omitempty"`
 	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	UpdateUser                     *UpdateUserXgenDef                     `json:"UpdateUser,omitempty"`
 	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	ListTodo                       *ListTodoXgenDef                       `json:"ListTodo,omitempty"`
+	DeleteTodo                     *DeleteTodoXgenDef                     `json:"DeleteTodo,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	NewTodo                        *NewTodoXgenDef                        `json:"NewTodo,omitempty"`
+	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty"`
 }
 
 type XgenPaginationInput struct {
@@ -115,6 +235,13 @@ type XgenPaginationInput struct {
 type XgenPaginationInputXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty"`
 	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenResourceAction struct {
+	Resource        string                 `json:"Resource"`
+	Action          XgenResourceActionType `json:"Action"`
+	Route           *string                `json:"Route,omitempty"`
+	SchemaFieldName *string                `json:"SchemaFieldName,omitempty"`
 }
 
 type XgenResourceActionTypeXgenDef struct {
@@ -129,6 +256,12 @@ type XgenResourceDbConfigInput struct {
 type XgenResourceDbConfigInputXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty"`
 	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenResourceDefinition struct {
+	ObjectName *string               `json:"objectName,omitempty"`
+	Properties *XgenResourceProperty `json:"properties,omitempty"`
+	Actions    []*XgenResourceAction `json:"actions"`
 }
 
 type XgenResourceFieldDbConfigInput struct {
@@ -156,6 +289,17 @@ type XgenResourceListActionTypeXgenDef struct {
 	Field  []*XgenObjectField    `json:"field"`
 }
 
+type XgenResourceMap struct {
+	Todo *XgenResourceDefinition `json:"todo,omitempty"`
+	User *XgenResourceDefinition `json:"user,omitempty"`
+}
+
+type XgenResourceProperty struct {
+	Name    string  `json:"Name"`
+	Route   *string `json:"Route,omitempty"`
+	Primary *bool   `json:"Primary,omitempty"`
+}
+
 type XgenResourceActionType string
 
 const (
@@ -163,6 +307,7 @@ const (
 	XgenResourceActionTypeReadQuery      XgenResourceActionType = "READ_QUERY"
 	XgenResourceActionTypeUpdateMutation XgenResourceActionType = "UPDATE_MUTATION"
 	XgenResourceActionTypeDeleteMutation XgenResourceActionType = "DELETE_MUTATION"
+	XgenResourceActionTypeCustomMutation XgenResourceActionType = "CUSTOM_MUTATION"
 )
 
 var AllXgenResourceActionType = []XgenResourceActionType{
@@ -170,11 +315,12 @@ var AllXgenResourceActionType = []XgenResourceActionType{
 	XgenResourceActionTypeReadQuery,
 	XgenResourceActionTypeUpdateMutation,
 	XgenResourceActionTypeDeleteMutation,
+	XgenResourceActionTypeCustomMutation,
 }
 
 func (e XgenResourceActionType) IsValid() bool {
 	switch e {
-	case XgenResourceActionTypeCreateMutation, XgenResourceActionTypeReadQuery, XgenResourceActionTypeUpdateMutation, XgenResourceActionTypeDeleteMutation:
+	case XgenResourceActionTypeCreateMutation, XgenResourceActionTypeReadQuery, XgenResourceActionTypeUpdateMutation, XgenResourceActionTypeDeleteMutation, XgenResourceActionTypeCustomMutation:
 		return true
 	}
 	return false
