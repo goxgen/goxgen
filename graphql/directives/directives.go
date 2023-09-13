@@ -17,12 +17,12 @@ type InputObjectDirectiveDefinition struct {
 
 type FieldDirectiveDefinition struct {
 	Definition *ast.DirectiveDefinition
-	Validator  func(directive *ast.Directive, field *ast.Field) error
+	Validate   func(directive *ast.Directive, field *ast.FieldDefinition) error
 }
 
 type InputFieldDirectiveDefinition struct {
 	Definition *ast.DirectiveDefinition
-	Validator  func(directive *ast.Directive, field *ast.Field) error
+	Validate   func(directive *ast.Directive, field *ast.FieldDefinition) error
 }
 
 type DirectiveDefinitionBundle struct {
@@ -106,12 +106,12 @@ var (
 	}
 )
 
-func GetResourceActionDirectives(definition *ast.Definition) []*ast.Directive {
-	dirs := definition.Directives.ForNames(consts.ResourceActionDirectiveName)
-	return append(
-		dirs,
-		definition.Directives.ForNames(consts.ResourceListActionDirectiveName)...,
-	)
+func GetInputFieldDirectives(definition *ast.Definition) []*ast.Directive {
+	return definition.Directives.ForNames(consts.ActionFieldDirectiveName)
+}
+
+func GetObjectFieldDirectives(definition *ast.Definition) []*ast.Directive {
+	return definition.Directives.ForNames(consts.FieldDirectiveName)
 }
 
 func mergeDirectiveDefs(directive ast.DirectiveDefinition, new ast.DirectiveDefinition) *ast.DirectiveDefinition {

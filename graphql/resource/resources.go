@@ -27,7 +27,10 @@ func SchemaGeneratorHook(schema *ast.Schema) generator.SchemaHook {
 
 		for _, object := range objects {
 
-			resourceActionDirectives := directives.GetResourceActionDirectives(object)
+			resourceActionDirectives := append(
+				object.Directives.ForNames(consts.ActionDirectiveName),
+				object.Directives.ForNames(consts.ListActionDirectiveName)...,
+			)
 			for _, directive := range resourceActionDirectives {
 				err := prepareSchemaField(schema, query, mutation, object, directive)
 				if err != nil {

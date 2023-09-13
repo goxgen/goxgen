@@ -41,22 +41,19 @@ and a Command-Line Interface for server operations.
 You should create two files in your project
 
 1. Standard `gen.go` file with `go:generate` directive
-    ```go
     package main
     
     //go:generate go run -mod=mod github.com/goxgen/goxgen
     
-    ```
 2. Xgen config file `xgenc.go`
-    ```go
     package main
     
     import (
     	"context"
     	"fmt"
     	"github.com/goxgen/goxgen/plugins/cli"
+    	"github.com/goxgen/goxgen/projects/basic"
     	"github.com/goxgen/goxgen/projects/gorm"
-    	"github.com/goxgen/goxgen/projects/simple"
     	"github.com/goxgen/goxgen/xgen"
     )
     
@@ -66,11 +63,13 @@ You should create two files in your project
     		xgen.WithPackageName("github.com/goxgen/goxgen/cmd/internal/integration"),
     		xgen.WithProject(
     			"myproject",
-    			simple.NewPlugin(),
+    			basic.NewProject(),
     		),
     		xgen.WithProject(
     			"gormproj",
-    			gorm.NewPlugin(),
+    			gorm.NewProject(
+    				gorm.WithBasicProjectOption(basic.WithTestDir("tests")),
+    			),
     		),
     		//xgen.WithProject(
     		//	"entproj",
@@ -84,7 +83,6 @@ You should create two files in your project
     	}
     }
     
-    ```
 Then run `go generate` command, and goxgen will generate project structure
 
 ```shell
@@ -132,35 +130,22 @@ package gormproj
 
 import (
 	"fmt"
-	"github.com/goxgen/goxgen/cmd/internal/integration/gormproj/generated"
-
+	"github.com/goxgen/goxgen/utils/mapper"
 	"github.com/urfave/cli/v2"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 type Resolver struct {
-	DB *gorm.DB
+	DB     *gorm.DB
+	Mapper *mapper.Mapper
 }
 
 func NewResolver(ctx *cli.Context) (*Resolver, error) {
 	r := &Resolver{}
-
-	// Open the database connection
-	db, err := gorm.Open(sqlite.Open("./cmd/internal/integration/gormproj.db"), &gorm.Config{})
+	db, err := NewGormDB(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("failed to create gorm db: %w", err)
 	}
-
-	// Migrate the schema
-	err = db.AutoMigrate(
-		&generated.Car{},
-		&generated.User{},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to migrate database: %w", err)
-	}
-
 	r.DB = db
 	return r, nil
 }
@@ -175,6 +160,7 @@ type User
     id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "id", PrimaryKey: true})
     name: String! @Field(Label: "Text", Description: "Text of the todo", DB: {Column: "name", Unique: true})
     cars: [Car!]! @Field(Label: "Cars", Description: "Cars of the todo", DB: {})
+    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
 }
 
 type Car
@@ -187,41 +173,68 @@ type Car
 }
 
 input CarInput
-@Action(Resource: "car", Action: CREATE_MUTATION, Route: "new", SchemaFieldName: "new_car")
-@Action(Resource: "car", Action: UPDATE_MUTATION, Route: "update", SchemaFieldName: "update_car")
+@Action(Resource: "car", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "car", Action: UPDATE_MUTATION, Route: "update")
 {
-    id: ID @ActionField(Label: "ID", Description: "ID of the todo")
-    make: String @ActionField(Label: "Make", Description: "Text of the todo")
-    done: Boolean @ActionField(Label: "Done", Description: "Done of the todo")
-    user: ID @ActionField(Label: "User", Description: "User of the todo")
+    id: ID @ActionField(Label: "ID", Description: "ID of the car", MapTo: ["Car.ID"])
+    make: String @ActionField(Label: "Make", Description: "Text of the todo", MapTo: ["Car.Make"])
+    done: Boolean @ActionField(Label: "Done", Description: "Done of the todo", MapTo: ["Car.Done"])
+    user: UserInput @ActionField(Label: "User", Description: "User of the todo", MapTo: ["Car.User"])
 }
 
-input NewUser
-@Action(Resource: "user", Action: CREATE_MUTATION, Route: "new", SchemaFieldName: "new_user")
+input UserInput
+@Action(Resource: "user", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "user", Action: UPDATE_MUTATION, Route: "update")
 {
-    name: String! @ActionField(Label: "Name", Description: "Name")
-    cars: [CarInput!] @ActionField(Label: "Cars", Description: "Cars of the todo")
+    id: ID @ActionField(Label: "ID", Description: "ID of the user", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
+    cars: [CarInput!] @ActionField(Label: "Cars", Description: "Cars of the user", MapTo: ["User.Cars"])
+    phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", Description: "Phone numbers of the user", MapTo: ["User.PhoneNumbers"])
 }
 
 input DeleteUsers
-@ListAction(Resource: "user", Action: BATCH_DELETE_MUTATION, Route: "delete", SchemaFieldName: "delete_users")
+@ListAction(Resource: "user", Action: BATCH_DELETE_MUTATION, Route: "delete")
 {
     ids: [ID!] @ActionField(Label: "IDs", Description: "IDs of users")
 }
 
 input ListUser
-@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", SchemaFieldName: "list_user")
+@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list")
 {
-    id: ID @ActionField(Label: "ID", Description: "ID")
-    name: String @ActionField(Label: "Name", Description: "Name")
+    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
 }
 
-input ListCars
-@ListAction(Resource: "car", Action: BROWSE_QUERY, Route: "list", SchemaFieldName: "list_cars")
+input CarBrowseInput
+@ListAction(Resource: "car", Action: BROWSE_QUERY, Route: "list")
 {
     id: ID @ActionField(Label: "ID", Description: "ID")
     userId: ID @ActionField(Label: "User ID", Description: "User ID")
     make: String @ActionField(Label: "Make", Description: "Make")
+}
+
+type Phone
+@Resource(Name: "phone_number", Primary: true, Route: "phone-number", DB: {Table: "phone_number"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the phone number", DB: {Column: "id", PrimaryKey: true})
+    number: String! @Field(Label: "Number", Description: "Number of phone", DB: {Column: "number"})
+    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
+}
+
+input PhoneNumberBrowseInput
+@ListAction(Resource: "phone_number", Action: BROWSE_QUERY, Route: "list")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["Phone.ID"])
+    number: ID @ActionField(Label: "Number", Description: "Number of phone", MapTo: ["Phone.Number"])
+}
+
+input PhoneNumberInput
+@Action(Resource: "phone_number", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "phone_number", Action: UPDATE_MUTATION, Route: "update")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID of the phone number", MapTo: ["Phone.ID"])
+    number: String @ActionField(Label: "Name", Description: "Number of phone", MapTo: ["Phone.Number"])
+    user: UserInput @ActionField(Label: "User", Description: "User of the phone", MapTo: ["Phone.User"])
 }
 ```
 
@@ -246,7 +259,10 @@ directive @ExcludeArgumentFromType(exclude: Boolean) on ARGUMENT_DEFINITION
 """This directive is used to mark the object as a resource field"""
 directive @Field(Label: String, Description: String, DB: XgenResourceFieldDbConfigInput @ExcludeArgumentFromType) on FIELD_DEFINITION
 """This directive is used to mark the object as a resource field"""
-directive @ActionField(Label: String, Description: String) on INPUT_FIELD_DEFINITION
+directive @ActionField(Label: String, Description: String,
+  """Map field to resource field, {resource}.{field}, eg. user.id"""
+  MapTo: [String!]
+) on INPUT_FIELD_DEFINITION
 enum XgenResourceActionType {
   CREATE_MUTATION
   READ_QUERY
@@ -304,49 +320,96 @@ package gormproj
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/goxgen/goxgen/cmd/internal/integration/gormproj/generated"
-	"github.com/goxgen/goxgen/utils"
+	"github.com/goxgen/goxgen/plugins/cli/server"
+	"go.uber.org/zap"
 	"gorm.io/gorm/clause"
 )
 
-// DeleteUsers is the resolver for the delete_users field.
-func (r *mutationResolver) DeleteUsers(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
+// PhoneNumberCreate is the resolver for the phone_number_create field.
+func (r *mutationResolver) PhoneNumberCreate(ctx context.Context, input *generated.PhoneNumberInput) (*generated.Phone, error) {
+	p, err := input.ToPhoneModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Create(p)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return p, nil
+}
+
+// PhoneNumberUpdate is the resolver for the phone_number_update field.
+func (r *mutationResolver) PhoneNumberUpdate(ctx context.Context, input *generated.PhoneNumberInput) (*generated.Phone, error) {
+	p, err := input.ToPhoneModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	td := r.DB.Preload(clause.Associations).Save(p)
+	if td.Error != nil {
+		return nil, td.Error
+	}
+	return p, nil
+}
+
+// UserCreate is the resolver for the user_create field.
+func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.UserInput) (*generated.User, error) {
+	u, err := input.ToUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Create(u)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return u, nil
+}
+
+// UserUpdate is the resolver for the user_update field.
+func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.UserInput) (*generated.User, error) {
+	u, err := input.ToUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	td := r.DB.Preload(clause.Associations).Save(u)
+	if td.Error != nil {
+		return nil, td.Error
+	}
+	return u, nil
+}
+
+// UserBatchDelete is the resolver for the user_batch_delete field.
+func (r *mutationResolver) UserBatchDelete(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
 	var users []*generated.User
 	r.DB.Delete(&users, input.Ids)
 	return users, nil
 }
 
-// NewUser is the resolver for the new_user field.
-func (r *mutationResolver) NewUser(ctx context.Context, input *generated.NewUser) (*generated.User, error) {
-	cars := make([]*generated.Car, len(input.Cars))
-	for i, car := range input.Cars {
-		cars[i] = &generated.Car{
-			ID:   utils.Deref(car.ID),
-			Make: utils.Deref(car.Make),
-			Done: utils.Deref(car.Done),
-		}
+// CarCreate is the resolver for the car_create field.
+func (r *mutationResolver) CarCreate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
+	car, err := input.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
 	}
-	user := &generated.User{
-		Name: input.Name,
-		Cars: cars,
-	}
-	res := r.DB.Preload(clause.Associations).Create(user)
+	res := r.DB.Preload(clause.Associations).Create(car)
 	if res.Error != nil {
 		return nil, res.Error
 	}
-	return user, nil
+	return car, nil
 }
 
-// NewCar is the resolver for the new_car field.
-func (r *mutationResolver) NewCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
-	panic(fmt.Errorf("not implemented: NewCar - new_car"))
-}
-
-// UpdateCar is the resolver for the update_car field.
-func (r *mutationResolver) UpdateCar(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
-	panic(fmt.Errorf("not implemented: UpdateCar - update_car"))
+// CarUpdate is the resolver for the car_update field.
+func (r *mutationResolver) CarUpdate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
+	car, err := input.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Save(car)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return car, nil
 }
 
 // XgenIntrospection is the resolver for the _xgen_introspection field.
@@ -354,15 +417,18 @@ func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenI
 	return r.Resolver.XgenIntrospection()
 }
 
-// ListUser is the resolver for the list_user field.
-func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser) ([]*generated.User, error) {
+// UserBrowse is the resolver for the user_browse field.
+func (r *queryResolver) UserBrowse(ctx context.Context, input *generated.ListUser) ([]*generated.User, error) {
+	// Get logger from context
+	logger := server.GetLogger(ctx)
+	logger.Info("UserBrowse", zap.Any("input", input))
+
 	var users []*generated.User
-	res := r.DB.Where(&[]*generated.User{
-		{
-			ID:   utils.Deref(input.ID),
-			Name: utils.Deref(input.Name),
-		},
-	}).Find(&users)
+	u, err := input.ToUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.User{u}).Find(&users)
 
 	if res.Error != nil {
 		return nil, res.Error
@@ -371,20 +437,36 @@ func (r *queryResolver) ListUser(ctx context.Context, input *generated.ListUser)
 	return users, nil
 }
 
-// ListCars is the resolver for the list_cars field.
-func (r *queryResolver) ListCars(ctx context.Context, input *generated.ListCars) ([]*generated.Car, error) {
+// CarBrowse is the resolver for the car_browse field.
+func (r *queryResolver) CarBrowse(ctx context.Context, input *generated.CarBrowseInput) ([]*generated.Car, error) {
 	var cars []*generated.Car
-	res := r.DB.Where(&[]*generated.Car{
-		{
-			ID:     utils.Deref(input.ID),
-			UserID: utils.Deref(input.UserID),
-		},
-	}).Find(&cars)
+	u, err := input.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
 
 	if res.Error != nil {
 		return nil, res.Error
 	}
+
 	return cars, nil
+}
+
+// PhoneNumberBrowse is the resolver for the phone_number_browse field.
+func (r *queryResolver) PhoneNumberBrowse(ctx context.Context, input *generated.PhoneNumberBrowseInput) ([]*generated.Phone, error) {
+	var phones []*generated.Phone
+	u, err := input.ToPhoneModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Phone{u}).Find(&phones)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return phones, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -413,35 +495,22 @@ package gormproj
 
 import (
 	"fmt"
-	"github.com/goxgen/goxgen/cmd/internal/integration/gormproj/generated"
-
+	"github.com/goxgen/goxgen/utils/mapper"
 	"github.com/urfave/cli/v2"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 type Resolver struct {
-	DB *gorm.DB
+	DB     *gorm.DB
+	Mapper *mapper.Mapper
 }
 
 func NewResolver(ctx *cli.Context) (*Resolver, error) {
 	r := &Resolver{}
-
-	// Open the database connection
-	db, err := gorm.Open(sqlite.Open("./cmd/internal/integration/gormproj.db"), &gorm.Config{})
+	db, err := NewGormDB(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("failed to create gorm db: %w", err)
 	}
-
-	// Migrate the schema
-	err = db.AutoMigrate(
-		&generated.Car{},
-		&generated.User{},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to migrate database: %w", err)
-	}
-
 	r.DB = db
 	return r, nil
 }
@@ -479,7 +548,7 @@ Then we see graphql playground, let's run some mutation query to add two new use
 
 ```graphql
 mutation{
-    user1: new_user(input: {name: "My user 1", cars: {make:"BMW"}}){
+    user1: user_create(input: {name: "My user 1", cars: {make:"BMW"}}){
         id
         name
         cars {
@@ -487,7 +556,7 @@ mutation{
             id
         }
     }
-    user2: new_user(input: {name: "My user 2", cars: {make:"BMW"}}){
+    user2: user_create(input: {name: "My user 2", cars: {make:"Mercedes"}}){
         id
         name
         cars {
@@ -496,6 +565,7 @@ mutation{
         }
     }
 }
+
 ```
 
 After execution of this mutation, graphql should be return result like this
@@ -509,7 +579,7 @@ After execution of this mutation, graphql should be return result like this
       "cars": [
         {
           "make": "BMW",
-          "id": 12
+          "id": 1
         }
       ]
     },
@@ -518,23 +588,60 @@ After execution of this mutation, graphql should be return result like this
       "name": "My user 2",
       "cars": [
         {
-          "make": "BMW",
-          "id": 13
+          "make": "Mercedes",
+          "id": 2
         }
       ]
     }
   }
 }
+
 ```
 
 One more example, let's list our new users by query
+
 ```graphql
 query{
-    list_user(input: {}){
+    user_browse(input: {}){
         id
         name
     }
 }
+
 ```
 
 The result of this query should be like this
+
+```graphql
+{
+  "data": {
+    "user_browse": [
+      {
+        "id": 1,
+        "name": "My user 1"
+      },
+      {
+        "id": 2,
+        "name": "My user 2"
+      }
+    ]
+  }
+}
+
+```
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+## 📝 License
+
+Apache 2.0
+
+## 📞 Contact
+
+For more information, feel free to open an issue in the repository.
+
+---
+
+Enjoy the power of single-syntax API and domain definitions with `goxgen`! 🚀

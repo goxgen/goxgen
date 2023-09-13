@@ -1,0 +1,26 @@
+{{- /* gotype: github.com/goxgen/goxgen/projects/basic.TemplateData*/ -}}
+
+{{- define "BaseTemplate" -}}
+
+package {{.GeneratedGqlgenPackageName}}
+
+import (
+	"context"
+	"github.com/goxgen/goxgen/plugins/cli/server"
+)
+
+{{- range $res, $actions := .ResourceTypeNameToActionMap }}
+{{- range $action := $actions }}
+{{- $methodName := print "to-" $res "-model" | camelcase }}
+
+// {{$methodName}} Map {{$action}} to {{$res}} model
+func (ra *{{$action}}) {{$methodName}}(ctx context.Context) (*{{$res}}, error){
+	mapper := server.GetMapper(ctx)
+	target := &{{$res}}{}
+	err := mapper.Map(ra, target)
+	return target, err
+}
+{{- end }}
+{{- end }}
+
+{{- end -}}

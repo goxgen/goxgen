@@ -11,7 +11,7 @@ import (
 var (
 	resourceListActionDirective = InputObjectDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
-			Name:        consts.ResourceListActionDirectiveName,
+			Name:        consts.ListActionDirectiveName,
 			Description: `This directive is used to mark the object as a resource list action`,
 			Position:    pos,
 			Arguments: ast.ArgumentDefinitionList{
@@ -74,9 +74,9 @@ func GetResourceListConfig(def *ast.Definition) (*XgenResourceListActionStruct, 
 	if def == nil {
 		return nil, fmt.Errorf("definition is nil")
 	}
-	directive := def.Directives.ForName(consts.ResourceListActionDirectiveName)
+	directive := def.Directives.ForName(consts.ListActionDirectiveName)
 	if directive == nil {
-		return nil, fmt.Errorf("directive %s not found", consts.ResourceListActionDirectiveName)
+		return nil, fmt.Errorf("directive %s not found", consts.ListActionDirectiveName)
 	}
 	resource, err := directive.Arguments.ForName("Resource").Value.Value(nil)
 	if err != nil {
@@ -112,7 +112,7 @@ func IsResourceListPaginationEnabled(def *ast.Definition) (bool, error) {
 	if def == nil {
 		return false, fmt.Errorf("definition is nil")
 	}
-	directive := def.Directives.ForName(consts.ResourceListActionDirectiveName)
+	directive := def.Directives.ForName(consts.ListActionDirectiveName)
 	if directive == nil {
 		return false, nil
 	}

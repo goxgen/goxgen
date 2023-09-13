@@ -10,7 +10,7 @@ import (
 var (
 	resourceActionDirective = InputObjectDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
-			Name:        consts.ResourceActionDirectiveName,
+			Name:        consts.ActionDirectiveName,
 			Description: `This directive is used to mark the object as a resource action`,
 			Position:    pos,
 			Arguments: ast.ArgumentDefinitionList{

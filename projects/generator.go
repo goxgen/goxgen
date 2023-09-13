@@ -3,8 +3,12 @@ package projects
 import (
 	"context"
 	"fmt"
+	"github.com/99designs/gqlgen/api"
+	"github.com/99designs/gqlgen/plugin/modelgen"
 	"github.com/goxgen/goxgen/graphql"
+	"github.com/goxgen/goxgen/graphql/generator"
 	"github.com/goxgen/goxgen/utils"
+	"github.com/vektah/gqlparser/v2/ast"
 	"path"
 )
 
@@ -47,7 +51,7 @@ func (pg *ProjectGenerator) Generate(ctx context.Context) error {
 		}
 		err = pg.generateProject(projCtx, project, name)
 		if err != nil {
-			errors = append(errors, fmt.Errorf("failed to generate project %s: %w", utils.PString(project.GetType()), err))
+			errors = append(errors, fmt.Errorf("failed to generate project %s: %w", project.GetType(), err))
 		}
 	}
 
@@ -60,25 +64,41 @@ func (pg *ProjectGenerator) Generate(ctx context.Context) error {
 
 // generateProject generates single project
 func (pg *ProjectGenerator) generateProject(projCtx *Context, project Project, name string) error {
-
-	genData := &ProjectGeneratorData{
-		ParentPackageName: projCtx.ParentPackageName,
-		Name:              name,
-	}
-
-	if projectWithTemplateData, ok := project.(ProjectWithCustomTemplateData); ok {
-		err := projectWithTemplateData.PrepareCustomTemplateData(projCtx, genData)
-		if err != nil {
-			return err
-		}
-	}
-
-	graphqlCtx, err := project.PrepareGraphqlGenerationContext(projCtx, genData)
+	err := project.Init(name, projCtx.ParentPackageName, projCtx.GeneratedFilePrefix)
 	if err != nil {
-		return fmt.Errorf("failed to prepare graphql generation: %w", err)
+		return fmt.Errorf("failed to init project: %w", err)
 	}
+
+	modelgenPlugin := &modelgen.Plugin{
+		MutateHook: func(b *modelgen.ModelBuild) *modelgen.ModelBuild {
+			return project.MutationHook(b)
+		},
+		FieldHook: func(td *ast.Definition, fd *ast.FieldDefinition, f *modelgen.Field) (*modelgen.Field, error) {
+			return project.ConstraintFieldHook(td, fd, f)
+		},
+	}
+
 	err = graphql.Generate(
-		graphqlCtx,
+		graphql.PrepareContext(
+			context.Background(),
+			graphql.GraphqlContext{
+				ParentPackageName:   projCtx.ParentPackageName + "/" + name,
+				GeneratedFilePrefix: projCtx.GeneratedFilePrefix,
+				GeneratorApiOptions: []api.Option{
+					api.ReplacePlugin(modelgenPlugin),
+				},
+				SchemaInjectorHooks: []graphql.InjectorHook{
+					func(schema *ast.Schema) generator.SchemaHook {
+						err := project.SchemaHook(schema)
+						if err != nil {
+							panic(err)
+						}
+						return project.SchemaDocumentHook
+					},
+				},
+				ConfigOverrideCallback: project.ConfigOverride,
+			},
+		),
 		name,
 	)
 

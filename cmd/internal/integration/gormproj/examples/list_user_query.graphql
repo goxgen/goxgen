@@ -1,6 +1,0 @@
-query{
-    list_user(input: {}){
-        id
-        name
-    }
-}

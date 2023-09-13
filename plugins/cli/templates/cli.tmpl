@@ -1,8 +1,8 @@
-{{- /* gotype: github.com/goxgen/goxgen.CLITemplateData*/ -}}
+{{- /* gotype: github.com/goxgen/goxgen/plugins/cli.templateData*/ -}}
 
 {{- define "CLITemplate" -}}
 
-func main() {
+func NewCliApp() *cli.App {
 	app := cli.NewApp()
     app.Name = "GoXGen"
     app.Version = "0.1.0"
@@ -49,13 +49,13 @@ func main() {
                 &cli.StringFlag{
                     Name:    "DatabaseDriver",
                     Aliases: []string{"db-driver"},
-                    Value:   "sqlite3",
+                    Value:   "sqlite",
                     EnvVars: []string{"DB_DRIVER"},
                 },
                 &cli.StringFlag{
                     Name:    "DatabaseSourceName",
                     Aliases: []string{"db-dsn"},
-                    Value:   "file:entproj/demo.db?mode=rwc&cache=shared&_fk=1",
+                    Value:   "file:demo.db?mode=rwc&cache=shared&_fk=1",
                     EnvVars: []string{"DB_DSN"},
                 },
                 &cli.StringFlag{
@@ -117,18 +117,36 @@ func main() {
 				{{- range $name, $proj := .Projects }}
 				{
 					Name: "{{ $name }}",
-					Action: {{ $name }}.{{ print ($name | indirect) "-serve-graphql" | camelcase }},
+					Action: func(ctx *cli.Context) error {
+						server, err := server.New(ctx)
+						if err != nil {
+							return err
+						}
+                        return server.ListenAndServe({{ $name }}.Server)
+                    },
+					Subcommands: []*cli.Command{
+					    {
+							Name: "test",
+                            Action: func(ctx *cli.Context) error {
+                                return tests.Start(ctx, {{ $name }}.Server, {{ $name }}.TestsFS, "{{$proj.TestsDirectory}}")
+                            },
+                        },
+                    },
                 },
 				{{- end}}
             },
         },
     }
+	return app
 
+}
+
+func main() {
+	app := NewCliApp()
     _ = godotenv.Load()
     if err := app.Run(os.Args); err != nil {
         fmt.Println(err.Error())
     }
-
 }
 
 {{- end -}}

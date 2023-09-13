@@ -1,0 +1,7 @@
+{{- /* gotype: github.com/goxgen/goxgen/projects/basic.TemplateData*/ -}}
+
+{{- define "BaseTemplate" -}}
+name: "Default tests"
+tests: []
+
+{{- end -}}

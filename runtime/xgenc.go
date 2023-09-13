@@ -4,8 +4,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/goxgen/goxgen/projects/basic"
 	"github.com/goxgen/goxgen/projects/gorm"
-	"github.com/goxgen/goxgen/projects/simple"
 	"github.com/goxgen/goxgen/xgen"
 )
 
@@ -14,11 +14,11 @@ func main() {
 		xgen.WithPackageName("github.com/goxgen/goxgen/runtime"),
 		xgen.WithProject(
 			"simple_initial",
-			simple.NewPlugin(),
+			basic.NewProject(),
 		),
 		xgen.WithProject(
 			"gorm_initial",
-			gorm.NewPlugin(),
+			gorm.NewProject(),
 		),
 		//xgen.WithProject(
 		//	"entproj",

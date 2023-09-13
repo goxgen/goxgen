@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/common"
-	"github.com/goxgen/goxgen/graphql/directives"
 	"github.com/goxgen/goxgen/graphql/generator"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -14,7 +13,7 @@ func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument,
 	if !exists {
 		return fmt.Errorf("failed to find %s directive", consts.ResourceDirectiveName)
 	}
-	resourceActionDirective, exists := schema.Directives[consts.ResourceActionDirectiveName]
+	resourceActionDirective, exists := schema.Directives[consts.ActionDirectiveName]
 	if !exists {
 		return fmt.Errorf("failed to find %s directive", consts.ResourceDirectiveName)
 	}
@@ -114,7 +113,10 @@ func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument,
 		}
 
 		for _, _object := range objects {
-			actionDirs := directives.GetResourceActionDirectives(_object)
+			actionDirs := append(
+				_object.Directives.ForNames(consts.ActionDirectiveName),
+				_object.Directives.ForNames(consts.ListActionDirectiveName)...,
+			)
 			for _, actionDirective := range actionDirs {
 				_resourceNameArg := actionDirective.Arguments.ForName("Resource")
 				if _resourceNameArg == nil {

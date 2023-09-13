@@ -1,27 +1,37 @@
 package ent
 
 import (
-	"context"
 	"embed"
-	"github.com/99designs/gqlgen/codegen/config"
-	"github.com/goxgen/goxgen/graphql"
 	"github.com/goxgen/goxgen/projects"
-	"github.com/goxgen/goxgen/projects/simple"
+	"github.com/goxgen/goxgen/projects/basic"
 	"github.com/goxgen/goxgen/tmpl"
 )
 
 // Project is a project configuration for ent projects
 type Project struct {
-	*simple.Project
+	*basic.Project
 }
 
 //go:embed templates/*
 var templatesFS embed.FS
 
-func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, data *projects.ProjectGeneratorData) (context.Context, error) {
-	tbl := p.StandardTemplateBundleList(projCtx)
+type ProjectOption = func(project *Project) error
 
-	err := tbl.
+func WithBasicProjectOption(option basic.ProjectOption) ProjectOption {
+	return func(p *Project) error {
+		return option(p.Project)
+	}
+}
+
+func (p *Project) Init(Name string, ParentPackageName string, GeneratedFilePrefix string) error {
+	err := p.Project.Init(Name, ParentPackageName, GeneratedFilePrefix)
+	if err != nil {
+		return err
+	}
+
+	tbl := p.StandardTemplateBundleList()
+
+	err = tbl.
 		Remove("./resolver.go").
 		Add(
 			&tmpl.TemplateBundle{
@@ -55,47 +65,51 @@ func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, dat
 				Regenerate:  true,
 			},
 		).
-		Generate(data.Name, data)
+		Generate(p.Name, p)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = projects.RunProjectGoGenCommand(data.Name)
+	err = projects.RunProjectGoGenCommand(p.Name)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = (&tmpl.TemplateBundleList{}).Add(
+	return (&tmpl.TemplateBundleList{}).Add(
 		&tmpl.TemplateBundle{
 			TemplateDir: "templates/projects/ent/resolver",
 			FS:          templatesFS,
 			OutputFile:  "./resolver.go",
 			Regenerate:  true,
 		},
-	).Generate(data.Name, data)
-	if err != nil {
-		return nil, err
-	}
-
-	return graphql.PrepareContext(
-		context.Background(),
-		graphql.GraphqlContext{
-			ParentPackageName:   projCtx.ParentPackageName + "/" + data.Name,
-			GeneratedFilePrefix: projCtx.GeneratedFilePrefix,
-			ConfigOverrideCallback: func(cfg *config.Config) error {
-				cfg.AutoBind = append(cfg.AutoBind, projCtx.ParentPackageName+"/"+data.Name+"/ent")
-				cfg.Models.Add("ID", projCtx.ParentPackageName+"/"+data.Name+"/ent/schema/types.UUID")
-				cfg.Models.Add("Node", projCtx.ParentPackageName+"/"+data.Name+"/ent.Noder")
-				cfg.Models.Add("Map", "github.com/99designs/gqlgen/graphql.Map")
-				return nil
-			},
-		},
-	), nil
+	).Generate(p.Name, p)
 }
 
+//
+//func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, data *projects.ProjectGeneratorData) (context.Context, error) {
+//	return graphql.PrepareContext(
+//		context.Background(),
+//		graphql.GraphqlContext{
+//			ParentPackageName:   projCtx.ParentPackageName + "/" + data.Name,
+//			GeneratedFilePrefix: projCtx.GeneratedFilePrefix,
+//			ConfigOverrideCallback: func(cfg *config.Config) error {
+//				cfg.AutoBind = append(cfg.AutoBind, projCtx.ParentPackageName+"/"+data.Name+"/ent")
+//				cfg.Models.Add("ID", projCtx.ParentPackageName+"/"+data.Name+"/ent/schema/types.UUID")
+//				cfg.Models.Add("Node", projCtx.ParentPackageName+"/"+data.Name+"/ent.Noder")
+//				cfg.Models.Add("Map", "github.com/99designs/gqlgen/graphql.Map")
+//				return nil
+//			},
+//		},
+//	), nil
+//}
+
 // New creates a new ent project
-func New(option ...projects.ProjectOption) *Project {
-	return &Project{
-		Project: simple.NewPlugin(option...),
+func New(option ...ProjectOption) *Project {
+	p := &Project{
+		Project: basic.NewProject(),
 	}
+	for _, opt := range option {
+		_ = opt(p)
+	}
+	return p
 }

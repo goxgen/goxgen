@@ -10,10 +10,10 @@ import (
 // IsXgenDirectiveDefinition checks if directive is xgen directive
 func IsXgenDirectiveDefinition(directive *ast.DirectiveDefinition) bool {
 	return directive.Name == consts.ResourceDirectiveName ||
-		directive.Name == consts.ResourceFieldDirectiveName ||
-		directive.Name == consts.ResourceActionDirectiveName ||
-		directive.Name == consts.ResourceActionFieldDirectiveName ||
-		directive.Name == consts.ResourceListActionDirectiveName
+		directive.Name == consts.FieldDirectiveName ||
+		directive.Name == consts.ActionDirectiveName ||
+		directive.Name == consts.ActionFieldDirectiveName ||
+		directive.Name == consts.ListActionDirectiveName
 }
 
 // DirectiveToType converts directive to type

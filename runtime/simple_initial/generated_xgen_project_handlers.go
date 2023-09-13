@@ -3,81 +3,38 @@
 package simple_initial
 
 import(
-    "github.com/rs/cors"
-    "go.uber.org/zap"
-    "go.uber.org/zap/zapcore"
     "github.com/99designs/gqlgen/graphql"
     "github.com/99designs/gqlgen/graphql/handler"
-    "github.com/99designs/gqlgen/graphql/playground"
     "github.com/urfave/cli/v2"
-    "net/http"
     "context"
-    "fmt"
-    "strconv"
-    "strings"
-	"github.com/goxgen/goxgen/runtime/simple_initial/generated"
+    "embed"
+    "github.com/goxgen/goxgen/runtime/simple_initial/generated"
 )
 
-func SimpleInitialServeGraphql (ctx *cli.Context) error {
-    var log *zap.Logger
-    if ctx.Bool("DevMode"){
-        log, _ = zap.NewDevelopment()
-    } else{
-        log, _ = zap.NewProduction()
-    }
+//go:embed tests/*
+var TestsFS embed.FS
 
-    providedLevel:=ctx.String("LogLevel")
-    level, err := zapcore.ParseLevel(providedLevel)
+func Server(ctx *cli.Context) (*handler.Server, error){
+    resolver, err := NewResolver(ctx)
     if err != nil {
-        log.Fatal("Unsupported log level", zap.String("provided", providedLevel))
-    }
-    log = log.WithOptions(zap.IncreaseLevel(level))
-
-    defer log.Sync()
-
-    isHttps := ctx.Bool("HTTPS")
-    host := ctx.String("Host")
-    port := ":" + strconv.Itoa(ctx.Int("Port"))
-    appPath := strings.Trim(ctx.String("AppPath"), "/" )
-    if appPath == ""{
-        appPath = "/"
-    } else{
-        appPath = "/" + appPath + "/"
-    }
-    gqlURL := ctx.String("GraphqlURL")
-    gqlURIPath := ctx.String("GraphqlURIPath")
-    gqlPlaygroundURIPath := ctx.String("GraphqlPlaygroundURIPath")
-    proto := "http://"
-    gqlPlaygroundEnabled := ctx.Bool("GraphqlPlaygroundEnabled")
-
-    if isHttps {
-        proto = "https://"
+        return nil, err
     }
 
-    if gqlURL == "" {
-        gqlURL += proto + host + port + gqlURIPath
-    }
-
-	resolver, err := NewResolver(ctx)
-	if err != nil {
-		log.Fatal("Failed to create resolver", zap.Error(err))
-	}
-
-    srv := handler.NewDefaultServer(
+    return handler.NewDefaultServer(
         generated.NewExecutableSchema(
             generated.Config{
                 Resolvers:  resolver,
                 Directives: generated.DirectiveRoot{
                     ListAction: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated.XgenResourceListActionType, route *string, pagination *bool, schemaFieldName *string) (res interface{}, err error) {
-						return next(ctx)
-					},
+                        return next(ctx)
+                    },
                     Action: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated.XgenResourceActionType, route *string, schemaFieldName *string) (res interface{}, err error) {
-						return next(ctx)
-					},
+                        return next(ctx)
+                    },
                     Resource: func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, route *string, primary *bool, db *generated.XgenResourceDbConfigInput) (res interface{}, err error) {
                         return next(ctx)
                     },
-                    ActionField: func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string) (res interface{}, err error) {
+                    ActionField: func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, resourceMap []string) (res interface{}, err error) {
                         return next(ctx)
                     },
                     Field: func(ctx context.Context, obj interface{}, next graphql.Resolver, label *string, description *string, db *generated.XgenResourceFieldDbConfigInput) (res interface{}, err error) {
@@ -85,34 +42,7 @@ func SimpleInitialServeGraphql (ctx *cli.Context) error {
                     },
                 },
             },
-	    ),
-	)
-
-	srv.AroundFields(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
-		rc := graphql.GetFieldContext(ctx)
-		fmt.Println("Entered", rc.Object, rc.Field.Name)
-		res, err = next(ctx)
-		fmt.Println("Left", rc.Object, rc.Field.Name, "=>", res, err)
-		return res, err
-	})
-
-
-    if gqlPlaygroundEnabled{
-        gqlPlaygroundURL := proto + host + port + gqlPlaygroundURIPath
-        http.Handle(gqlPlaygroundURIPath, playground.Handler("simple_initial", gqlURIPath))
-		log.Info("Serving graphql playground", zap.String("url", gqlPlaygroundURL))
-    }
-
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowCredentials: true,
-		// Enable Debugging for testing, consider disabling in production
-		Debug: false,
-	})
-	http.Handle(gqlURIPath, c.Handler(srv))
-
-    log.Info("Serving graphql", zap.String("url", gqlURL))
-	return http.ListenAndServe(port, nil)
-
+        ),
+    ), nil
 }
 

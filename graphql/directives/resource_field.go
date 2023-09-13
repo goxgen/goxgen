@@ -8,7 +8,7 @@ import (
 var (
 	resourceFieldDirective = FieldDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
-			Name:        consts.ResourceFieldDirectiveName,
+			Name:        consts.FieldDirectiveName,
 			Description: `This directive is used to mark the object as a resource field`,
 			Position:    pos,
 			Arguments: ast.ArgumentDefinitionList{

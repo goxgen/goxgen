@@ -25,6 +25,8 @@ type ActionAnnotationSingle struct {
 type ActionField struct {
 	Label       *string `json:"Label,omitempty"`
 	Description *string `json:"Description,omitempty"`
+	// Map field to resource field, {resource}.{field}, eg. user.id
+	MapTo []string `json:"MapTo,omitempty"`
 }
 
 // This directive is used to mark the object as a resource field
@@ -61,8 +63,8 @@ type ResourceAnnotationSingle struct {
 
 type XgenAnnotationMap struct {
 	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
-	Action     []*ActionAnnotationSingle     `json:"Action"`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
+	Action     []*ActionAnnotationSingle     `json:"Action"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -78,8 +80,8 @@ type XgenCursorPaginationInputXgenDef struct {
 }
 
 type XgenFieldDef struct {
-	ActionField *ActionField `json:"ActionField,omitempty"`
 	Field       *Field       `json:"Field,omitempty"`
+	ActionField *ActionField `json:"ActionField,omitempty"`
 }
 
 type XgenIntrospection struct {
@@ -99,12 +101,12 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
 	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
 	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
 	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
 	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
 }
 
 type XgenPaginationInput struct {

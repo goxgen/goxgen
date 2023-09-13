@@ -11,19 +11,20 @@ import (
 	"github.com/goxgen/goxgen/cmd/internal/integration/myproject/generated"
 )
 
-// UserUpdate is the resolver for the user_update field.
-func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.UpdateUser) (*generated.User, error) {
-	return &generated.User{
-		ID:   1,
-		Name: input.Name,
-	}, nil
+// NewTodo is the resolver for the new_todo field.
+func (r *mutationResolver) NewTodo(ctx context.Context, input *generated.NewTodo) (*generated.Todo, error) {
+	panic(fmt.Errorf("not implemented: NewTodo - new_todo"))
 }
 
-// UserCreate is the resolver for the user_create field.
-func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.NewUser) (*generated.User, error) {
-	return &generated.User{
+// TodoCustom is the resolver for the todo_custom field.
+func (r *mutationResolver) TodoCustom(ctx context.Context, input *generated.CustomTodo) (*generated.Todo, error) {
+	return &generated.Todo{
 		ID:   1,
-		Name: input.Name,
+		Text: input.Text,
+		Done: false,
+		User: &generated.User{
+			ID: input.UserID,
+		},
 	}, nil
 }
 
@@ -46,44 +47,25 @@ func (r *mutationResolver) TodoUpdate(ctx context.Context, input *generated.Upda
 	}, nil
 }
 
-// TodoCustom is the resolver for the todo_custom field.
-func (r *mutationResolver) TodoCustom(ctx context.Context, input *generated.CustomTodo) (*generated.Todo, error) {
-	return &generated.Todo{
+// UserUpdate is the resolver for the user_update field.
+func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.UpdateUser) (*generated.User, error) {
+	return &generated.User{
 		ID:   1,
-		Text: input.Text,
-		Done: false,
-		User: &generated.User{
-			ID: input.UserID,
-		},
+		Name: input.Name,
 	}, nil
 }
 
-// NewTodo is the resolver for the new_todo field.
-func (r *mutationResolver) NewTodo(ctx context.Context, input *generated.NewTodo) (*generated.Todo, error) {
-	panic(fmt.Errorf("not implemented: NewTodo - new_todo"))
+// UserCreate is the resolver for the user_create field.
+func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.NewUser) (*generated.User, error) {
+	return &generated.User{
+		ID:   1,
+		Name: input.Name,
+	}, nil
 }
 
 // XgenIntrospection is the resolver for the _xgen_introspection field.
 func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenIntrospection, error) {
 	return r.Resolver.XgenIntrospection()
-}
-
-// UserBrowse is the resolver for the user_browse field.
-func (r *queryResolver) UserBrowse(ctx context.Context, input *generated.UserList, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
-	return []*generated.User{
-		{
-			ID:   1,
-			Name: "John",
-		},
-		{
-			ID:   2,
-			Name: "Doe",
-		},
-		{
-			ID:   3,
-			Name: "Smith",
-		},
-	}, nil
 }
 
 // TodoBrowse is the resolver for the todo_browse field.
@@ -109,6 +91,24 @@ func (r *queryResolver) TodoBrowse(ctx context.Context, input *generated.ListTod
 			User: &generated.User{
 				ID: input.UserID,
 			},
+		},
+	}, nil
+}
+
+// UserBrowse is the resolver for the user_browse field.
+func (r *queryResolver) UserBrowse(ctx context.Context, input *generated.UserList, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
+	return []*generated.User{
+		{
+			ID:   1,
+			Name: "John",
+		},
+		{
+			ID:   2,
+			Name: "Doe",
+		},
+		{
+			ID:   3,
+			Name: "Smith",
 		},
 	}, nil
 }

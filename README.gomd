@@ -41,9 +41,9 @@ and a Command-Line Interface for server operations.
 You should create two files in your project
 
 1. Standard `gen.go` file with `go:generate` directive
-{{ embed "cmd/internal/integration/gen.go" | indent 4 }}
+{{ embedFile "cmd/internal/integration/gen.go" | indent 4 }}
 2. Xgen config file `xgenc.go`
-{{ embed "cmd/internal/integration/xgenc.go" | indent 4 }}
+{{ embedFile "cmd/internal/integration/xgenc.go" | indent 4 }}
 Then run `go generate` command, and goxgen will generate project structure
 
 ```shell
@@ -86,10 +86,10 @@ Let's focus on `gormproj`, which uses the GORM ORM.
 The connection to the GORM database can be configured from the gqlgen standard `resolver.go` file in the `gormproj` directory.
 
 > `resolver.go` is designed to support your custom dependency injection (DI) and any services you've provided.
-{{ embed "cmd/internal/integration/gormproj/resolver.go" }}
+{{ embedFile "cmd/internal/integration/gormproj/resolver.go" | codeBlock "go"}}
 
 ### Example of schema file `schema.main.graphql`
-{{ embed "cmd/internal/integration/gormproj/schema.main.graphql" }}
+{{ embedFile "cmd/internal/integration/gormproj/schema.main.graphql" | codeBlock "graphql" }}
 
 The directives used in the example above are standard `xgen` directives, intended to provide metadata.
 
@@ -100,7 +100,7 @@ The directives used in the example above are standard `xgen` directives, intende
 * `ActionField` - Field of action or list action
 
 The definitions of these directives are located in the `generated_xgen_directives.graphql` file.
-{{ embed "cmd/internal/integration/gormproj/generated_xgen_directives.graphql" }}
+{{ embedFile "cmd/internal/integration/gormproj/generated_xgen_directives.graphql" | codeBlock "graphql" }}
 
 After writing a custom schema You should run again `gogen` command.
 
@@ -111,7 +111,7 @@ go generate
 After regenerating the code, the `schema.resolver.go` file will be updated based on your schema. 
 You can expect to see changes similar to the following:
 
-{{ embed "cmd/internal/integration/gormproj/schema.resolver.go" }}
+{{ embedFile "cmd/internal/integration/gormproj/schema.resolver.go" | codeBlock "go" }}
 
 You can add your own implementation for each function in the updated `schema.resolver.go` file.
 For more information,
@@ -123,7 +123,7 @@ So take a look at the implemented functions, for example `NewUser`, `ListUser` o
 In those functions, you can see that the `r.DB` instance is used, 
 which is provided from the `resolver.go` file.
 
-{{ embed "cmd/internal/integration/gormproj/resolver.go" }}
+{{ embedFile "cmd/internal/integration/gormproj/resolver.go" | codeBlock "go" }}
 
 Great, you're all set to launch your GraphQL application.
 
@@ -154,17 +154,21 @@ This interface will allow you to test queries, mutations, and subscriptions in r
 
 Then we see graphql playground, let's run some mutation query to add two new users
 
-{{ embed "cmd/internal/integration/gormproj/examples/new_user_mutation.graphql" }}
+{{- $test1 := yamlFileParse "cmd/internal/integration/gormproj/tests/user-lifecycle.yaml" }}
+
+{{ $test1 | dig "tests" 0 "query" "n/a" | codeBlock "graphql"  }}
 
 After execution of this mutation, graphql should be return result like this
 
-{{ embed "cmd/internal/integration/gormproj/examples/new_user_mutation_result.json" }}
+{{ $test1 | dig "tests" 0 "expectedResult" "n/a" | codeBlock "json"  }}
 
 One more example, let's list our new users by query
-{{ embed "cmd/internal/integration/gormproj/examples/list_user_query.graphql" }}
+
+{{ $test1 | dig "tests" 1 "query" "n/a" | codeBlock "graphql"  }}
 
 The result of this query should be like this
-{{ embed "cmd/internal/integration/gormproj/examples/list_user_query_result.json" }}
+
+{{ $test1 | dig "tests" 1 "expectedResult" "n/a" | codeBlock "graphql"  }}
 
 ## 🤝 Contributing
 

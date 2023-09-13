@@ -3,7 +3,10 @@ package projects
 import (
 	"context"
 	"fmt"
+	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/99designs/gqlgen/plugin/modelgen"
 	"github.com/goxgen/goxgen/utils"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // ContextKey is a key for context
@@ -32,14 +35,14 @@ func GetContext(ctx context.Context) (*Context, error) {
 
 // Project is a project configuration
 type Project interface {
-	GetType() *string
-	PrepareGraphqlGenerationContext(projCtx *Context, data *ProjectGeneratorData) (context.Context, error)
-}
-
-// ProjectWithCustomTemplateData is a project configuration with custom template data
-type ProjectWithCustomTemplateData interface {
-	Project
-	PrepareCustomTemplateData(projCtx *Context, data *ProjectGeneratorData) error
+	GetType() string
+	TestsDirectory() string
+	MutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild
+	ConstraintFieldHook(td *ast.Definition, fd *ast.FieldDefinition, f *modelgen.Field) (*modelgen.Field, error)
+	SchemaHook(schema *ast.Schema) error
+	SchemaDocumentHook(schemaDocument *ast.SchemaDocument) error
+	ConfigOverride(cfg *config.Config) error
+	Init(Name string, ParentPackageName string, GeneratedFilePrefix string) error
 }
 
 // RunProjectGoGenCommand runs the go generate command for the project.

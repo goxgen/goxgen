@@ -9,7 +9,10 @@ directive @ExcludeArgumentFromType(exclude: Boolean) on ARGUMENT_DEFINITION
 """This directive is used to mark the object as a resource field"""
 directive @Field(Label: String, Description: String, DB: XgenResourceFieldDbConfigInput @ExcludeArgumentFromType) on FIELD_DEFINITION
 """This directive is used to mark the object as a resource field"""
-directive @ActionField(Label: String, Description: String) on INPUT_FIELD_DEFINITION
+directive @ActionField(Label: String, Description: String,
+  """Map field to resource field, {resource}.{field}, eg. user.id"""
+  MapTo: [String!]
+) on INPUT_FIELD_DEFINITION
 enum XgenResourceActionType {
   CREATE_MUTATION
   READ_QUERY
