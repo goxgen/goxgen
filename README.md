@@ -41,11 +41,14 @@ and a Command-Line Interface for server operations.
 You should create two files in your project
 
 1. Standard `gen.go` file with `go:generate` directive
+    ```go
     package main
     
     //go:generate go run -mod=mod github.com/goxgen/goxgen
     
+    ```
 2. Xgen config file `xgenc.go`
+    ```go
     package main
     
     import (
@@ -83,6 +86,7 @@ You should create two files in your project
     	}
     }
     
+    ```
 Then run `go generate` command, and goxgen will generate project structure
 
 ```shell
@@ -125,6 +129,7 @@ Let's focus on `gormproj`, which uses the GORM ORM.
 The connection to the GORM database can be configured from the gqlgen standard `resolver.go` file in the `gormproj` directory.
 
 > `resolver.go` is designed to support your custom dependency injection (DI) and any services you've provided.
+
 ```go
 package gormproj
 
@@ -153,6 +158,7 @@ func NewResolver(ctx *cli.Context) (*Resolver, error) {
 ```
 
 ### Example of schema file `schema.main.graphql`
+
 ```graphql
 type User
 @Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
