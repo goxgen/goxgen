@@ -3,7 +3,7 @@
 {{- define "BaseTemplate" -}}
 
 package {{.GeneratedGqlgenPackageName}}
-
+{{- if .ResourceTypeNameToActionMap }}
 import (
 	"context"
 	"github.com/goxgen/goxgen/plugins/cli/server"
@@ -23,4 +23,5 @@ func (ra *{{$action}}) {{$methodName}}(ctx context.Context) (*{{$res}}, error){
 {{- end }}
 {{- end }}
 
+{{- end -}}
 {{- end -}}

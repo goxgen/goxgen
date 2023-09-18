@@ -179,9 +179,9 @@ type UserXgenDef struct {
 }
 
 type XgenAnnotationMap struct {
-	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
-	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
 	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
+	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
 }
 
 type XgenCursorPaginationInput struct {
@@ -219,27 +219,27 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
-	UserInput                      *UserInputXgenDef                      `json:"UserInput,omitempty" gorm:""`
 	Car                            *CarXgenDef                            `json:"Car,omitempty" gorm:""`
+	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
+	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
 	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
+	UserInput                      *UserInputXgenDef                      `json:"UserInput,omitempty" gorm:""`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
 	PhoneNumberBrowseInput         *PhoneNumberBrowseInputXgenDef         `json:"PhoneNumberBrowseInput,omitempty" gorm:""`
 	Phone                          *PhoneXgenDef                          `json:"Phone,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
-	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty" gorm:""`
-	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty" gorm:""`
-	CarBrowseInput                 *CarBrowseInputXgenDef                 `json:"CarBrowseInput,omitempty" gorm:""`
 	DeleteUsers                    *DeleteUsersXgenDef                    `json:"DeleteUsers,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
-	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
 	PhoneNumberInput               *PhoneNumberInputXgenDef               `json:"PhoneNumberInput,omitempty" gorm:""`
+	User                           *UserXgenDef                           `json:"User,omitempty" gorm:""`
+	CarBrowseInput                 *CarBrowseInputXgenDef                 `json:"CarBrowseInput,omitempty" gorm:""`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
 }
 
 type XgenPaginationInput struct {
-	Page  int `json:"page" gorm:""`
-	Limit int `json:"limit" gorm:""`
+	Page int `json:"page" gorm:""`
+	Size int `json:"size" gorm:""`
 }
 
 type XgenPaginationInputXgenDef struct {
@@ -300,9 +300,9 @@ type XgenResourceListActionTypeXgenDef struct {
 }
 
 type XgenResourceMap struct {
+	PhoneNumber *XgenResourceDefinition `json:"phone_number,omitempty" gorm:""`
 	User        *XgenResourceDefinition `json:"user,omitempty" gorm:""`
 	Car         *XgenResourceDefinition `json:"car,omitempty" gorm:""`
-	PhoneNumber *XgenResourceDefinition `json:"phone_number,omitempty" gorm:""`
 }
 
 type XgenResourceProperty struct {

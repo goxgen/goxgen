@@ -12,7 +12,7 @@ var (
 				Type: ast.NonNullNamedType("Int", nil),
 			},
 			{
-				Name: "limit",
+				Name: "size",
 				Type: ast.NonNullNamedType("Int", nil),
 			},
 		},

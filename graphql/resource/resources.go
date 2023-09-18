@@ -60,8 +60,18 @@ func prepareSchemaField(
 	directive *ast.Directive,
 ) (err error) {
 	//resource := directive.Arguments.ForName("Resource").Value.Raw
-	isQuery := common.IsQueryAction(directive)
-	isMutation := common.IsMutationAction(directive)
+	var def *ast.Definition
+	var fieldName string
+
+	if common.IsQueryAction(directive) {
+		fieldName = "where"
+		def = query
+	} else if common.IsMutationAction(directive) {
+		fieldName = "input"
+		def = mutation
+	} else {
+		return fmt.Errorf("failed to prepare schema field: unknown action type")
+	}
 
 	//action := m.getPureActionName(directive)
 	// GetResourceDirectiveSingularType
@@ -72,7 +82,7 @@ func prepareSchemaField(
 
 	args := ast.ArgumentDefinitionList{
 		{
-			Name: "input",
+			Name: fieldName,
 			Type: &ast.Type{
 				NamedType: object.Name,
 			},
@@ -111,12 +121,7 @@ func prepareSchemaField(
 		Type:      returnType,
 	}
 
-	if isQuery {
-		query.Fields = common.AppendFieldIfNotExists(query.Fields, schemaField)
-	} else if isMutation {
-		mutation.Fields = common.AppendFieldIfNotExists(mutation.Fields, schemaField)
-	} else {
-		return fmt.Errorf("failed to prepare schema field: unknown action type")
-	}
+	def.Fields = common.AppendFieldIfNotExists(def.Fields, schemaField)
+
 	return nil
 }

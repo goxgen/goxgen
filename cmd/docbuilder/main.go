@@ -5,10 +5,16 @@ import (
 	"fmt"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/urfave/cli/v2"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"gopkg.in/yaml.v3"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
+	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -60,6 +66,8 @@ func main() {
 						"yamlFileParse": yamlFileParse,
 						"dig":           dig,
 						"lines":         lines,
+						"funcSrc":       funcSrc,
+						"fsTree":        fsTree,
 					})
 
 				tmpl = template.Must(tmpl.ParseFiles(templateFile))
@@ -78,6 +86,57 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
+}
+
+func fsTree(root string, args ...any) string {
+	treeStr := ""
+	prefix := ""
+	level := 2
+	if len(args) > 0 {
+		prefix = args[0].(string)
+	}
+
+	if len(args) > 1 {
+		level = args[1].(int)
+	}
+
+	// Read the directory
+	files, err := os.ReadDir(root)
+	if err != nil {
+		fmt.Println("Error reading directory:", err)
+		return ""
+	}
+
+	// Sort the files, dirs first
+	sort.Slice(files, func(i, j int) bool {
+		if files[i].IsDir() && !files[j].IsDir() {
+			return true
+		}
+		if !files[i].IsDir() && files[j].IsDir() {
+			return false
+		}
+		return files[i].Name() < files[j].Name()
+	})
+
+	// Loop through each file/directory
+	for i, file := range files {
+		// Determine the new prefix for the next level
+		newPrefix := prefix
+		if i == len(files)-1 {
+			treeStr += prefix + "└── " + file.Name() + "\n"
+			newPrefix += "    "
+		} else {
+			treeStr += prefix + "├── " + file.Name() + "\n"
+			newPrefix += "│   "
+		}
+
+		// If it's a directory, recurse
+		if file.IsDir() && level > 0 {
+			treeStr += fsTree(root+"/"+file.Name(), newPrefix, level-1)
+		}
+	}
+
+	return treeStr
 }
 
 func getFileContent(filePath string) (string, error) {
@@ -199,4 +258,71 @@ func toMap(i any) map[any]any {
 	}
 
 	panic("toMap error: not a map or slice")
+}
+
+func funcSrc(fnNameWithPackage string) string {
+	// Use regular expression to parse the function signature
+	re := regexp.MustCompile(`^(.*?)(?:\.([^.]+))?\.(.+)$`)
+	matches := re.FindStringSubmatch(fnNameWithPackage)
+	if len(matches) != 4 {
+		fmt.Println("Invalid function name with package")
+		return ""
+	}
+
+	dirPath := matches[1]
+	packageName := filepath.Base(dirPath)
+	structName := matches[2]
+	methodName := matches[3]
+
+	fset := token.NewFileSet()
+
+	var result string
+
+	// Read all files in the specific directory
+	files, err := os.ReadDir(dirPath)
+	if err != nil {
+		fmt.Println("Failed to read directory:", err)
+		return ""
+	}
+
+	for _, file := range files {
+		if file.IsDir() || filepath.Ext(file.Name()) != ".go" {
+			continue
+		}
+
+		path := filepath.Join(dirPath, file.Name())
+		src, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+
+		node, err := parser.ParseFile(fset, path, src, parser.ParseComments)
+		if err != nil {
+			fmt.Println("Failed to parse package:", err)
+			continue
+		}
+
+		if node.Name.Name != packageName {
+			continue
+		}
+
+		for _, decl := range node.Decls {
+			if fn, isFn := decl.(*ast.FuncDecl); isFn {
+				isMethodOfStruct := fn.Recv != nil && len(fn.Recv.List) > 0 &&
+					fn.Recv.List[0].Type != nil && strings.Contains(fmt.Sprintf("%s", fn.Recv.List[0].Type), structName)
+
+				isPackageLevelFunction := structName == "" && fn.Name.Name == methodName
+
+				if isMethodOfStruct && fn.Name.Name == methodName || isPackageLevelFunction {
+					// Extract the function source code using position information
+					start := fset.Position(fn.Pos()).Offset
+					end := fset.Position(fn.End()).Offset
+					result = string(src[start:end])
+					return result
+				}
+			}
+		}
+	}
+
+	return result
 }

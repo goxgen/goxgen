@@ -11,23 +11,6 @@ import (
 	"github.com/goxgen/goxgen/cmd/internal/integration/myproject/generated"
 )
 
-// NewTodo is the resolver for the new_todo field.
-func (r *mutationResolver) NewTodo(ctx context.Context, input *generated.NewTodo) (*generated.Todo, error) {
-	panic(fmt.Errorf("not implemented: NewTodo - new_todo"))
-}
-
-// TodoCustom is the resolver for the todo_custom field.
-func (r *mutationResolver) TodoCustom(ctx context.Context, input *generated.CustomTodo) (*generated.Todo, error) {
-	return &generated.Todo{
-		ID:   1,
-		Text: input.Text,
-		Done: false,
-		User: &generated.User{
-			ID: input.UserID,
-		},
-	}, nil
-}
-
 // TodoDelete is the resolver for the todo_delete field.
 func (r *mutationResolver) TodoDelete(ctx context.Context, input *generated.DeleteTodo) (*generated.Todo, error) {
 	return &generated.Todo{
@@ -55,6 +38,18 @@ func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.Upda
 	}, nil
 }
 
+// TodoCustom is the resolver for the todo_custom field.
+func (r *mutationResolver) TodoCustom(ctx context.Context, input *generated.CustomTodo) (*generated.Todo, error) {
+	return &generated.Todo{
+		ID:   1,
+		Text: input.Text,
+		Done: false,
+		User: &generated.User{
+			ID: input.UserID,
+		},
+	}, nil
+}
+
 // UserCreate is the resolver for the user_create field.
 func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.NewUser) (*generated.User, error) {
 	return &generated.User{
@@ -63,40 +58,45 @@ func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.NewU
 	}, nil
 }
 
+// NewTodo is the resolver for the new_todo field.
+func (r *mutationResolver) NewTodo(ctx context.Context, input *generated.NewTodo) (*generated.Todo, error) {
+	panic(fmt.Errorf("not implemented: NewTodo - new_todo"))
+}
+
 // XgenIntrospection is the resolver for the _xgen_introspection field.
 func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenIntrospection, error) {
 	return r.Resolver.XgenIntrospection()
 }
 
 // TodoBrowse is the resolver for the todo_browse field.
-func (r *queryResolver) TodoBrowse(ctx context.Context, input *generated.ListTodo, pagination *generated.XgenPaginationInput) ([]*generated.Todo, error) {
+func (r *queryResolver) TodoBrowse(ctx context.Context, where *generated.ListTodo, pagination *generated.XgenPaginationInput) ([]*generated.Todo, error) {
 	return []*generated.Todo{
 		{
 			ID:   1,
-			Text: input.Text,
+			Text: where.Text,
 			User: &generated.User{
-				ID: input.UserID,
+				ID: where.UserID,
 			},
 		},
 		{
 			ID:   1,
-			Text: input.Text,
+			Text: where.Text,
 			User: &generated.User{
-				ID: input.UserID,
+				ID: where.UserID,
 			},
 		},
 		{
 			ID:   1,
-			Text: input.Text,
+			Text: where.Text,
 			User: &generated.User{
-				ID: input.UserID,
+				ID: where.UserID,
 			},
 		},
 	}, nil
 }
 
 // UserBrowse is the resolver for the user_browse field.
-func (r *queryResolver) UserBrowse(ctx context.Context, input *generated.UserList, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
+func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.UserList, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
 	return []*generated.User{
 		{
 			ID:   1,

@@ -23,8 +23,8 @@ and a Command-Line Interface for server operations.
 - 📊 **GraphQL:** Schema-based application generation
 - 🎛️ **ORM Support:** Seamlessly integrates with various ORM systems like GORM and ENT.
 - ⚙️ **CLI Support:** Comes with a CLI tool to spin up your server application in no time.
-- 📚**Domain Driven Design:** Extensible project structure
-- 🛡️**Future-Ready:** Plans to roll out UI for admin back-office, along with comprehensive authentication and authorization features.
+- 📚 **Domain Driven Design:** Extensible project structure
+- 🛡️ **Future-Ready:** Plans to roll out UI for admin back-office, along with comprehensive authentication and authorization features.
 
 ## 📦 Dependencies
 
@@ -54,26 +54,7 @@ go generate
 
 After running `go generate` command, goxgen will generate project structure like this
 
-```shell
-demoproj/
-|-- entproj/
-|-- gormproj/
-|   |-- generate/
-|   |-- generated_xgen_directives.graphql
-|   |-- generated_xgen_introspection.go
-|   |-- generated_xgen_introspection.graphql
-|   |-- generated_xgen_project_handlers.go
-|   |-- graphql.config.yml
-|   |-- resolver.go
-|   |-- schema.main.go
-|   |-- schema.resolver.go
-|-- myproject/
-|-- .gitignore
-|-- gen.go
-|-- generated_xgen_cli.go
-|-- go.mod
-|-- xgenc.go
-```
+{{ fsTree "cmd/internal/integration" | codeBlock "shell"}}
 
 ### 📑 Providing schema
 
@@ -111,17 +92,19 @@ go generate
 ```
 
 After regenerating the code, the `schema.resolver.go` file will be updated based on your schema. 
-You can expect to see changes similar to the following:
+You can find the resolver functions for each field in the `schema.resolver.go` file.
 
-{{ embedFile "cmd/internal/integration/gormproj/schema.resolver.go" | codeBlock "go" }}
+### "Create User" mutation resolver
+{{ funcSrc "cmd/internal/integration/gormproj.mutationResolver.UserCreate" | codeBlock "go" }}
+
+### "Browse User" query resolver
+{{ funcSrc "cmd/internal/integration/gormproj.queryResolver.UserBrowse" | codeBlock "go" }}
+etc.
 
 You can add your own implementation for each function in the updated `schema.resolver.go` file.
 For more information,
 You can read the [gqlgen documentation](https://gqlgen.com/getting-started/#implement-the-resolvers). 
 
-
-You can see that some functions in example are implemented, some are not. 
-So take a look at the implemented functions, for example `NewUser`, `ListUser` or `DeleteUsers`.
 In those functions, you can see that the `r.DB` instance is used, 
 which is provided from the `resolver.go` file.
 
@@ -174,7 +157,21 @@ The result of this query should be like this
 
 ## 🤝 Contributing
 
+> To configure git hooks, run `make init`
+
 Contributions, issues, and feature requests are welcome!
+
+### Makefile
+
+To simplify the development process, we use Makefile.
+
+- `make init` - Initialize git hooks
+- `make pre-commit` - Run pre-commit checks
+- `make integrations-generate` - Generate an integration test project
+- `make integrations-run` - Run integration test project
+- `make runtime-generate` - Generate a runtime project that using for goxgen code generation
+- `make build-readme` - Build README.md file from README.gomd
+- `make build` - Build all and prepare release
 
 ## 📝 License
 

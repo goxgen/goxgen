@@ -2,128 +2,128 @@
 
 package main
 
-import (
-	"fmt"
-	"github.com/goxgen/goxgen/cmd/internal/integration/gormproj"
-	"github.com/goxgen/goxgen/cmd/internal/integration/myproject"
-	"github.com/goxgen/goxgen/plugins/cli/server"
-	"github.com/goxgen/goxgen/plugins/cli/tests"
-	"github.com/joho/godotenv"
-	"github.com/urfave/cli/v2"
-	"os"
+import(
+    "github.com/goxgen/goxgen/plugins/cli/server"
+    "github.com/goxgen/goxgen/plugins/cli/tests"
+    "github.com/urfave/cli/v2"
+    "github.com/joho/godotenv"
+    "fmt"
+    "os"
+    "github.com/goxgen/goxgen/cmd/internal/integration/gormproj"
+    "github.com/goxgen/goxgen/cmd/internal/integration/myproject"
 )
 
 func NewCliApp() *cli.App {
 	app := cli.NewApp()
-	app.Name = "GoXGen"
-	app.Version = "0.1.0"
-	app.Description = "This is GoXGen CLI"
-	app.Authors = []*cli.Author{
-		{
-			Name:  "Aaron Yordanyan",
+    app.Name = "GoXGen"
+    app.Version = "0.1.0"
+    app.Description = "This is GoXGen CLI"
+    app.Authors = []*cli.Author{
+        {
+			Name: "Aaron Yordanyan",
 			Email: "aaron.yor@gmail.com",
 		},
-	}
+    }
 
-	app.Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "LogLevel",
+    app.Flags = []cli.Flag{
+        &cli.StringFlag{
+            Name:    "LogLevel",
 			Aliases: []string{"log-level"},
-			Value:   "debug",
-			EnvVars: []string{"LOG_LEVEL"},
-		},
-		&cli.BoolFlag{
-			Name:    "DevMode",
+            Value:   "debug",
+            EnvVars: []string{"LOG_LEVEL"},
+        },
+        &cli.BoolFlag{
+            Name:    "DevMode",
 			Aliases: []string{"dev-mode", "dev"},
-			Value:   true,
-			EnvVars: []string{"DEV_MODE"},
-		},
-	}
+            Value:   true,
+            EnvVars: []string{"DEV_MODE"},
+        },
+    }
 	app.Commands = []*cli.Command{
-		{
-			Name:    "serve",
-			Aliases: []string{"s"},
+        {
+            Name:    "serve",
+            Aliases: []string{"s"},
 			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:    "UnionServer",
+                &cli.BoolFlag{
+                    Name:    "UnionServer",
 					Usage:   "Run API server, App server and other servers together",
-					Aliases: []string{"union-server", "u"},
-					Value:   false,
-					EnvVars: []string{"UNION_SERVER"},
-				},
-				&cli.BoolFlag{
-					Name:    "HTTPS",
-					Aliases: []string{"https", "ssl"},
-					Value:   false,
-					EnvVars: []string{"HTTPS"},
-				},
-				&cli.StringFlag{
-					Name:    "DatabaseDriver",
-					Aliases: []string{"db-driver"},
-					Value:   "sqlite",
-					EnvVars: []string{"DB_DRIVER"},
-				},
-				&cli.StringFlag{
-					Name:    "DatabaseSourceName",
-					Aliases: []string{"db-dsn"},
-					Value:   "file:demo.db?mode=rwc&cache=shared&_fk=1",
-					EnvVars: []string{"DB_DSN"},
-				},
-				&cli.StringFlag{
-					Name:    "Host",
-					Aliases: []string{"host"},
-					Value:   "localhost",
-					EnvVars: []string{"HOST"},
-				},
-				&cli.IntFlag{
-					Name:    "Port",
-					Aliases: []string{"port", "p"},
-					Value:   80,
-					EnvVars: []string{"PORT"},
-				},
-				&cli.StringFlag{
-					Name:    "AppPath",
-					Aliases: []string{"app-path"},
-					Value:   "/",
-					EnvVars: []string{"APP_PATH"},
-				},
-				&cli.BoolFlag{
-					Name:    "AppServerEnabled",
-					Aliases: []string{"app-server-enabled"},
-					Value:   true,
-					EnvVars: []string{"APP_SERVER_ENABLED"},
-				},
-				&cli.BoolFlag{
-					Name:    "GraphqlServerEnabled",
-					Aliases: []string{"graphql-server-enabled", "gql-server-enabled"},
-					Value:   false,
-					EnvVars: []string{"GRAPHQL_SERVER_ENABLED"},
-				},
-				&cli.StringFlag{
-					Name:    "GraphqlURL",
-					Aliases: []string{"graphql-url", "gql-url"},
-					EnvVars: []string{"GRAPHQL_URL"},
-				},
-				&cli.StringFlag{
-					Name:    "GraphqlURIPath",
-					Aliases: []string{"graphql-uri-path", "gql-uri-path"},
-					Value:   "/query",
-					EnvVars: []string{"GRAPHQL_URI_PATH"},
-				},
-				&cli.StringFlag{
-					Name:    "GraphqlPlaygroundURIPath",
-					Aliases: []string{"graphql-playground-uri-path", "gql-playground-uri-path"},
-					Value:   "/playground",
-					EnvVars: []string{"GRAPHQL_PLAYGROUND_URI_PATH"},
-				},
-				&cli.BoolFlag{
-					Name:    "GraphqlPlaygroundEnabled",
-					Aliases: []string{"graphql-playground-enabled", "gql-playground-enabled", "gql-pg-enabled"},
-					Value:   false,
-					EnvVars: []string{"GRAPHQL_PLAYGROUND_ENABLED"},
-				},
-			},
-			Description: "Serve EntKit APP",
+                    Aliases: []string{"union-server","u"},
+                    Value:   false,
+                    EnvVars: []string{"UNION_SERVER"},
+                },
+                &cli.BoolFlag{
+                    Name:    "HTTPS",
+                    Aliases: []string{"https","ssl"},
+                    Value:   false,
+                    EnvVars: []string{"HTTPS"},
+                },
+                &cli.StringFlag{
+                    Name:    "DatabaseDriver",
+                    Aliases: []string{"db-driver"},
+                    Value:   "sqlite",
+                    EnvVars: []string{"DB_DRIVER"},
+                },
+                &cli.StringFlag{
+                    Name:    "DatabaseSourceName",
+                    Aliases: []string{"db-dsn"},
+                    Value:   "file:demo.db?mode=rwc&cache=shared&_fk=1",
+                    EnvVars: []string{"DB_DSN"},
+                },
+                &cli.StringFlag{
+                    Name:    "Host",
+                    Aliases: []string{"host"},
+                    Value:   "localhost",
+                    EnvVars: []string{"HOST"},
+                },
+                &cli.IntFlag{
+                    Name:    "Port",
+                    Aliases: []string{"port", "p"},
+                    Value:   80,
+                    EnvVars: []string{"PORT"},
+                },
+                &cli.StringFlag{
+                    Name:    "AppPath",
+                    Aliases: []string{"app-path"},
+                    Value:   "/",
+                    EnvVars: []string{"APP_PATH"},
+                },
+                &cli.BoolFlag{
+                    Name:    "AppServerEnabled",
+                    Aliases: []string{"app-server-enabled"},
+                    Value:   true,
+                    EnvVars: []string{"APP_SERVER_ENABLED"},
+                },
+                &cli.BoolFlag{
+                    Name:    "GraphqlServerEnabled",
+                    Aliases: []string{"graphql-server-enabled", "gql-server-enabled"},
+                    Value:   false,
+                    EnvVars: []string{"GRAPHQL_SERVER_ENABLED"},
+                },
+                &cli.StringFlag{
+                    Name:    "GraphqlURL",
+                    Aliases: []string{"graphql-url", "gql-url"},
+                    EnvVars: []string{"GRAPHQL_URL"},
+                },
+                &cli.StringFlag{
+                    Name:    "GraphqlURIPath",
+                    Aliases: []string{"graphql-uri-path", "gql-uri-path"},
+                    Value:   "/query",
+                    EnvVars: []string{"GRAPHQL_URI_PATH"},
+                },
+                &cli.StringFlag{
+                    Name:    "GraphqlPlaygroundURIPath",
+                    Aliases: []string{"graphql-playground-uri-path", "gql-playground-uri-path"},
+                    Value:   "/playground",
+                    EnvVars: []string{"GRAPHQL_PLAYGROUND_URI_PATH"},
+                },
+                &cli.BoolFlag{
+                    Name:    "GraphqlPlaygroundEnabled",
+                    Aliases: []string{"graphql-playground-enabled", "gql-playground-enabled", "gql-pg-enabled"},
+                    Value:   false,
+                    EnvVars: []string{"GRAPHQL_PLAYGROUND_ENABLED"},
+                },
+            },
+            Description: "Serve EntKit APP",
 			Subcommands: []*cli.Command{
 				{
 					Name: "gormproj",
@@ -132,17 +132,17 @@ func NewCliApp() *cli.App {
 						if err != nil {
 							return err
 						}
-						return server.ListenAndServe(gormproj.Server)
-					},
+                        return server.ListenAndServe(gormproj.Server)
+                    },
 					Subcommands: []*cli.Command{
-						{
+					    {
 							Name: "test",
-							Action: func(ctx *cli.Context) error {
-								return tests.Start(ctx, gormproj.Server, gormproj.TestsFS, "tests")
-							},
-						},
-					},
-				},
+                            Action: func(ctx *cli.Context) error {
+                                return tests.Start(ctx, gormproj.Server, gormproj.TestsFS, "tests")
+                            },
+                        },
+                    },
+                },
 				{
 					Name: "myproject",
 					Action: func(ctx *cli.Context) error {
@@ -150,28 +150,29 @@ func NewCliApp() *cli.App {
 						if err != nil {
 							return err
 						}
-						return server.ListenAndServe(myproject.Server)
-					},
+                        return server.ListenAndServe(myproject.Server)
+                    },
 					Subcommands: []*cli.Command{
-						{
+					    {
 							Name: "test",
-							Action: func(ctx *cli.Context) error {
-								return tests.Start(ctx, myproject.Server, myproject.TestsFS, "tests")
-							},
-						},
-					},
-				},
-			},
-		},
-	}
+                            Action: func(ctx *cli.Context) error {
+                                return tests.Start(ctx, myproject.Server, myproject.TestsFS, "tests")
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }
 	return app
 
 }
 
 func main() {
 	app := NewCliApp()
-	_ = godotenv.Load()
-	if err := app.Run(os.Args); err != nil {
-		fmt.Println(err.Error())
-	}
+    _ = godotenv.Load()
+    if err := app.Run(os.Args); err != nil {
+        fmt.Println(err.Error())
+    }
 }
+
