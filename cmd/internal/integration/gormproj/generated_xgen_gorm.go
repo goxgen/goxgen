@@ -44,8 +44,8 @@ func NewGormDB(ctx *cli.Context) (*gorm.DB, error){
 
     // Migrate the schema
     err = db.AutoMigrate(
-        &generated.Phone{},
         &generated.Car{},
+        &generated.Phone{},
         &generated.User{},
     )
     if err != nil {

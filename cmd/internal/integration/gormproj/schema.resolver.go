@@ -13,6 +13,32 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// UserCreate is the resolver for the user_create field.
+func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.UserInput) (*generated.User, error) {
+	u, err := input.ToUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Create(u)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return u, nil
+}
+
+// UserUpdate is the resolver for the user_update field.
+func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.UserInput) (*generated.User, error) {
+	u, err := input.ToUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	td := r.DB.Preload(clause.Associations).Save(u)
+	if td.Error != nil {
+		return nil, td.Error
+	}
+	return u, nil
+}
+
 // CarCreate is the resolver for the car_create field.
 func (r *mutationResolver) CarCreate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
 	car, err := input.ToCarModel(ctx)
@@ -46,32 +72,6 @@ func (r *mutationResolver) UserBatchDelete(ctx context.Context, input *generated
 	return users, nil
 }
 
-// UserCreate is the resolver for the user_create field.
-func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.UserInput) (*generated.User, error) {
-	u, err := input.ToUserModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Create(u)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return u, nil
-}
-
-// UserUpdate is the resolver for the user_update field.
-func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.UserInput) (*generated.User, error) {
-	u, err := input.ToUserModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	td := r.DB.Preload(clause.Associations).Save(u)
-	if td.Error != nil {
-		return nil, td.Error
-	}
-	return u, nil
-}
-
 // PhoneNumberCreate is the resolver for the phone_number_create field.
 func (r *mutationResolver) PhoneNumberCreate(ctx context.Context, input *generated.PhoneNumberInput) (*generated.Phone, error) {
 	p, err := input.ToPhoneModel(ctx)
@@ -103,22 +103,6 @@ func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenI
 	return r.Resolver.XgenIntrospection()
 }
 
-// CarBrowse is the resolver for the car_browse field.
-func (r *queryResolver) CarBrowse(ctx context.Context, where *generated.CarBrowseInput) ([]*generated.Car, error) {
-	var cars []*generated.Car
-	u, err := where.ToCarModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-
-	return cars, nil
-}
-
 // UserBrowse is the resolver for the user_browse field.
 func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUser, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
 	// Get logger from context
@@ -141,6 +125,22 @@ func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUse
 	}
 
 	return users, nil
+}
+
+// CarBrowse is the resolver for the car_browse field.
+func (r *queryResolver) CarBrowse(ctx context.Context, where *generated.CarBrowseInput) ([]*generated.Car, error) {
+	var cars []*generated.Car
+	u, err := where.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return cars, nil
 }
 
 // PhoneNumberBrowse is the resolver for the phone_number_browse field.

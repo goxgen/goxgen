@@ -4,16 +4,16 @@ import (
 	"github.com/goxgen/goxgen/plugins/cli/server"
 )
 
-// ToCarModel Map CarInput to Car model
-func (ra *CarInput) ToCarModel(ctx context.Context) (*Car, error){
+// ToCarModel Map CarBrowseInput to Car model
+func (ra *CarBrowseInput) ToCarModel(ctx context.Context) (*Car, error){
 	mapper := server.GetMapper(ctx)
 	target := &Car{}
 	err := mapper.Map(ra, target)
 	return target, err
 }
 
-// ToCarModel Map CarBrowseInput to Car model
-func (ra *CarBrowseInput) ToCarModel(ctx context.Context) (*Car, error){
+// ToCarModel Map CarInput to Car model
+func (ra *CarInput) ToCarModel(ctx context.Context) (*Car, error){
 	mapper := server.GetMapper(ctx)
 	target := &Car{}
 	err := mapper.Map(ra, target)
@@ -44,16 +44,16 @@ func (ra *UserInput) ToUserModel(ctx context.Context) (*User, error){
 	return target, err
 }
 
-// ToUserModel Map ListUser to User model
-func (ra *ListUser) ToUserModel(ctx context.Context) (*User, error){
+// ToUserModel Map DeleteUsers to User model
+func (ra *DeleteUsers) ToUserModel(ctx context.Context) (*User, error){
 	mapper := server.GetMapper(ctx)
 	target := &User{}
 	err := mapper.Map(ra, target)
 	return target, err
 }
 
-// ToUserModel Map DeleteUsers to User model
-func (ra *DeleteUsers) ToUserModel(ctx context.Context) (*User, error){
+// ToUserModel Map ListUser to User model
+func (ra *ListUser) ToUserModel(ctx context.Context) (*User, error){
 	mapper := server.GetMapper(ctx)
 	target := &User{}
 	err := mapper.Map(ra, target)
