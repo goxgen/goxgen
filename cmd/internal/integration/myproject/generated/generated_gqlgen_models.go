@@ -200,9 +200,9 @@ type XgenIntrospection struct {
 }
 
 type XgenObjectDefinition struct {
-	Resource   *Resource   `json:"Resource,omitempty"`
 	Action     *Action     `json:"Action,omitempty"`
 	ListAction *ListAction `json:"ListAction,omitempty"`
+	Resource   *Resource   `json:"Resource,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -211,27 +211,27 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	Todo                           *TodoXgenDef                           `json:"Todo,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
-	CustomTodo                     *CustomTodoXgenDef                     `json:"CustomTodo,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
+	UpdateTodo                     *UpdateTodoXgenDef                     `json:"UpdateTodo,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
-	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty"`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	DeleteTodo                     *DeleteTodoXgenDef                     `json:"DeleteTodo,omitempty"`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	ListTodo                       *ListTodoXgenDef                       `json:"ListTodo,omitempty"`
+	User                           *UserXgenDef                           `json:"User,omitempty"`
 	NewTodo                        *NewTodoXgenDef                        `json:"NewTodo,omitempty"`
 	UserList                       *UserListXgenDef                       `json:"UserList,omitempty"`
-	UpdateTodo                     *UpdateTodoXgenDef                     `json:"UpdateTodo,omitempty"`
-	DeleteTodo                     *DeleteTodoXgenDef                     `json:"DeleteTodo,omitempty"`
-	User                           *UserXgenDef                           `json:"User,omitempty"`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
 	UpdateUser                     *UpdateUserXgenDef                     `json:"UpdateUser,omitempty"`
-	ListTodo                       *ListTodoXgenDef                       `json:"ListTodo,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	Todo                           *TodoXgenDef                           `json:"Todo,omitempty"`
+	CustomTodo                     *CustomTodoXgenDef                     `json:"CustomTodo,omitempty"`
+	NewUser                        *NewUserXgenDef                        `json:"NewUser,omitempty"`
 }
 
 type XgenPaginationInput struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
+	Page int `json:"page"`
+	Size int `json:"size"`
 }
 
 type XgenPaginationInputXgenDef struct {
@@ -292,8 +292,8 @@ type XgenResourceListActionTypeXgenDef struct {
 }
 
 type XgenResourceMap struct {
-	Todo *XgenResourceDefinition `json:"todo,omitempty"`
 	User *XgenResourceDefinition `json:"user,omitempty"`
+	Todo *XgenResourceDefinition `json:"todo,omitempty"`
 }
 
 type XgenResourceProperty struct {

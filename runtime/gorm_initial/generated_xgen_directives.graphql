@@ -25,7 +25,7 @@ enum XgenResourceListActionType {
 }
 input XgenPaginationInput {
   page: Int!
-  limit: Int!
+  size: Int!
 }
 input XgenCursorPaginationInput {
   first: Int!

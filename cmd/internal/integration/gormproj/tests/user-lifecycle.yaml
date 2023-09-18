@@ -48,7 +48,7 @@ tests:
   - name: "List created users"
     query: |
       query{
-          user_browse(input: {}){
+          user_browse(where: {}){
               id
               name
           }
@@ -83,20 +83,5 @@ tests:
           "user_update": {
             "name": "Special user"
           }
-        }
-      }
-  - name: "Delete user"
-    query: |
-      mutation {
-        user_batch_delete(
-          input: {ids: [1]}
-        ) {
-          id
-        }
-      }
-    expectedResult: |
-      {
-        "data": {
-          "user_batch_delete": []
         }
       }

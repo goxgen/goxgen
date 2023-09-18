@@ -1,0 +1,254 @@
+name: "User pagination"
+tests:
+  - name: "Create 10 new users"
+    query: |
+      mutation {
+        user1: user_create(input: {name: "My user 1", cars: {make: "BMW"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user2: user_create(input: {name: "My user 2", cars: {make: "GMC"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user3: user_create(input: {name: "My user 3", cars: {make: "Volvo"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user4: user_create(input: {name: "My user 4", cars: {make: "Mercedes"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user5: user_create(input: {name: "My user 5", cars: {make: "Honda"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user6: user_create(input: {name: "My user 6", cars: {make: "Hyundai"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user7: user_create(input: {name: "My user 7", cars: {make: "MAN"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user8: user_create(input: {name: "My user 8", cars: {make: "Acura"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user9: user_create(input: {name: "My user 9", cars: {make: "Toyota"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+        user10: user_create(input: {name: "My user 10", cars: {make: "Subaru"}}) {
+          id
+          name
+          cars {
+            make
+            id
+          }
+        }
+      }
+    expectedResult: |
+      {
+        "data": {
+          "user1": {
+            "id": 1,
+            "name": "My user 1",
+            "cars": [
+              {
+                "make": "BMW",
+                "id": 1
+              }
+            ]
+          },
+          "user2": {
+            "id": 2,
+            "name": "My user 2",
+            "cars": [
+              {
+                "make": "GMC",
+                "id": 2
+              }
+            ]
+          },
+          "user3": {
+            "id": 3,
+            "name": "My user 3",
+            "cars": [
+              {
+                "make": "Volvo",
+                "id": 3
+              }
+            ]
+          },
+          "user4": {
+            "id": 4,
+            "name": "My user 4",
+            "cars": [
+              {
+                "make": "Mercedes",
+                "id": 4
+              }
+            ]
+          },
+          "user5": {
+            "id": 5,
+            "name": "My user 5",
+            "cars": [
+              {
+                "make": "Honda",
+                "id": 5
+              }
+            ]
+          },
+          "user6": {
+            "id": 6,
+            "name": "My user 6",
+            "cars": [
+              {
+                "make": "Hyundai",
+                "id": 6
+              }
+            ]
+          },
+          "user7": {
+            "id": 7,
+            "name": "My user 7",
+            "cars": [
+              {
+                "make": "MAN",
+                "id": 7
+              }
+            ]
+          },
+          "user8": {
+            "id": 8,
+            "name": "My user 8",
+            "cars": [
+              {
+                "make": "Acura",
+                "id": 8
+              }
+            ]
+          },
+          "user9": {
+            "id": 9,
+            "name": "My user 9",
+            "cars": [
+              {
+                "make": "Toyota",
+                "id": 9
+              }
+            ]
+          },
+          "user10": {
+            "id": 10,
+            "name": "My user 10",
+            "cars": [
+              {
+                "make": "Subaru",
+                "id": 10
+              }
+            ]
+          }
+        }
+      }
+  - name: "Browse created users with pagination"
+    query: |
+      query{
+          user_browse(where: {}, pagination: {size: 5, page: 0}){
+              id
+              name
+          }
+      }
+    expectedResult: |
+      {
+        "data": {
+          "user1": {
+            "id": 1,
+            "name": "My user 1",
+            "cars": [
+              {
+                "make": "BMW",
+                "id": 1
+              }
+            ]
+          },
+          "user2": {
+            "id": 2,
+            "name": "My user 2",
+            "cars": [
+              {
+                "make": "GMC",
+                "id": 2
+              }
+            ]
+          },
+          "user3": {
+            "id": 3,
+            "name": "My user 3",
+            "cars": [
+              {
+                "make": "Volvo",
+                "id": 3
+              }
+            ]
+          },
+          "user4": {
+            "id": 4,
+            "name": "My user 4",
+            "cars": [
+              {
+                "make": "Mercedes",
+                "id": 4
+              }
+            ]
+          },
+          "user5": {
+            "id": 5,
+            "name": "My user 5",
+            "cars": [
+              {
+                "make": "Honda",
+                "id": 5
+              }
+            ]
+          }
+        }
+      }

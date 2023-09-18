@@ -43,7 +43,7 @@ input DeleteUsers
 }
 
 input ListUser
-@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list")
+@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", Pagination: true)
 {
     id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
     name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])

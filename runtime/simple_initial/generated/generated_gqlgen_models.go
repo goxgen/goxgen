@@ -62,9 +62,9 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
-	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
 	Action     []*ActionAnnotationSingle     `json:"Action"`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -91,8 +91,8 @@ type XgenIntrospection struct {
 
 type XgenObjectDefinition struct {
 	ListAction *ListAction `json:"ListAction,omitempty"`
-	Resource   *Resource   `json:"Resource,omitempty"`
 	Action     *Action     `json:"Action,omitempty"`
+	Resource   *Resource   `json:"Resource,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -101,17 +101,17 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
 	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
 }
 
 type XgenPaginationInput struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
+	Page int `json:"page"`
+	Size int `json:"size"`
 }
 
 type XgenPaginationInputXgenDef struct {

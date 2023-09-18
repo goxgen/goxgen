@@ -99,20 +99,20 @@ func (s *Server) ListenAndServe(serverConstructor Constructor) error {
 }
 
 // TestServer creates a new test server instance
-func (s *Server) TestServer(ctx *cli.Context, serverConstructor Constructor) (testSrv *httptest.Server, cancel func()) {
+func (s *Server) TestServer(serverConstructor Constructor) (testSrv *httptest.Server, cancel func()) {
 	tempDB := os.TempDir() + "/" + uuid.New().String() + ".db"
 
-	err := ctx.Set("DatabaseSourceName", "file:"+tempDB+"?mode=rwc&cache=shared&_fk=1")
+	err := s.cliContext.Set("DatabaseSourceName", "file:"+tempDB+"?mode=rwc&cache=shared&_fk=1")
 	if err != nil {
 		panic(err)
 	}
 
-	err = ctx.Set("DatabaseDriver", "sqlite")
+	err = s.cliContext.Set("DatabaseDriver", "sqlite")
 	if err != nil {
 		panic(err)
 	}
 
-	srv, err := serverConstructor(ctx)
+	srv, err := serverConstructor(s.cliContext)
 	if err != nil {
 		panic(err)
 	}

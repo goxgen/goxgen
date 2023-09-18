@@ -51,3 +51,27 @@ func NewGormDB(ctx *cli.Context) (*gorm.DB, error){
 
     return db, nil
 }
+
+func Paginate(paginationInput *generated.XgenPaginationInput) func(db *gorm.DB) *gorm.DB {
+    return func(db *gorm.DB) *gorm.DB {
+		if paginationInput == nil {
+			return db
+        }
+
+        page := paginationInput.Page
+        if page <= 0 {
+            page = 1
+        }
+
+        pageSize := paginationInput.Size
+        switch {
+        case pageSize > 100:
+            pageSize = 100
+        case pageSize <= 0:
+            pageSize = 10
+        }
+
+        offset := (page - 1) * pageSize
+        return db.Offset(offset).Limit(pageSize)
+    }
+}

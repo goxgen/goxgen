@@ -76,7 +76,16 @@ func (b *TestCase) Run(testClient *http.Client, gqlEndpoint string) error {
 }
 
 // Run runs all tests in a bundle
-func (b *TestBundle) Run(testClient *http.Client, gqlEndpoint string) error {
+func (b *TestBundle) Run(srv *server.Server, constructor server.Constructor) error {
+	srvData := srv.GetDataFromCliContext()
+
+	testSrv, cancel := srv.TestServer(constructor)
+	defer cancel()
+
+	testClient := testSrv.Client()
+
+	gqlEndpoint := testSrv.URL + srvData.GraphqlURIPath
+
 	testsCount := len(b.Tests)
 	fmt.Println("-> Running " + b.Name + " (" + strconv.Itoa(testsCount) + ")")
 
@@ -144,19 +153,10 @@ func Start(ctx *cli.Context, serverConstructor server.Constructor, testsFS fs.FS
 		return err
 	}
 
-	srvData := srv.GetDataFromCliContext()
-
-	testSrv, cancel := srv.TestServer(ctx, serverConstructor)
-	defer cancel()
-
-	testClient := testSrv.Client()
-
-	gqlEndpoint := testSrv.URL + srvData.GraphqlURIPath
-
 	tbs := getTestBundles(testsFS, testsDirectory)
 	for _, tb := range tbs {
 
-		err := tb.Run(testClient, gqlEndpoint)
+		err := tb.Run(srv, serverConstructor)
 		if err != nil {
 			return err
 		}
