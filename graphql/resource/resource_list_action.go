@@ -1,15 +1,18 @@
-package directives
+package resource
 
 import (
 	"fmt"
 	"github.com/goxgen/goxgen/consts"
-	"github.com/goxgen/goxgen/graphql/enum"
+	"github.com/goxgen/goxgen/graphql/common"
+	"github.com/goxgen/goxgen/graphql/directives"
+	"github.com/goxgen/goxgen/graphql/sort"
+	"github.com/goxgen/goxgen/runtime/simple_initial/generated"
 	"github.com/goxgen/goxgen/utils"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 var (
-	resourceListActionDirective = InputObjectDirectiveDefinition{
+	ListActionDirective = directives.InputObjectDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
 			Name:        consts.ListActionDirectiveName,
 			Description: `This directive is used to mark the object as a resource list action`,
@@ -21,7 +24,7 @@ var (
 				},
 				{
 					Name: "Action",
-					Type: ast.NonNullNamedType(enum.XgenResourceListActionType.Name, nil),
+					Type: ast.NonNullNamedType(ListActionType.Name, nil),
 				},
 				{
 					Name: "Route",
@@ -31,6 +34,7 @@ var (
 					Name: "Pagination",
 					Type: ast.NamedType("Boolean", nil),
 				},
+				sort.ResourceListActionArgumentDefinition,
 				{
 					Name: consts.ResourceSchemaFieldName,
 					Type: ast.NamedType("String", nil),
@@ -42,14 +46,20 @@ var (
 			IsRepeatable: true,
 		},
 		Validate: func(directive *ast.Directive, def *ast.Definition) error {
-			config, err := GetResourceListConfig(def)
+			listActionDirective := def.Directives.ForName(consts.ListActionDirectiveName)
+			if listActionDirective == nil {
+				return fmt.Errorf("directive %s not found", consts.ListActionDirectiveName)
+			}
+			config := &generated.ListAction{}
+			err := common.ArgsToStruct(listActionDirective.Arguments, config)
+			//config, err := GetResourceListConfig(def)
 			if err != nil {
 				return err
 			}
-			if config.Action == enum.ListActionTypeBrowseQuery {
+			if config.Action == ListActionTypeBrowseQuery {
 				idField := def.Fields.ForName("id")
 				if idField == nil {
-					return fmt.Errorf("id field required for %s action", enum.ListActionTypeBrowseQuery)
+					return fmt.Errorf("id field required for %s action", ListActionTypeBrowseQuery)
 				}
 			}
 

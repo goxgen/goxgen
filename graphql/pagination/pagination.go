@@ -1,9 +1,9 @@
-package inputs
+package pagination
 
 import "github.com/vektah/gqlparser/v2/ast"
 
 var (
-	PaginationInput = &ast.Definition{
+	Input = &ast.Definition{
 		Kind: ast.InputObject,
 		Name: "XgenPaginationInput",
 		Fields: ast.FieldList{
@@ -39,5 +39,10 @@ var (
 				Type: ast.NamedType("String", nil),
 			},
 		},
+	}
+
+	AllDefinitions = []*ast.Definition{
+		Input,
+		CursorPaginationInput,
 	}
 )

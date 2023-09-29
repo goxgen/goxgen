@@ -29,7 +29,7 @@ func Server(ctx *cli.Context) (*handler.Server, error){
             generated.Config{
                 Resolvers:  resolver,
                 Directives: generated.DirectiveRoot{
-                    ListAction: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated.XgenResourceListActionType, route *string, pagination *bool, schemaFieldName *string) (res interface{}, err error) {
+                    ListAction: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated.XgenResourceListActionType, route *string, pagination *bool, sort *generated.XgenSortResourceConfigInput, schemaFieldName *string) (res interface{}, err error) {
                         return next(ctx)
                     },
                     Action: func(ctx context.Context, obj interface{}, next graphql.Resolver, resource string, action generated.XgenResourceActionType, route *string, schemaFieldName *string) (res interface{}, err error) {

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/common"
-	"github.com/goxgen/goxgen/graphql/directives"
 	"github.com/goxgen/goxgen/graphql/generator"
-	"github.com/goxgen/goxgen/graphql/inputs"
+	"github.com/goxgen/goxgen/graphql/pagination"
+	"github.com/goxgen/goxgen/graphql/sort"
+	"github.com/goxgen/goxgen/runtime/gorm_initial/generated"
 	"github.com/goxgen/goxgen/utils"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -59,7 +60,6 @@ func prepareSchemaField(
 	object *ast.Definition,
 	directive *ast.Directive,
 ) (err error) {
-	//resource := directive.Arguments.ForName("Resource").Value.Raw
 	var def *ast.Definition
 	var fieldName string
 
@@ -73,8 +73,6 @@ func prepareSchemaField(
 		return fmt.Errorf("failed to prepare schema field: unknown action type")
 	}
 
-	//action := m.getPureActionName(directive)
-	// GetResourceDirectiveSingularType
 	returnType, err := common.GetResourceDirectiveSingularType(schema, directive)
 	if err != nil {
 		return fmt.Errorf("failed to get object singular type by resource name: %w", err)
@@ -88,16 +86,25 @@ func prepareSchemaField(
 			},
 		},
 	}
-	resourceListConfig, _ := directives.GetResourceListConfig(object)
 
-	if resourceListConfig != nil {
+	listActionDirective := object.Directives.ForName(consts.ListActionDirectiveName)
+	if listActionDirective != nil {
+		resourceListConfig := &generated.ListAction{}
+		err = common.ArgsToStruct(listActionDirective.Arguments, resourceListConfig)
+		if err != nil {
+			return fmt.Errorf("failed to get resource list config: %w", err)
+		}
 		returnType = ast.NonNullListType(returnType, nil)
 		if utils.PBool(resourceListConfig.Pagination) {
 			args = append(args, &ast.ArgumentDefinition{
 				Name: "pagination",
-				Type: &ast.Type{
-					NamedType: inputs.PaginationInput.Name,
-				},
+				Type: ast.NamedType(pagination.Input.Name, nil),
+			})
+		}
+		if len(resourceListConfig.Sort.Default) > 0 {
+			args = append(args, &ast.ArgumentDefinition{
+				Name: "sort",
+				Type: ast.ListType(ast.NonNullNamedType(sort.InputObject.Name, nil), nil),
 			})
 		}
 	}

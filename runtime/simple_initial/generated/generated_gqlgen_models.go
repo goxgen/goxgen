@@ -41,6 +41,7 @@ type ListAction struct {
 	Action          XgenResourceListActionType `json:"Action"`
 	Route           *string                    `json:"Route,omitempty"`
 	Pagination      *bool                      `json:"Pagination,omitempty"`
+	Sort            *XgenSortResourceConfig    `json:"Sort,omitempty"`
 	SchemaFieldName *string                    `json:"SchemaFieldName,omitempty"`
 }
 
@@ -62,9 +63,9 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
+	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
 	Action     []*ActionAnnotationSingle     `json:"Action"`
 	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
-	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -90,9 +91,9 @@ type XgenIntrospection struct {
 }
 
 type XgenObjectDefinition struct {
+	ListAction *ListAction `json:"ListAction,omitempty"`
 	Resource   *Resource   `json:"Resource,omitempty"`
 	Action     *Action     `json:"Action,omitempty"`
-	ListAction *ListAction `json:"ListAction,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -101,10 +102,15 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
 	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
+	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
+	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
+	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
 	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
 	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
 }
@@ -154,6 +160,49 @@ type XgenResourceFieldDbConfigInputXgenDef struct {
 }
 
 type XgenResourceListActionTypeXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSort struct {
+	By        string             `json:"by"`
+	Direction *XgenSortDirection `json:"direction,omitempty"`
+}
+
+type XgenSortDirectionXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortInput struct {
+	By        string             `json:"by"`
+	Direction *XgenSortDirection `json:"direction,omitempty"`
+}
+
+type XgenSortInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortResourceConfig struct {
+	Default []*XgenSort `json:"Default,omitempty"`
+}
+
+type XgenSortResourceConfigInput struct {
+	Default []*XgenSortInput `json:"Default,omitempty"`
+}
+
+type XgenSortResourceConfigInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortResourceConfigXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty"`
 	Field  []*XgenObjectField    `json:"field"`
 }
@@ -241,5 +290,46 @@ func (e *XgenResourceListActionType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e XgenResourceListActionType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type XgenSortDirection string
+
+const (
+	XgenSortDirectionAsc  XgenSortDirection = "ASC"
+	XgenSortDirectionDesc XgenSortDirection = "DESC"
+)
+
+var AllXgenSortDirection = []XgenSortDirection{
+	XgenSortDirectionAsc,
+	XgenSortDirectionDesc,
+}
+
+func (e XgenSortDirection) IsValid() bool {
+	switch e {
+	case XgenSortDirectionAsc, XgenSortDirectionDesc:
+		return true
+	}
+	return false
+}
+
+func (e XgenSortDirection) String() string {
+	return string(e)
+}
+
+func (e *XgenSortDirection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = XgenSortDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid XgenSortDirection", str)
+	}
+	return nil
+}
+
+func (e XgenSortDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

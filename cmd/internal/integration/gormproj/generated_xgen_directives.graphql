@@ -3,9 +3,11 @@ directive @Resource(Name: String!, Route: String, Primary: Boolean, DB: XgenReso
 """This directive is used to mark the object as a resource action"""
 directive @Action(Resource: String!, Action: XgenResourceActionType!, Route: String, SchemaFieldName: String) repeatable on INPUT_OBJECT
 """This directive is used to mark the object as a resource list action"""
-directive @ListAction(Resource: String!, Action: XgenResourceListActionType!, Route: String, Pagination: Boolean, SchemaFieldName: String) repeatable on INPUT_OBJECT
+directive @ListAction(Resource: String!, Action: XgenResourceListActionType!, Route: String, Pagination: Boolean, Sort: XgenSortResourceConfigInput @ToObjectType(type: "XgenSortResourceConfig"), SchemaFieldName: String) repeatable on INPUT_OBJECT
 """This directive is used to exclude the argument from the type"""
 directive @ExcludeArgumentFromType(exclude: Boolean) on ARGUMENT_DEFINITION
+"""This directive is used to define the object type"""
+directive @ToObjectType(type: String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 """This directive is used to mark the object as a resource field"""
 directive @Field(Label: String, Description: String, DB: XgenResourceFieldDbConfigInput @ExcludeArgumentFromType) on FIELD_DEFINITION
 """This directive is used to mark the object as a resource field"""
@@ -22,6 +24,24 @@ enum XgenResourceActionType {
 enum XgenResourceListActionType {
   BROWSE_QUERY
   BATCH_DELETE_MUTATION
+}
+enum XgenSortDirection {
+  ASC
+  DESC
+}
+input XgenSortInput {
+  by: String!
+  direction: XgenSortDirection
+}
+type XgenSort {
+  by: String!
+  direction: XgenSortDirection
+}
+input XgenSortResourceConfigInput {
+  Default: [XgenSortInput!] @ToObjectType(type: "XgenSort")
+}
+type XgenSortResourceConfig {
+  Default: XgenSort
 }
 input XgenPaginationInput {
   page: Int!

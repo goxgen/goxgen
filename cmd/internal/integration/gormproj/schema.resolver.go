@@ -65,13 +65,6 @@ func (r *mutationResolver) CarUpdate(ctx context.Context, input *generated.CarIn
 	return car, nil
 }
 
-// UserBatchDelete is the resolver for the user_batch_delete field.
-func (r *mutationResolver) UserBatchDelete(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
-	var users []*generated.User
-	r.DB.Delete(&users, input.Ids)
-	return users, nil
-}
-
 // PhoneNumberCreate is the resolver for the phone_number_create field.
 func (r *mutationResolver) PhoneNumberCreate(ctx context.Context, input *generated.PhoneNumberInput) (*generated.Phone, error) {
 	p, err := input.ToPhoneModel(ctx)
@@ -98,13 +91,52 @@ func (r *mutationResolver) PhoneNumberUpdate(ctx context.Context, input *generat
 	return p, nil
 }
 
+// UserBatchDelete is the resolver for the user_batch_delete field.
+func (r *mutationResolver) UserBatchDelete(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
+	var users []*generated.User
+	r.DB.Delete(&users, input.Ids)
+	return users, nil
+}
+
 // XgenIntrospection is the resolver for the _xgen_introspection field.
 func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenIntrospection, error) {
 	return r.Resolver.XgenIntrospection()
 }
 
+// PhoneNumberBrowse is the resolver for the phone_number_browse field.
+func (r *queryResolver) PhoneNumberBrowse(ctx context.Context, where *generated.PhoneNumberBrowseInput) ([]*generated.Phone, error) {
+	var phones []*generated.Phone
+	u, err := where.ToPhoneModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Phone{u}).Find(&phones)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return phones, nil
+}
+
+// CarBrowse is the resolver for the car_browse field.
+func (r *queryResolver) CarBrowse(ctx context.Context, where *generated.CarBrowseInput) ([]*generated.Car, error) {
+	var cars []*generated.Car
+	u, err := where.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return cars, nil
+}
+
 // UserBrowse is the resolver for the user_browse field.
-func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUser, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
+func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUser, pagination *generated.XgenPaginationInput, sort []*generated.XgenSortInput) ([]*generated.User, error) {
 	// Get logger from context
 	logger := server.GetLogger(ctx)
 	logger.Info("UserBrowse", zap.Any("where", where))
@@ -125,38 +157,6 @@ func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUse
 	}
 
 	return users, nil
-}
-
-// CarBrowse is the resolver for the car_browse field.
-func (r *queryResolver) CarBrowse(ctx context.Context, where *generated.CarBrowseInput) ([]*generated.Car, error) {
-	var cars []*generated.Car
-	u, err := where.ToCarModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-
-	return cars, nil
-}
-
-// PhoneNumberBrowse is the resolver for the phone_number_browse field.
-func (r *queryResolver) PhoneNumberBrowse(ctx context.Context, where *generated.PhoneNumberBrowseInput) ([]*generated.Phone, error) {
-	var phones []*generated.Phone
-	u, err := where.ToPhoneModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Phone{u}).Find(&phones)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-
-	return phones, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

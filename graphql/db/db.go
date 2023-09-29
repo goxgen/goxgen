@@ -1,11 +1,11 @@
-package inputs
+package db
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 var (
-	ResourceDbConfigInput = &ast.Definition{
+	ResourceConfigInput = &ast.Definition{
 		Kind: ast.InputObject,
 		Name: "XgenResourceDbConfigInput",
 		Fields: ast.FieldList{
@@ -15,7 +15,7 @@ var (
 			},
 		},
 	}
-	ResourceFieldDbConfigInput = &ast.Definition{
+	ResourceFieldConfigInput = &ast.Definition{
 		Kind: ast.InputObject,
 		Name: "XgenResourceFieldDbConfigInput",
 		Fields: ast.FieldList{
@@ -68,5 +68,10 @@ var (
 				Type: ast.NamedType("Int", nil),
 			},
 		},
+	}
+
+	AllDefinitions = []*ast.Definition{
+		ResourceConfigInput,
+		ResourceFieldConfigInput,
 	}
 )

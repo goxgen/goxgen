@@ -5,6 +5,7 @@ const (
 	GeneratedModelsPackageName = "models"
 
 	ExcludeArgumentFromType  = "ExcludeArgumentFromType"
+	ToObjectType             = "ToObjectType"
 	ResourceDirectiveName    = "Resource"
 	ActionDirectiveName      = "Action"
 	FieldDirectiveName       = "Field"
@@ -19,4 +20,7 @@ const (
 	ResourceSchemaFieldName = "SchemaFieldName"
 	ResourceFieldName       = "Resource"
 	ActionFieldName         = "Action"
+
+	SortDirectionAsc  = "ASC"
+	SortDirectionDesc = "DESC"
 )

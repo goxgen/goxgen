@@ -100,8 +100,6 @@ After running `go generate` command, goxgen will generate project structure like
 ```shell
 ├── gormproj
 │   ├── generated
-│   │   ├── generated_gqlgen.go
-│   │   ├── generated_gqlgen_models.go
 │   │   └── generated_xgen_mappers.go
 │   ├── tests
 │   │   ├── default-tests.yaml
@@ -109,8 +107,6 @@ After running `go generate` command, goxgen will generate project structure like
 │   │   └── user-pagination.yaml
 │   ├── generated_xgen_directives.graphql
 │   ├── generated_xgen_gorm.go
-│   ├── generated_xgen_introspection.go
-│   ├── generated_xgen_introspection.graphql
 │   ├── generated_xgen_project_handlers.go
 │   ├── graphql.config.yml
 │   ├── resolver.go
@@ -118,14 +114,11 @@ After running `go generate` command, goxgen will generate project structure like
 │   └── schema.resolver.go
 ├── myproject
 │   ├── generated
-│   │   ├── generated_gqlgen.go
-│   │   ├── generated_gqlgen_models.go
 │   │   └── generated_xgen_mappers.go
 │   ├── tests
 │   │   └── default-tests.yaml
 │   ├── generated_xgen_directives.graphql
 │   ├── generated_xgen_introspection.go
-│   ├── generated_xgen_introspection.graphql
 │   ├── generated_xgen_project_handlers.go
 │   ├── graphql.config.yml
 │   ├── resolver.go
@@ -228,7 +221,13 @@ input DeleteUsers
 }
 
 input ListUser
-@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", Pagination: true)
+@ListAction(
+    Resource: "user",
+    Action: BROWSE_QUERY,
+    Route: "list",
+    Pagination: true,
+    Sort: {Default: [{by: "name", direction: ASC}]},
+)
 {
     id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
     name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
@@ -282,9 +281,11 @@ directive @Resource(Name: String!, Route: String, Primary: Boolean, DB: XgenReso
 """This directive is used to mark the object as a resource action"""
 directive @Action(Resource: String!, Action: XgenResourceActionType!, Route: String, SchemaFieldName: String) repeatable on INPUT_OBJECT
 """This directive is used to mark the object as a resource list action"""
-directive @ListAction(Resource: String!, Action: XgenResourceListActionType!, Route: String, Pagination: Boolean, SchemaFieldName: String) repeatable on INPUT_OBJECT
+directive @ListAction(Resource: String!, Action: XgenResourceListActionType!, Route: String, Pagination: Boolean, Sort: XgenSortResourceConfigInput @ToObjectType(type: "XgenSortResourceConfig"), SchemaFieldName: String) repeatable on INPUT_OBJECT
 """This directive is used to exclude the argument from the type"""
 directive @ExcludeArgumentFromType(exclude: Boolean) on ARGUMENT_DEFINITION
+"""This directive is used to define the object type"""
+directive @ToObjectType(type: String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 """This directive is used to mark the object as a resource field"""
 directive @Field(Label: String, Description: String, DB: XgenResourceFieldDbConfigInput @ExcludeArgumentFromType) on FIELD_DEFINITION
 """This directive is used to mark the object as a resource field"""
@@ -301,6 +302,24 @@ enum XgenResourceActionType {
 enum XgenResourceListActionType {
   BROWSE_QUERY
   BATCH_DELETE_MUTATION
+}
+enum XgenSortDirection {
+  ASC
+  DESC
+}
+input XgenSortInput {
+  by: String!
+  direction: XgenSortDirection
+}
+type XgenSort {
+  by: String!
+  direction: XgenSortDirection
+}
+input XgenSortResourceConfigInput {
+  Default: [XgenSortInput!] @ToObjectType(type: "XgenSort")
+}
+type XgenSortResourceConfig {
+  Default: XgenSort
 }
 input XgenPaginationInput {
   page: Int!
@@ -357,7 +376,7 @@ func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.User
 
 ### "Browse User" query resolver
 ```go
-func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUser, pagination *generated.XgenPaginationInput) ([]*generated.User, error) {
+func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUser, pagination *generated.XgenPaginationInput, sort []*generated.XgenSortInput) ([]*generated.User, error) {
 	// Get logger from context
 	logger := server.GetLogger(ctx)
 	logger.Info("UserBrowse", zap.Any("where", where))

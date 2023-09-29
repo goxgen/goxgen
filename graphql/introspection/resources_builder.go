@@ -31,12 +31,12 @@ func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument,
 		resourcePropertyType = &ast.Definition{
 			Kind:   ast.Object,
 			Name:   "XgenResourceProperty",
-			Fields: common.ArgsToFields(resourceDirective.Arguments),
+			Fields: common.ArgsToObjectFields(resourceDirective.Arguments),
 		}
 		actionType = &ast.Definition{
 			Kind:   ast.Object,
 			Name:   "XgenResourceAction",
-			Fields: common.ArgsToFields(resourceActionDirective.Arguments),
+			Fields: common.ArgsToObjectFields(resourceActionDirective.Arguments),
 		}
 		resourceDefinitionType = &ast.Definition{
 			Kind: ast.Object,

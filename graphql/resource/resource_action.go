@@ -1,14 +1,14 @@
-package directives
+package resource
 
 import (
 	"fmt"
 	"github.com/goxgen/goxgen/consts"
-	"github.com/goxgen/goxgen/graphql/enum"
+	"github.com/goxgen/goxgen/graphql/directives"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 var (
-	resourceActionDirective = InputObjectDirectiveDefinition{
+	ActionDirective = directives.InputObjectDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
 			Name:        consts.ActionDirectiveName,
 			Description: `This directive is used to mark the object as a resource action`,
@@ -20,7 +20,7 @@ var (
 				},
 				{
 					Name: "Action",
-					Type: ast.NonNullNamedType(enum.XgenResourceActionType.Name, nil),
+					Type: ast.NonNullNamedType(ActionType.Name, nil),
 				},
 				{
 					Name: "Route",

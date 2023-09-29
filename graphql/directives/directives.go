@@ -85,27 +85,6 @@ func (ddb *DirectiveDefinitionBundle) DirectiveDefinitionList() ast.DirectiveDef
 	return _ddl
 }
 
-var (
-	pos = &ast.Position{Src: &ast.Source{BuiltIn: false}}
-
-	Bundle = &DirectiveDefinitionBundle{
-		Object: []*ObjectDirectiveDefinition{
-			&resourceDirective,
-		},
-		InputObject: []*InputObjectDirectiveDefinition{
-			&resourceActionDirective,
-			&resourceListActionDirective,
-			&excludeArgumentFromTypeDirective,
-		},
-		Field: []*FieldDirectiveDefinition{
-			&resourceFieldDirective,
-		},
-		InputField: []*InputFieldDirectiveDefinition{
-			&resourceActionFieldDirective,
-		},
-	}
-)
-
 func GetInputFieldDirectives(definition *ast.Definition) []*ast.Directive {
 	return definition.Directives.ForNames(consts.ActionFieldDirectiveName)
 }

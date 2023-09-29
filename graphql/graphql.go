@@ -6,10 +6,13 @@ import (
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/goxgen/goxgen/consts"
+	"github.com/goxgen/goxgen/graphql/common"
+	"github.com/goxgen/goxgen/graphql/db"
 	"github.com/goxgen/goxgen/graphql/directives"
-	"github.com/goxgen/goxgen/graphql/enum"
 	"github.com/goxgen/goxgen/graphql/generator"
-	"github.com/goxgen/goxgen/graphql/inputs"
+	"github.com/goxgen/goxgen/graphql/pagination"
+	"github.com/goxgen/goxgen/graphql/resource"
+	"github.com/goxgen/goxgen/graphql/sort"
 	"github.com/goxgen/goxgen/utils"
 	"github.com/vektah/gqlparser/v2/ast"
 	"path"
@@ -30,6 +33,26 @@ type GraphqlContext struct {
 	GeneratorApiOptions         []api.Option
 }
 
+var (
+	MainDirectiveDefinitionBundle = &directives.DirectiveDefinitionBundle{
+		Object: []*directives.ObjectDirectiveDefinition{
+			&resource.Directive,
+		},
+		InputObject: []*directives.InputObjectDirectiveDefinition{
+			&resource.ActionDirective,
+			&resource.ListActionDirective,
+			&common.ExcludeArgumentFromTypeDirective,
+			&common.ToObjectType,
+		},
+		Field: []*directives.FieldDirectiveDefinition{
+			&resource.FieldDirective,
+		},
+		InputField: []*directives.InputFieldDirectiveDefinition{
+			&resource.ActionFieldDirective,
+		},
+	}
+)
+
 // GetGraphqlContext returns the graphql context from the context.
 func GetGraphqlContext(ctx context.Context) (*GraphqlContext, error) {
 	if ctx.Value(GraphqlContextKey) != nil {
@@ -48,9 +71,11 @@ func generateDirectivesSet(outputDir string, generatedFilePrefix string) error {
 	schemaGenerator := generator.NewSchemaGenerator().
 		WithPath(path.Join(outputDir, generatedFilePrefix+"directives.graphql")).
 		WithSchemaHooks(func(_document *ast.SchemaDocument) error {
-			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, enum.All...)
-			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, inputs.All...)
-			_document.Directives = append(_document.Directives, directives.Bundle.DirectiveDefinitionList()...)
+			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, resource.AllDefinitions...)
+			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, sort.AllDefinitions...)
+			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, pagination.AllDefinitions...)
+			_document.Definitions = generator.AppendDefinitionsIfNotExists(_document.Definitions, db.AllDefinitions...)
+			_document.Directives = append(_document.Directives, MainDirectiveDefinitionBundle.DirectiveDefinitionList()...)
 			return nil
 		})
 	return schemaGenerator.GenerateOutput()

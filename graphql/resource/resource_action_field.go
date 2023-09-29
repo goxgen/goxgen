@@ -1,14 +1,15 @@
-package directives
+package resource
 
 import (
 	"fmt"
 	"github.com/goxgen/goxgen/consts"
+	"github.com/goxgen/goxgen/graphql/directives"
 	"github.com/vektah/gqlparser/v2/ast"
 	"strings"
 )
 
 var (
-	resourceActionFieldDirective = InputFieldDirectiveDefinition{
+	ActionFieldDirective = directives.InputFieldDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
 			Name:        consts.ActionFieldDirectiveName,
 			Description: `This directive is used to mark the object as a resource field`,

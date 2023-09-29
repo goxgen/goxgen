@@ -89,7 +89,7 @@ func (m *Plugin) InjectSourceLate(schema *ast.Schema) *ast.Source {
 		WithSchemaHooks(
 			append(
 				[]generator.SchemaHook{
-					validation.SchemaGeneratorHook(schema),
+					validation.SchemaGeneratorHook(schema, MainDirectiveDefinitionBundle),
 					introspection.SchemaGeneratorHook(
 						schema,
 						IntrospectionQueryField,

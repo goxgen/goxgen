@@ -10,9 +10,9 @@ import (
 )
 
 // ContextKey is a key for context
-type ContextKey string
+type ContextKey int
 
-var ProjectsContextKey = ContextKey("PROJECTS")
+const contextKey ContextKey = iota
 
 // Context is a context for Xgen
 // it is used to pass data between generators
@@ -25,7 +25,7 @@ type Context struct {
 // GetContext gets generator context from context
 // it is used to pass data between generators
 func GetContext(ctx context.Context) (*Context, error) {
-	gCtx, ok := ctx.Value(ProjectsContextKey).(*Context)
+	gCtx, ok := ctx.Value(contextKey).(*Context)
 
 	if !ok {
 		return nil, fmt.Errorf("project context not found in context")
@@ -52,5 +52,5 @@ func RunProjectGoGenCommand(dir string) error {
 }
 
 func PrepareCommonContext(ctx context.Context, projCtx *Context) context.Context {
-	return context.WithValue(ctx, ProjectsContextKey, projCtx)
+	return context.WithValue(ctx, contextKey, projCtx)
 }

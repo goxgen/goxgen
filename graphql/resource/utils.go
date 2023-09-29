@@ -1,4 +1,4 @@
-package directives
+package resource
 
 import (
 	"fmt"
