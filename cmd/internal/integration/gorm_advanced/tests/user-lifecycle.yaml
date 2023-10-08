@@ -1,0 +1,81 @@
+name: "User lifecycle"
+tests:
+  - name: "Create new user"
+    query: |
+      mutation{
+        user1: user_create(input: {name: "My user 1", cars: {make:"BMW"}}){
+            id
+            name
+            cars {
+                make
+                id
+            }
+        }
+        user2: user_create(input: {name: "My user 2", cars: {make:"Mercedes"}}){
+            id
+            name
+            cars {
+                make
+                id
+            }
+        }
+      }
+    expectedResult: |
+      {
+          "user1": {
+            "id": 1,
+            "name": "My user 1",
+            "cars": [
+              {
+                "make": "BMW",
+                "id": 1
+              }
+            ]
+          },
+          "user2": {
+            "id": 2,
+            "name": "My user 2",
+            "cars": [
+              {
+                "make": "Mercedes",
+                "id": 2
+              }
+            ]
+          }
+      }
+  - name: "List created users"
+    query: |
+      query{
+          user_browse(where: {}){
+              id
+              name
+          }
+      }
+    expectedResult: |
+      {
+          "user_browse": [
+            {
+              "id": 1,
+              "name": "My user 1"
+            },
+            {
+              "id": 2,
+              "name": "My user 2"
+            }
+          ]
+      }
+  - name: "Update user"
+    query: |
+      mutation {
+        user_update(
+          input: {name: "Special user", id: 1}
+        ) {
+          name
+        }
+      }
+    expectedResult: |
+      {
+          "user_update": {
+            "name": "Special user"
+          }
+      }

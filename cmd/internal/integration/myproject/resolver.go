@@ -1,11 +1,15 @@
 package myproject
 
 import (
-	"github.com/urfave/cli/v2"
+	"embed"
+	"github.com/goxgen/goxgen/plugins/cli/settings"
 )
+
+//go:embed tests/*
+var TestsFS embed.FS
 
 type Resolver struct{}
 
-func NewResolver(ctx *cli.Context) (*Resolver, error) {
+func NewResolver(sts *settings.EnvironmentSettings) (*Resolver, error) {
 	return &Resolver{}, nil
 }

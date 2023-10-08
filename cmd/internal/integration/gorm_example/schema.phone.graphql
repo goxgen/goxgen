@@ -1,0 +1,9 @@
+type User
+@Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the user", DB: {Column: "id", PrimaryKey: true})
+    name: String! @Field(Label: "Text", Description: "Text of the user", DB: {Column: "name", Unique: true})
+    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
+}
+
+

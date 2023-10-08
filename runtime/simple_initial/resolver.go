@@ -1,12 +1,12 @@
 package simple_initial
 
 import (
-	"github.com/urfave/cli/v2"
+	"github.com/goxgen/goxgen/plugins/cli/settings"
 )
 
 
 type Resolver struct{}
 
-func NewResolver(ctx *cli.Context) (*Resolver, error) {
+func NewResolver(sts *settings.EnvironmentSettings) (*Resolver, error) {
 	return &Resolver{}, nil
 }

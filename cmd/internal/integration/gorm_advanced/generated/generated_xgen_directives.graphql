@@ -39,12 +39,12 @@ type XgenSort {
 }
 input XgenSortResourceConfigInput {
   """If set to true, the sort will be disabled."""
-  Disabled: Boolean!
+  Disabled: Boolean
   Default: [XgenSortInput!] @ToObjectType(type: "[XgenSort!]")
 }
 type XgenSortResourceConfig {
   """If set to true, the sort will be disabled."""
-  Disabled: Boolean!
+  Disabled: Boolean
   Default: [XgenSort!]
 }
 input XgenPaginationInput {

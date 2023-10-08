@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
 // This directive is used to mark the object as a resource action
@@ -29,6 +31,16 @@ type ActionField struct {
 	MapTo []string `json:"MapTo,omitempty"`
 }
 
+type BrowseUserInput struct {
+	ID   *int    `json:"id,omitempty" mapto:"User.ID"`
+	Name *string `json:"name,omitempty" mapto:"User.Name"`
+}
+
+type BrowseUserInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
 // This directive is used to mark the object as a resource field
 type Field struct {
 	Label       *string `json:"Label,omitempty"`
@@ -50,6 +62,39 @@ type ListActionAnnotationSingle struct {
 	Value *ListAction `json:"value,omitempty"`
 }
 
+type Phone struct {
+	ID          int    `json:"id" gorm:"column:id;primaryKey;"`
+	Number      string `json:"number" gorm:"column:number;"`
+	User        *User  `json:"user" gorm:""`
+	UserID      int    ``
+	*gorm.Model ``
+}
+
+type PhoneNumberInput struct {
+	ID     *int       `json:"id,omitempty" mapto:"Phone.ID"`
+	Number *string    `json:"number,omitempty" mapto:"Phone.Number"`
+	User   *UserInput `json:"user,omitempty" mapto:"Phone.User"`
+}
+
+type PhoneNumberInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type PhoneNumberSingleSortInput struct {
+	Field     PhoneNumberSortableField `json:"field"`
+	Direction *XgenSortDirection       `json:"direction,omitempty"`
+}
+
+type PhoneNumberSortInput struct {
+	By []*PhoneNumberSingleSortInput `json:"by,omitempty"`
+}
+
+type PhoneXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
 // This directive is used to mark the object as a resource
 type Resource struct {
 	Name    string  `json:"Name"`
@@ -62,10 +107,42 @@ type ResourceAnnotationSingle struct {
 	Value *Resource `json:"value,omitempty"`
 }
 
+type User struct {
+	ID           int      `json:"id" gorm:"column:id;primaryKey;"`
+	Name         string   `json:"name" gorm:"column:name;unique;"`
+	PhoneNumbers []*Phone `json:"phoneNumbers" gorm:""`
+	*gorm.Model  ``
+}
+
+type UserInput struct {
+	ID     *int                `json:"id,omitempty" mapto:"User.ID"`
+	Name   *string             `json:"name,omitempty" mapto:"User.Name"`
+	Phones []*PhoneNumberInput `json:"phones,omitempty" mapto:"User.PhoneNumbers"`
+}
+
+type UserInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type UserSingleSortInput struct {
+	Field     UserSortableField  `json:"field"`
+	Direction *XgenSortDirection `json:"direction,omitempty"`
+}
+
+type UserSortInput struct {
+	By []*UserSingleSortInput `json:"by,omitempty"`
+}
+
+type UserXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
 type XgenAnnotationMap struct {
-	Action     []*ActionAnnotationSingle     `json:"Action"`
-	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
+	Action     []*ActionAnnotationSingle     `json:"Action"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -88,11 +165,12 @@ type XgenFieldDef struct {
 type XgenIntrospection struct {
 	Annotation *XgenAnnotationMap `json:"annotation,omitempty"`
 	Object     *XgenObjectMap     `json:"object,omitempty"`
+	Resource   *XgenResourceMap   `json:"resource,omitempty"`
 }
 
 type XgenObjectDefinition struct {
-	Resource   *Resource   `json:"Resource,omitempty"`
 	Action     *Action     `json:"Action,omitempty"`
+	Resource   *Resource   `json:"Resource,omitempty"`
 	ListAction *ListAction `json:"ListAction,omitempty"`
 }
 
@@ -102,17 +180,22 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
-	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
-	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
-	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
-	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
 	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	UserInput                      *UserInputXgenDef                      `json:"UserInput,omitempty"`
+	User                           *UserXgenDef                           `json:"User,omitempty"`
+	Phone                          *PhoneXgenDef                          `json:"Phone,omitempty"`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
+	BrowseUserInput                *BrowseUserInputXgenDef                `json:"BrowseUserInput,omitempty"`
+	PhoneNumberInput               *PhoneNumberInputXgenDef               `json:"PhoneNumberInput,omitempty"`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
 	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
+	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
+	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
 }
 
 type XgenPaginationInput struct {
@@ -123,6 +206,13 @@ type XgenPaginationInput struct {
 type XgenPaginationInputXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty"`
 	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenResourceAction struct {
+	Resource        string                 `json:"Resource"`
+	Action          XgenResourceActionType `json:"Action"`
+	Route           *string                `json:"Route,omitempty"`
+	SchemaFieldName *string                `json:"SchemaFieldName,omitempty"`
 }
 
 type XgenResourceActionTypeXgenDef struct {
@@ -137,6 +227,12 @@ type XgenResourceDbConfigInput struct {
 type XgenResourceDbConfigInputXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty"`
 	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenResourceDefinition struct {
+	ObjectName *string               `json:"objectName,omitempty"`
+	Properties *XgenResourceProperty `json:"properties,omitempty"`
+	Actions    []*XgenResourceAction `json:"actions"`
 }
 
 type XgenResourceFieldDbConfigInput struct {
@@ -164,6 +260,17 @@ type XgenResourceListActionTypeXgenDef struct {
 	Field  []*XgenObjectField    `json:"field"`
 }
 
+type XgenResourceMap struct {
+	User        *XgenResourceDefinition `json:"user,omitempty"`
+	PhoneNumber *XgenResourceDefinition `json:"phone_number,omitempty"`
+}
+
+type XgenResourceProperty struct {
+	Name    string  `json:"Name"`
+	Route   *string `json:"Route,omitempty"`
+	Primary *bool   `json:"Primary,omitempty"`
+}
+
 type XgenSort struct {
 	By        string             `json:"by"`
 	Direction *XgenSortDirection `json:"direction,omitempty"`
@@ -186,13 +293,13 @@ type XgenSortInputXgenDef struct {
 
 type XgenSortResourceConfig struct {
 	// If set to true, the sort will be disabled.
-	Disabled bool        `json:"Disabled"`
+	Disabled *bool       `json:"Disabled,omitempty"`
 	Default  []*XgenSort `json:"Default,omitempty"`
 }
 
 type XgenSortResourceConfigInput struct {
 	// If set to true, the sort will be disabled.
-	Disabled bool             `json:"Disabled"`
+	Disabled *bool            `json:"Disabled,omitempty"`
 	Default  []*XgenSortInput `json:"Default,omitempty"`
 }
 
@@ -209,6 +316,92 @@ type XgenSortResourceConfigXgenDef struct {
 type XgenSortXgenDef struct {
 	Object *XgenObjectDefinition `json:"object,omitempty"`
 	Field  []*XgenObjectField    `json:"field"`
+}
+
+type PhoneNumberSortableField string
+
+const (
+	PhoneNumberSortableFieldID     PhoneNumberSortableField = "id"
+	PhoneNumberSortableFieldNumber PhoneNumberSortableField = "number"
+	PhoneNumberSortableFieldUser   PhoneNumberSortableField = "user"
+)
+
+var AllPhoneNumberSortableField = []PhoneNumberSortableField{
+	PhoneNumberSortableFieldID,
+	PhoneNumberSortableFieldNumber,
+	PhoneNumberSortableFieldUser,
+}
+
+func (e PhoneNumberSortableField) IsValid() bool {
+	switch e {
+	case PhoneNumberSortableFieldID, PhoneNumberSortableFieldNumber, PhoneNumberSortableFieldUser:
+		return true
+	}
+	return false
+}
+
+func (e PhoneNumberSortableField) String() string {
+	return string(e)
+}
+
+func (e *PhoneNumberSortableField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PhoneNumberSortableField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PHONE_NUMBER_SORTABLE_FIELD", str)
+	}
+	return nil
+}
+
+func (e PhoneNumberSortableField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UserSortableField string
+
+const (
+	UserSortableFieldID           UserSortableField = "id"
+	UserSortableFieldName         UserSortableField = "name"
+	UserSortableFieldPhoneNumbers UserSortableField = "phoneNumbers"
+)
+
+var AllUserSortableField = []UserSortableField{
+	UserSortableFieldID,
+	UserSortableFieldName,
+	UserSortableFieldPhoneNumbers,
+}
+
+func (e UserSortableField) IsValid() bool {
+	switch e {
+	case UserSortableFieldID, UserSortableFieldName, UserSortableFieldPhoneNumbers:
+		return true
+	}
+	return false
+}
+
+func (e UserSortableField) String() string {
+	return string(e)
+}
+
+func (e *UserSortableField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UserSortableField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid USER_SORTABLE_FIELD", str)
+	}
+	return nil
+}
+
+func (e UserSortableField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type XgenResourceActionType string
