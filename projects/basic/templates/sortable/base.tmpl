@@ -3,25 +3,22 @@
 {{- define "BaseTemplate" -}}
 
 package {{.GeneratedGqlgenPackageName}}
-{{- if .ResourceTypeNameToActionMap }}
+{{- if .Resources }}
 import (
-	"context"
-	"github.com/goxgen/goxgen/plugins/cli/server"
 )
 
-{{- range $res, $actions := .ResourceTypeNameToActionMap }}
-{{- range $action := $actions }}
-{{- $methodName := print "to-" $res "-model" | camelcase }}
-
-// {{$methodName}} Map {{$action}} to {{$res}} model
-func (ra *{{$action}}) {{$methodName}}(ctx context.Context) (*{{$res}}, error){
-	mapper := server.GetMapper(ctx)
-	target := &{{$res}}{}
-	err := mapper.Map(ra, target)
-	return target, err
+{{- range $res, $type := .Resources }}
+func (io *{{$res | inputObjectName}}) SortSqlStrings() []string {
+	if io == nil {
+		return []string{}
+	}
+	var sortSqlStrings []string
+	for _, si := range io.By {
+		str := si.Field.String() + " " + si.Direction.String()
+		sortSqlStrings = append(sortSqlStrings, str)
+	}
+	return sortSqlStrings
 }
-{{- end }}
-{{- end }}
-
+{{- end -}}
 {{- end -}}
 {{- end -}}

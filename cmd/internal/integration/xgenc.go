@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -11,22 +14,24 @@ import (
 
 func main() {
 	xg := xgen.NewXgen(
-		xgen.WithPlugin(cli.NewPlugin()),
 		xgen.WithPackageName("github.com/goxgen/goxgen/cmd/internal/integration"),
 		xgen.WithProject(
 			"myproject",
 			basic.NewProject(),
 		),
 		xgen.WithProject(
-			"gormproj",
+			"gorm_advanced",
 			gorm.NewProject(
 				gorm.WithBasicProjectOption(basic.WithTestDir("tests")),
 			),
 		),
-		//xgen.WithProject(
-		//	"entproj",
-		//	projects.NewEntProject(),
-		//),
+		xgen.WithProject(
+			"gorm_example",
+			gorm.NewProject(
+				gorm.WithBasicProjectOption(basic.WithTestDir("tests")),
+			),
+		),
+		xgen.WithPlugin(cli.NewPlugin()),
 	)
 
 	err := xg.Generate(context.Background())

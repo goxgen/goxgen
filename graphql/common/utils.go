@@ -14,11 +14,11 @@ var pos = &ast.Position{Src: &ast.Source{BuiltIn: false}}
 
 // IsXgenDirectiveDefinition checks if directive is xgen directive
 func IsXgenDirectiveDefinition(directive *ast.DirectiveDefinition) bool {
-	return directive.Name == consts.ResourceDirectiveName ||
-		directive.Name == consts.FieldDirectiveName ||
-		directive.Name == consts.ActionDirectiveName ||
-		directive.Name == consts.ActionFieldDirectiveName ||
-		directive.Name == consts.ListActionDirectiveName
+	return directive.Name == consts.SchemaDefDirectiveResourceName ||
+		directive.Name == consts.SchemaDefDirectiveFieldName ||
+		directive.Name == consts.SchemaDefDirectiveActionName ||
+		directive.Name == consts.SchemaDefDirectiveActionFieldName ||
+		directive.Name == consts.SchemaDefDirectiveListActionName
 }
 
 // DirectiveToType converts directive to type
@@ -300,7 +300,7 @@ func IsMutationAction(directive *ast.Directive) bool {
 
 // GetResourceDirectiveSingularType returns resource directive singular type
 func GetResourceDirectiveSingularType(schema *ast.Schema, directive *ast.Directive) (*ast.Type, error) {
-	resName := directive.Arguments.ForName("Resource").Value.Raw
+	resName := directive.Arguments.ForName(consts.SchemaDefActionDirectiveArgResource).Value.Raw
 	objType := FindObjectByResourceName(schema, resName)
 	if objType == nil {
 		return nil, fmt.Errorf("failed to find object for resource %s", resName)
@@ -315,7 +315,7 @@ func GetResourceDirectiveSingularType(schema *ast.Schema, directive *ast.Directi
 func FindObjectByResourceName(schema *ast.Schema, name string) *ast.Definition {
 	objects := GetDefinedObjects(schema)
 	for _, _type := range objects {
-		directive := _type.Directives.ForName(consts.ResourceDirectiveName)
+		directive := _type.Directives.ForName(consts.SchemaDefDirectiveResourceName)
 
 		if directive == nil {
 			continue

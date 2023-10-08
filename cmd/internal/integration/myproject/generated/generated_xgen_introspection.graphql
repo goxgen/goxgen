@@ -3,6 +3,15 @@ type XgenIntrospection {
   object: XgenObjectMap
   resource: XgenResourceMap
 }
+"""This directive is used to mark the object as a resource list action"""
+type ListAction {
+  Resource: String!
+  Action: XgenResourceListActionType!
+  Route: String
+  Pagination: Boolean
+  Sort: XgenSortResourceConfig
+  SchemaFieldName: String
+}
 """This directive is used to mark the object as a resource"""
 type Resource {
   Name: String!
@@ -28,15 +37,6 @@ type ActionField {
   """Map field to resource field, {resource}.{field}, eg. user.id"""
   MapTo: [String!]
 }
-"""This directive is used to mark the object as a resource list action"""
-type ListAction {
-  Resource: String!
-  Action: XgenResourceListActionType!
-  Route: String
-  Pagination: Boolean
-  Sort: XgenSortResourceConfig
-  SchemaFieldName: String
-}
 type XgenAnnotationMap {
   ListAction: [ListActionAnnotationSingle!]!
   Resource: [ResourceAnnotationSingle!]!
@@ -59,70 +59,46 @@ type XgenFieldDef {
   ActionField: ActionField
 }
 type XgenObjectDefinition {
+  ListAction: ListAction
   Resource: Resource
   Action: Action
-  ListAction: ListAction
 }
 type XgenObjectField {
   name: String
   definition: XgenFieldDef
 }
 type XgenObjectMap {
-  XgenSortResourceConfigInput: XgenSortResourceConfigInputXgenDef
-  NewUser: NewUserXgenDef
-  XgenSort: XgenSortXgenDef
   XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
-  CustomTodo: CustomTodoXgenDef
-  XgenSortInput: XgenSortInputXgenDef
-  XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
-  ListTodo: ListTodoXgenDef
-  UpdateUser: UpdateUserXgenDef
+  User: UserXgenDef
+  XgenSortResourceConfig: XgenSortResourceConfigXgenDef
   Todo: TodoXgenDef
-  NewTodo: NewTodoXgenDef
+  UpdateUser: UpdateUserXgenDef
+  XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
+  XgenSortInput: XgenSortInputXgenDef
   XgenPaginationInput: XgenPaginationInputXgenDef
   XgenResourceListActionType: XgenResourceListActionTypeXgenDef
+  XgenSortResourceConfigInput: XgenSortResourceConfigInputXgenDef
   XgenSortDirection: XgenSortDirectionXgenDef
-  XgenSortResourceConfig: XgenSortResourceConfigXgenDef
-  User: UserXgenDef
-  XgenResourceActionType: XgenResourceActionTypeXgenDef
-  UpdateTodo: UpdateTodoXgenDef
-  DeleteTodo: DeleteTodoXgenDef
+  CustomTodo: CustomTodoXgenDef
+  NewUser: NewUserXgenDef
   XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
+  DeleteTodo: DeleteTodoXgenDef
+  NewTodo: NewTodoXgenDef
+  XgenSort: XgenSortXgenDef
   UserList: UserListXgenDef
-}
-type XgenSortResourceConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type NewUserXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenSortXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
+  ListTodo: ListTodoXgenDef
+  UpdateTodo: UpdateTodoXgenDef
+  XgenResourceActionType: XgenResourceActionTypeXgenDef
 }
 type XgenResourceDbConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type CustomTodoXgenDef {
+type UserXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenSortInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenCursorPaginationInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type ListTodoXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type UpdateUserXgenDef {
+type XgenSortResourceConfigXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -130,7 +106,15 @@ type TodoXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type NewTodoXgenDef {
+type UpdateUserXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenCursorPaginationInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenSortInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -142,27 +126,19 @@ type XgenResourceListActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
+type XgenSortResourceConfigInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
 type XgenSortDirectionXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenSortResourceConfigXgenDef {
+type CustomTodoXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type UserXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceActionTypeXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type UpdateTodoXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type DeleteTodoXgenDef {
+type NewUserXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -170,7 +146,31 @@ type XgenResourceFieldDbConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
+type DeleteTodoXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type NewTodoXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenSortXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
 type UserListXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type ListTodoXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type UpdateTodoXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceActionTypeXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -222,14 +222,14 @@ extend type Query {
   _xgen_introspection: XgenIntrospection
 }
 extend type Query {
-  user_browse(where: UserList, pagination: XgenPaginationInput): [User]!
   todo_browse(where: ListTodo, pagination: XgenPaginationInput): [Todo]!
+  user_browse(where: UserList, pagination: XgenPaginationInput): [User]!
 }
 extend type Mutation {
+  todo_custom(input: CustomTodo): Todo
   user_create(input: NewUser): User
   todo_update(input: UpdateTodo): Todo
+  new_todo(input: NewTodo): Todo
   todo_delete(input: DeleteTodo): Todo
   user_update(input: UpdateUser): User
-  todo_custom(input: CustomTodo): Todo
-  new_todo(input: NewTodo): Todo
 }

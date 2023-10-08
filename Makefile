@@ -16,7 +16,7 @@ runtime-generate:
 
 # Run the integration tests
 integrations-run:
-	go run ./cmd/internal/integration/generated_xgen_cli.go
+	cd ./cmd/internal/integration/; go run generated_xgen_cli.go run --graphql-playground-enabled=true
 
 # Build the README.md file from the README.gomd file
 build-readme:
@@ -28,3 +28,9 @@ build:
 	go fmt && go mod tidy
 	$(MAKE) integrations-generate
 	$(MAKE) build-readme
+
+# Run the tests including the integration tests
+test:
+	go test -v ./...
+	cd ./cmd/internal/integration/; go run generated_xgen_cli.go run --test=true
+

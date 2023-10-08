@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/goxgen/goxgen/consts"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -17,7 +18,7 @@ var (
 	}
 	ResourceFieldConfigInput = &ast.Definition{
 		Kind: ast.InputObject,
-		Name: "XgenResourceFieldDbConfigInput",
+		Name: consts.SchemaDefFieldDbConfigInputType,
 		Fields: ast.FieldList{
 			{
 				Name: "Column",

@@ -9,13 +9,13 @@ import (
 )
 
 func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument, introValue *map[string]any) error {
-	resourceDirective, exists := schema.Directives[consts.ResourceDirectiveName]
+	resourceDirective, exists := schema.Directives[consts.SchemaDefDirectiveResourceName]
 	if !exists {
-		return fmt.Errorf("failed to find %s directive", consts.ResourceDirectiveName)
+		return fmt.Errorf("failed to find %s directive", consts.SchemaDefDirectiveResourceName)
 	}
-	resourceActionDirective, exists := schema.Directives[consts.ActionDirectiveName]
+	resourceActionDirective, exists := schema.Directives[consts.SchemaDefDirectiveActionName]
 	if !exists {
-		return fmt.Errorf("failed to find %s directive", consts.ResourceDirectiveName)
+		return fmt.Errorf("failed to find %s directive", consts.SchemaDefDirectiveResourceName)
 	}
 	var (
 		resourceMapType = &ast.Definition{
@@ -69,7 +69,7 @@ func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument,
 	resourceValue := make(map[string]any)
 
 	for _, object := range objects {
-		resourceDirective := object.Directives.ForName(consts.ResourceDirectiveName)
+		resourceDirective := object.Directives.ForName(consts.SchemaDefDirectiveResourceName)
 		if resourceDirective == nil {
 			continue
 		}
@@ -114,11 +114,11 @@ func BuildPerResourceIntroHook(schema *ast.Schema, document *ast.SchemaDocument,
 
 		for _, _object := range objects {
 			actionDirs := append(
-				_object.Directives.ForNames(consts.ActionDirectiveName),
-				_object.Directives.ForNames(consts.ListActionDirectiveName)...,
+				_object.Directives.ForNames(consts.SchemaDefDirectiveActionName),
+				_object.Directives.ForNames(consts.SchemaDefDirectiveListActionName)...,
 			)
 			for _, actionDirective := range actionDirs {
-				_resourceNameArg := actionDirective.Arguments.ForName("Resource")
+				_resourceNameArg := actionDirective.Arguments.ForName(consts.SchemaDefActionDirectiveArgResource)
 				if _resourceNameArg == nil {
 					return fmt.Errorf("failed to find Resource argument in %s directive", actionDirective.Name)
 				}

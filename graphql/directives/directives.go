@@ -86,11 +86,11 @@ func (ddb *DirectiveDefinitionBundle) DirectiveDefinitionList() ast.DirectiveDef
 }
 
 func GetInputFieldDirectives(definition *ast.Definition) []*ast.Directive {
-	return definition.Directives.ForNames(consts.ActionFieldDirectiveName)
+	return definition.Directives.ForNames(consts.SchemaDefDirectiveActionFieldName)
 }
 
 func GetObjectFieldDirectives(definition *ast.Definition) []*ast.Directive {
-	return definition.Directives.ForNames(consts.FieldDirectiveName)
+	return definition.Directives.ForNames(consts.SchemaDefDirectiveFieldName)
 }
 
 func mergeDirectiveDefs(directive ast.DirectiveDefinition, new ast.DirectiveDefinition) *ast.DirectiveDefinition {

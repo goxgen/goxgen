@@ -10,6 +10,7 @@ import (
 	"github.com/goxgen/goxgen/runtime/gorm_initial/generated"
 	"github.com/goxgen/goxgen/utils"
 	"github.com/vektah/gqlparser/v2/ast"
+	"strings"
 )
 
 func SchemaGeneratorHook(schema *ast.Schema) generator.SchemaHook {
@@ -28,9 +29,22 @@ func SchemaGeneratorHook(schema *ast.Schema) generator.SchemaHook {
 
 		for _, object := range objects {
 
+			// prepare resource related types
+			resourceDirective := object.Directives.ForName(consts.SchemaDefDirectiveResourceName)
+			if resourceDirective != nil {
+				resourceName := resourceDirective.Arguments.ForName(consts.SchemaDefResourceDirectiveArgName).Value.Raw
+
+				sortableFieldsEnum := prepareResourceSortableFieldsEnum(object)
+				document.Definitions = generator.AppendDefinitionsIfNotExists(document.Definitions, sortableFieldsEnum)
+
+				sortSingleInput, sortInputObject := sort.GenerateResourceSortInputObject(resourceName)
+				document.Definitions = generator.AppendDefinitionsIfNotExists(document.Definitions, sortSingleInput, sortInputObject)
+			}
+
+			// prepare resource actions related types and schema fields
 			resourceActionDirectives := append(
-				object.Directives.ForNames(consts.ActionDirectiveName),
-				object.Directives.ForNames(consts.ListActionDirectiveName)...,
+				object.Directives.ForNames(consts.SchemaDefDirectiveActionName),
+				object.Directives.ForNames(consts.SchemaDefDirectiveListActionName)...,
 			)
 			for _, directive := range resourceActionDirectives {
 				err := prepareSchemaField(schema, query, mutation, object, directive)
@@ -38,7 +52,6 @@ func SchemaGeneratorHook(schema *ast.Schema) generator.SchemaHook {
 					return fmt.Errorf("failed to prepare field: %w", err)
 				}
 			}
-
 		}
 
 		if len(query.Fields) > 0 {
@@ -51,6 +64,30 @@ func SchemaGeneratorHook(schema *ast.Schema) generator.SchemaHook {
 
 		return nil
 	}
+}
+
+func prepareResourceSortableFieldsEnum(object *ast.Definition) *ast.Definition {
+
+	resourceDirective := object.Directives.ForName(consts.SchemaDefDirectiveResourceName)
+	if resourceDirective == nil {
+		panic("resource directive is required")
+	}
+
+	resourceName := resourceDirective.Arguments.ForName(consts.SchemaDefResourceDirectiveArgName).Value.Raw
+
+	enumName := strings.ToUpper(resourceName + consts.ResourceSortableFieldEnumSuffix)
+
+	enum := &ast.Definition{
+		Kind:       ast.Enum,
+		Name:       enumName,
+		EnumValues: []*ast.EnumValueDefinition{},
+	}
+	for _, field := range object.Fields {
+		enum.EnumValues = append(enum.EnumValues, &ast.EnumValueDefinition{
+			Name: field.Name,
+		})
+	}
+	return enum
 }
 
 func prepareSchemaField(
@@ -87,8 +124,10 @@ func prepareSchemaField(
 		},
 	}
 
-	listActionDirective := object.Directives.ForName(consts.ListActionDirectiveName)
+	listActionDirective := object.Directives.ForName(consts.SchemaDefDirectiveListActionName)
 	if listActionDirective != nil {
+
+		resourceName := listActionDirective.Arguments.ForName(consts.SchemaDefActionDirectiveArgResource).Value.Raw
 		resourceListConfig := &generated.ListAction{}
 		err = common.ArgsToStruct(listActionDirective.Arguments, resourceListConfig)
 		if err != nil {
@@ -101,17 +140,15 @@ func prepareSchemaField(
 				Type: ast.NamedType(pagination.Input.Name, nil),
 			})
 		}
-		if len(resourceListConfig.Sort.Default) > 0 {
-			args = append(args, &ast.ArgumentDefinition{
-				Name: "sort",
-				Type: ast.ListType(ast.NonNullNamedType(sort.InputObject.Name, nil), nil),
-			})
+
+		if resourceListConfig.Sort != nil && (resourceListConfig.Sort.Disabled == nil || !utils.PBool(resourceListConfig.Sort.Disabled)) {
+			args = append(args, sort.GenerateResourceQueryArgumentDefinition(resourceName))
 		}
 	}
 
-	schemaQueryFieldNameArg := directive.Arguments.ForName(consts.ResourceSchemaFieldName)
+	schemaQueryFieldNameArg := directive.Arguments.ForName(consts.SchemaDefActionDirectiveArgSchemaFieldName)
 	if schemaQueryFieldNameArg == nil {
-		return fmt.Errorf("failed to prepare schema field: %s argument is required", consts.ResourceSchemaFieldName)
+		return fmt.Errorf("failed to prepare schema field: %s argument is required", consts.SchemaDefActionDirectiveArgSchemaFieldName)
 	}
 	schemaFieldName, err := schemaQueryFieldNameArg.Value.Value(nil)
 	if err != nil {
@@ -120,7 +157,7 @@ func prepareSchemaField(
 
 	schemaFieldNameStr, ok := schemaFieldName.(string)
 	if !ok {
-		return fmt.Errorf("failed to prepare schema field: %s argument must be a string", consts.ResourceSchemaFieldName)
+		return fmt.Errorf("failed to prepare schema field: %s argument must be a string", consts.SchemaDefActionDirectiveArgSchemaFieldName)
 	}
 	schemaField := &ast.FieldDefinition{
 		Name:      schemaFieldNameStr,

@@ -3,6 +3,22 @@ type XgenIntrospection {
   object: XgenObjectMap
   resource: XgenResourceMap
 }
+"""This directive is used to mark the object as a resource list action"""
+type ListAction {
+  Resource: String!
+  Action: XgenResourceListActionType!
+  Route: String
+  Pagination: Boolean
+  Sort: XgenSortResourceConfig
+  SchemaFieldName: String
+}
+"""This directive is used to mark the object as a resource field"""
+type ActionField {
+  Label: String
+  Description: String
+  """Map field to resource field, {resource}.{field}, eg. user.id"""
+  MapTo: [String!]
+}
 """This directive is used to mark the object as a resource field"""
 type Field {
   Label: String
@@ -21,30 +37,10 @@ type Action {
   Route: String
   SchemaFieldName: String
 }
-"""This directive is used to mark the object as a resource list action"""
-type ListAction {
-  Resource: String!
-  Action: XgenResourceListActionType!
-  Route: String
-  Pagination: Boolean
-  Sort: XgenSortResourceConfig
-  SchemaFieldName: String
-}
-"""This directive is used to mark the object as a resource field"""
-type ActionField {
-  Label: String
-  Description: String
-  """Map field to resource field, {resource}.{field}, eg. user.id"""
-  MapTo: [String!]
-}
 type XgenAnnotationMap {
-  Action: [ActionAnnotationSingle!]!
   ListAction: [ListActionAnnotationSingle!]!
   Resource: [ResourceAnnotationSingle!]!
-}
-type ActionAnnotationSingle {
-  name: String
-  value: Action
+  Action: [ActionAnnotationSingle!]!
 }
 type ListActionAnnotationSingle {
   name: String
@@ -53,6 +49,10 @@ type ListActionAnnotationSingle {
 type ResourceAnnotationSingle {
   name: String
   value: Resource
+}
+type ActionAnnotationSingle {
+  name: String
+  value: Action
 }
 type XgenFieldDef {
   Field: Field
@@ -68,61 +68,33 @@ type XgenObjectField {
   definition: XgenFieldDef
 }
 type XgenObjectMap {
-  XgenResourceActionType: XgenResourceActionTypeXgenDef
-  DeleteUsers: DeleteUsersXgenDef
-  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
-  PhoneNumberBrowseInput: PhoneNumberBrowseInputXgenDef
-  XgenSortInput: XgenSortInputXgenDef
-  XgenSortDirection: XgenSortDirectionXgenDef
-  XgenSortResourceConfigInput: XgenSortResourceConfigInputXgenDef
-  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
-  ListUser: ListUserXgenDef
+  XgenSortResourceConfig: XgenSortResourceConfigXgenDef
+  XgenPaginationInput: XgenPaginationInputXgenDef
   Car: CarXgenDef
   XgenResourceListActionType: XgenResourceListActionTypeXgenDef
   XgenSort: XgenSortXgenDef
-  XgenSortResourceConfig: XgenSortResourceConfigXgenDef
+  XgenSortDirection: XgenSortDirectionXgenDef
+  User: UserXgenDef
+  CarBrowseInput: CarBrowseInputXgenDef
+  ListUser: ListUserXgenDef
+  Phone: PhoneXgenDef
+  XgenResourceActionType: XgenResourceActionTypeXgenDef
+  DeleteUsers: DeleteUsersXgenDef
+  XgenSortInput: XgenSortInputXgenDef
+  CarInput: CarInputXgenDef
+  PhoneNumberBrowseInput: PhoneNumberBrowseInputXgenDef
+  XgenResourceFieldDbConfigInput: XgenResourceFieldDbConfigInputXgenDef
+  XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
+  XgenResourceDbConfigInput: XgenResourceDbConfigInputXgenDef
+  XgenSortResourceConfigInput: XgenSortResourceConfigInputXgenDef
   UserInput: UserInputXgenDef
   PhoneNumberInput: PhoneNumberInputXgenDef
-  CarBrowseInput: CarBrowseInputXgenDef
-  User: UserXgenDef
-  CarInput: CarInputXgenDef
-  XgenCursorPaginationInput: XgenCursorPaginationInputXgenDef
-  Phone: PhoneXgenDef
-  XgenPaginationInput: XgenPaginationInputXgenDef
 }
-type XgenResourceActionTypeXgenDef {
+type XgenSortResourceConfigXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type DeleteUsersXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceFieldDbConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type PhoneNumberBrowseInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenSortInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenSortDirectionXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenSortResourceConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenResourceDbConfigInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type ListUserXgenDef {
+type XgenPaginationInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -138,7 +110,59 @@ type XgenSortXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type XgenSortResourceConfigXgenDef {
+type XgenSortDirectionXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type UserXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type CarBrowseInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type ListUserXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type PhoneXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceActionTypeXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type DeleteUsersXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenSortInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type CarInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type PhoneNumberBrowseInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceFieldDbConfigInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenCursorPaginationInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenResourceDbConfigInputXgenDef {
+  object: XgenObjectDefinition
+  field: [XgenObjectField!]!
+}
+type XgenSortResourceConfigInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
@@ -150,34 +174,10 @@ type PhoneNumberInputXgenDef {
   object: XgenObjectDefinition
   field: [XgenObjectField!]!
 }
-type CarBrowseInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type UserXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type CarInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenCursorPaginationInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type PhoneXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
-type XgenPaginationInputXgenDef {
-  object: XgenObjectDefinition
-  field: [XgenObjectField!]!
-}
 type XgenResourceMap {
-  car: XgenResourceDefinition
   phone_number: XgenResourceDefinition
   user: XgenResourceDefinition
+  car: XgenResourceDefinition
 }
 type XgenResourceDefinition {
   objectName: String
@@ -237,16 +237,16 @@ extend type Query {
   _xgen_introspection: XgenIntrospection
 }
 extend type Query {
-  car_browse(where: CarBrowseInput): [Car]!
   user_browse(where: ListUser, pagination: XgenPaginationInput, sort: UserSortInput): [User]!
   phone_number_browse(where: PhoneNumberBrowseInput): [Phone]!
+  car_browse(where: CarBrowseInput): [Car]!
 }
 extend type Mutation {
   user_batch_delete(input: DeleteUsers): [User]!
-  car_create(input: CarInput): Car
-  car_update(input: CarInput): Car
-  user_create(input: UserInput): User
-  user_update(input: UserInput): User
   phone_number_create(input: PhoneNumberInput): Phone
   phone_number_update(input: PhoneNumberInput): Phone
+  user_create(input: UserInput): User
+  user_update(input: UserInput): User
+  car_create(input: CarInput): Car
+  car_update(input: CarInput): Car
 }

@@ -1,12 +1,27 @@
 package gorm_initial
 
 import (
-	"github.com/urfave/cli/v2"
+	"github.com/goxgen/goxgen/runtime/gorm_initial/generated"
+	"github.com/goxgen/goxgen/plugins/cli/settings"
+	"gorm.io/gorm"
+	"embed"
+	"fmt"
 )
 
+//go:embed tests/*
+var TestsFS embed.FS
 
-type Resolver struct{}
+type Resolver struct {
+	DB *gorm.DB
+}
 
-func NewResolver(ctx *cli.Context) (*Resolver, error) {
-	return &Resolver{}, nil
+func NewResolver(sts *settings.EnvironmentSettings) (*Resolver, error) {
+	r := &Resolver{}
+	db, err := generated.NewGormDB(sts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create gorm db: %w", err)
+	}
+	r.DB = db
+
+	return r, nil
 }

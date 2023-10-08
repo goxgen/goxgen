@@ -11,7 +11,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/vektah/gqlparser/v2/ast"
 	"go/types"
-	"golang.org/x/exp/slices"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -32,13 +32,13 @@ func WithBasicProjectOption(option basic.ProjectOption) ProjectOption {
 	}
 }
 
-func (p *Project) MutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
+func (p *Project) ModelMutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 
-	b = p.Project.MutationHook(b)
+	b = p.Project.ModelMutationHook(b)
 
 	for _, model := range b.Models {
 
-		if !slices.Contains(p.Resources, model.Name) {
+		if !p.Resources.TypeExists(model.Name) {
 			continue
 		}
 
@@ -83,7 +83,7 @@ func (p *Project) MutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 				}
 			}
 
-			if slices.Contains(p.Resources, typeName) {
+			if p.Resources.TypeExists(typeName) {
 				model.Fields = append(model.Fields, &modelgen.Field{
 					Name:   typeName + "ID",
 					GoName: typeName + "ID",
@@ -100,12 +100,13 @@ func (p *Project) MutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 				nil,
 			)),
 		})
+
 	}
 	return b
 }
 
 func (p *Project) getDbConfigFieldDirective(dir *ast.Directive) (*generated.XgenResourceFieldDbConfigInput, error) {
-	dbArg := dir.Arguments.ForName("DB")
+	dbArg := dir.Arguments.ForName(consts.SchemaDefFieldDirectiveArgDb)
 	dbArgVal, err := dbArg.Value.Value(nil)
 	if err != nil {
 		return nil, err
@@ -128,7 +129,7 @@ func (p *Project) ConstraintFieldHook(td *ast.Definition, fd *ast.FieldDefinitio
 
 	gormTag := ``
 
-	c := fd.Directives.ForName(consts.FieldDirectiveName)
+	c := fd.Directives.ForName(consts.SchemaDefDirectiveFieldName)
 	if c != nil {
 
 		dbConf, err := p.getDbConfigFieldDirective(c)
@@ -183,16 +184,16 @@ func (p *Project) ConstraintFieldHook(td *ast.Definition, fd *ast.FieldDefinitio
 		if dbConf.AutoIncrementIncrement != nil {
 			gormTag += "autoIncrementIncrement:" + strconv.Itoa(*dbConf.AutoIncrementIncrement) + ";"
 		}
-	}
 
-	f.Tag += fmt.Sprintf(` gorm:"%s"`, gormTag)
+		f.Tag += fmt.Sprintf(` gorm:"%s"`, gormTag)
+	}
 
 	return f, nil
 }
 
 type TemplateData struct {
 	*basic.TemplateData
-	Resources []string
+	Resources map[string]string
 }
 
 func (p *Project) PrepareTemplateData() *TemplateData {
@@ -214,68 +215,19 @@ func (p *Project) SchemaHook(schema *ast.Schema) error {
 				TemplateDir: "templates/resolver",
 				FS:          templatesFS,
 				OutputFile:  "./resolver.go",
-				Regenerate:  false,
+				Regenerate:  true,
 			},
 		).
 		Add(
 			&tmpl.TemplateBundle{
-				TemplateDir: "templates/db",
+				TemplateDir: "templates/common",
 				FS:          templatesFS,
-				OutputFile:  "./" + p.GeneratedFilePrefix + "gorm.go",
+				OutputFile:  path.Join(consts.GeneratedGqlgenPackageName, p.GeneratedFilePrefix+"gorm.go"),
 				Regenerate:  true,
 			},
 		).
 		Generate(p.Name, p.PrepareTemplateData())
 }
-
-//func (p *Project) PrepareGraphqlGenerationContext(projCtx *projects.Context, data *projects.ProjectGeneratorData) (context.Context, error) {
-//
-//	gqlCtx, err := p.Project.PrepareGraphqlGenerationContext(projCtx, data)
-//	if err != nil {
-//		return nil, fmt.Errorf("failed to prepare graphql generation context: %w", err)
-//	}
-//
-//	gqlCtxData, err := graphql.GetGraphqlContext(gqlCtx)
-//	gqlCtxData.SchemaInjectorHooks = append(
-//		gqlCtxData.SchemaInjectorHooks,
-//		func(schema *ast.Schema) generator.SchemaHook {
-//			err := p.StandardTemplateBundleList().
-//				Add(
-//					&tmpl.TemplateBundle{
-//						TemplateDir: "templates/resolver",
-//						FS:          templatesFS,
-//						OutputFile:  "./resolver.go",
-//						Regenerate:  false,
-//					},
-//				).
-//				Add(
-//					&tmpl.TemplateBundle{
-//						TemplateDir: "templates/db",
-//						FS:          templatesFS,
-//						OutputFile:  "./" + projCtx.GeneratedFilePrefix + "gorm.go",
-//						Regenerate:  true,
-//					},
-//				).
-//				Generate(data.Name, p.PrepareTemplateData())
-//			if err != nil {
-//				panic(err)
-//			}
-//
-//			return func(schemaDocument *ast.SchemaDocument) error {
-//				return nil
-//			}
-//		},
-//	)
-//	gqlCtxData.GeneratorApiOptions = append(
-//		gqlCtxData.GeneratorApiOptions,
-//		api.ReplacePlugin(p.ModelgenPlugin()),
-//	)
-//
-//	return graphql.PrepareContext(
-//		context.Background(),
-//		*gqlCtxData,
-//	), nil
-//}
 
 func NewProject(option ...ProjectOption) *Project {
 	p := &Project{

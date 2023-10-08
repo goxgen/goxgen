@@ -32,12 +32,18 @@ var (
 				Type: ast.NamedType(DirectionEnum.Name, nil),
 			},
 		},
+		Interfaces: []string{},
 	}
 	Object                    = common.ToObjectDefinition(*InputObject, "XgenSort")
 	ResourceConfigInputObject = &ast.Definition{
 		Kind: ast.InputObject,
 		Name: "XgenSortResourceConfigInput",
 		Fields: ast.FieldList{
+			{
+				Name:        "Disabled",
+				Type:        ast.NamedType("Boolean", nil),
+				Description: "If set to true, the sort will be disabled.",
+			},
 			{
 				Name: "Default",
 				Type: ast.ListType(ast.NonNullNamedType(InputObject.Name, nil), nil),

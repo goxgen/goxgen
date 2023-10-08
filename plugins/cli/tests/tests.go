@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/goxgen/goxgen/plugins/cli/common"
+	"github.com/goxgen/goxgen/plugins/cli/project"
 	"github.com/goxgen/goxgen/plugins/cli/server"
-	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -64,7 +65,8 @@ func (b *TestCase) Run(testClient *http.Client, gqlEndpoint string) error {
 		}
 		bodyString := string(bodyBytes)
 		gotResult := pureJson(bodyString)
-		expectedResult := pureJson(b.ExpectedResult)
+
+		expectedResult := pureJson(fmt.Sprintf(`{ "data": %s}`, b.ExpectedResult))
 		if gotResult == expectedResult {
 			return nil
 		} else {
@@ -76,7 +78,7 @@ func (b *TestCase) Run(testClient *http.Client, gqlEndpoint string) error {
 }
 
 // Run runs all tests in a bundle
-func (b *TestBundle) Run(srv *server.Server, constructor server.Constructor) error {
+func (b *TestBundle) Run(srv *server.Server, constructor common.Constructor) error {
 	srvData := srv.GetDataFromCliContext()
 
 	testSrv, cancel := srv.TestServer(constructor)
@@ -146,17 +148,17 @@ func getTestBundles(testsFS fs.FS, dir string) []*TestBundle {
 }
 
 // Start runs all tests
-func Start(ctx *cli.Context, serverConstructor server.Constructor, testsFS fs.FS, testsDirectory string) error {
+func Start(project *project.CliProject) error {
 
-	srv, err := server.New(ctx)
+	srv, err := server.New(project)
 	if err != nil {
 		return err
 	}
 
-	tbs := getTestBundles(testsFS, testsDirectory)
+	tbs := getTestBundles(project.TestsFS, project.TestDir)
 	for _, tb := range tbs {
 
-		err := tb.Run(srv, serverConstructor)
+		err := tb.Run(srv, project.Server)
 		if err != nil {
 			return err
 		}

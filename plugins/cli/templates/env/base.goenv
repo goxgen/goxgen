@@ -1,11 +1,6 @@
 {{- /* gotype: github.com/goxgen/goxgen/plugins/cli.templateData*/ -}}
 {{- define "BaseTemplate" -}}
-# This is default environment variables for {{.ParentPackageName}} project
-{{- $i := 0 -}}
-{{- range $key, $value := .Projects }}
-{{ $key}}_PORT={{ add 8080 $i}}
+# This is custom environment variables for {{.ParentPackageName}} project
+# Add Your custom environment variables here
 
-{{- $i = add $i 1 -}}
-
-{{- end }}
 {{ end }}

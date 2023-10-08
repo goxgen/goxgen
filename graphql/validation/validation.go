@@ -14,8 +14,8 @@ func SchemaGeneratorHook(schema *ast.Schema, bundle *directives.DirectiveDefinit
 		objects := common.GetDefinedObjects(schema)
 		for _, object := range objects {
 			resActionDirs := append(
-				object.Directives.ForNames(consts.ActionDirectiveName),
-				object.Directives.ForNames(consts.ListActionDirectiveName)...,
+				object.Directives.ForNames(consts.SchemaDefDirectiveActionName),
+				object.Directives.ForNames(consts.SchemaDefDirectiveListActionName)...,
 			)
 			for _, resActionDir := range resActionDirs {
 				xgenDirDef := bundle.GetInputObjectDirectiveDefinition(resActionDir.Name)
@@ -28,7 +28,7 @@ func SchemaGeneratorHook(schema *ast.Schema, bundle *directives.DirectiveDefinit
 			}
 
 			for _, field := range object.Fields {
-				resActionFieldDirs := field.Directives.ForNames(consts.ActionFieldDirectiveName)
+				resActionFieldDirs := field.Directives.ForNames(consts.SchemaDefDirectiveActionFieldName)
 				for _, resActionFieldDir := range resActionFieldDirs {
 					xgenDirDef := bundle.GetInputFieldDirectiveDefinition(resActionFieldDir.Name)
 					if xgenDirDef != nil && xgenDirDef.Validate != nil {

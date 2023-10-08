@@ -2,12 +2,11 @@
 
 {{- define "BaseTemplate" -}}
 
-package {{.Name}}
+package {{.GeneratedGqlgenPackageName}}
 
 import (
-    "{{.ParentPackageName}}/{{.Name}}/{{.GeneratedGqlgenPackageName}}"
+    "github.com/goxgen/goxgen/plugins/cli/settings"
     "github.com/goxgen/goxgen/graphql/sort"
-    "github.com/urfave/cli/v2"
     "gorm.io/driver/sqlite"
     "gorm.io/driver/mysql"
     "gorm.io/driver/postgres"
@@ -17,9 +16,9 @@ import (
 	"fmt"
 )
 
-func NewGormDB(ctx *cli.Context) (*gorm.DB, error){
-    dbDriver := ctx.String("DatabaseDriver")
-    dbDsn := ctx.String("DatabaseSourceName")
+func NewGormDB(sts *settings.EnvironmentSettings) (*gorm.DB, error){
+    dbDriver := sts.DatabaseDriver
+    dbDsn := sts.DatabaseDsn
     var dialector gorm.Dialector
     switch dbDriver {
     case "sqlite":
@@ -50,7 +49,7 @@ func NewGormDB(ctx *cli.Context) (*gorm.DB, error){
     // Migrate the schema
     err = db.AutoMigrate(
         {{- range .Resources }}
-        &{{ $.GeneratedGqlgenPackageName }}.{{.}}{},
+        &{{.}}{},
         {{- end }}
     )
     if err != nil {
@@ -60,7 +59,7 @@ func NewGormDB(ctx *cli.Context) (*gorm.DB, error){
     return db, nil
 }
 
-func Paginate(paginationInput *{{.GeneratedGqlgenPackageName}}.XgenPaginationInput) func(db *gorm.DB) *gorm.DB {
+func Paginate(paginationInput *XgenPaginationInput) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 		if paginationInput == nil {
 			return db
@@ -84,13 +83,17 @@ func Paginate(paginationInput *{{.GeneratedGqlgenPackageName}}.XgenPaginationInp
     }
 }
 
-func Sort(sort []sort.Sortable) func(db *gorm.DB) *gorm.DB {
+func Sort(sort sort.Sortables) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		for _, s := range sort {
-			db = db.Order(fmt.Sprintf(s.GetSortString()))
+		for _, s := range sort.SortSqlStrings() {
+			db = db.Order(fmt.Sprintf(s))
 		}
 		return db
 	}
 }
+
+{{- range .Resources }}
+
+{{- end }}
 
 {{- end -}}

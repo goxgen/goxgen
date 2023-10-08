@@ -49,6 +49,9 @@ You should create two files in your project
     ```
 2. Xgen config file `xgenc.go`
     ```go
+    //go:build ignore
+    // +build ignore
+    
     package main
     
     import (
@@ -62,22 +65,24 @@ You should create two files in your project
     
     func main() {
     	xg := xgen.NewXgen(
-    		xgen.WithPlugin(cli.NewPlugin()),
     		xgen.WithPackageName("github.com/goxgen/goxgen/cmd/internal/integration"),
     		xgen.WithProject(
     			"myproject",
     			basic.NewProject(),
     		),
     		xgen.WithProject(
-    			"gormproj",
+    			"gorm_advanced",
     			gorm.NewProject(
     				gorm.WithBasicProjectOption(basic.WithTestDir("tests")),
     			),
     		),
-    		//xgen.WithProject(
-    		//	"entproj",
-    		//	projects.NewEntProject(),
-    		//),
+    		xgen.WithProject(
+    			"gorm_example",
+    			gorm.NewProject(
+    				gorm.WithBasicProjectOption(basic.WithTestDir("tests")),
+    			),
+    		),
+    		xgen.WithPlugin(cli.NewPlugin()),
     	)
     
     	err := xg.Generate(context.Background())
@@ -98,171 +103,149 @@ go generate
 After running `go generate` command, goxgen will generate project structure like this
 
 ```shell
-├── gormproj
+├── gorm_advanced
 │   ├── generated
-│   │   └── generated_xgen_mappers.go
+│   │   ├── server
+│   │   ├── generated_gqlgen.go
+│   │   ├── generated_gqlgen_models.go
+│   │   ├── generated_xgen_directives.graphql
+│   │   ├── generated_xgen_gorm.go
+│   │   ├── generated_xgen_introspection.go
+│   │   ├── generated_xgen_introspection.graphql
+│   │   ├── generated_xgen_mappers.go
+│   │   └── generated_xgen_sortable.go
 │   ├── tests
 │   │   ├── default-tests.yaml
 │   │   ├── user-lifecycle.yaml
 │   │   └── user-pagination.yaml
-│   ├── generated_xgen_directives.graphql
-│   ├── generated_xgen_gorm.go
-│   ├── generated_xgen_project_handlers.go
 │   ├── graphql.config.yml
 │   ├── resolver.go
 │   ├── schema.main.graphql
 │   └── schema.resolver.go
+├── gorm_example
+│   ├── generated
+│   │   ├── server
+│   │   ├── generated_gqlgen.go
+│   │   ├── generated_gqlgen_models.go
+│   │   ├── generated_xgen_directives.graphql
+│   │   ├── generated_xgen_gorm.go
+│   │   ├── generated_xgen_introspection.go
+│   │   ├── generated_xgen_introspection.graphql
+│   │   ├── generated_xgen_mappers.go
+│   │   └── generated_xgen_sortable.go
+│   ├── tests
+│   │   ├── default-tests.yaml
+│   │   └── user-lifecycle.yaml
+│   ├── graphql.config.yml
+│   ├── resolver.go
+│   ├── schema.phone.graphql
+│   ├── schema.resolver.go
+│   └── schema.user.graphql
 ├── myproject
 │   ├── generated
-│   │   └── generated_xgen_mappers.go
+│   │   ├── server
+│   │   ├── generated_gqlgen.go
+│   │   ├── generated_gqlgen_models.go
+│   │   ├── generated_xgen_directives.graphql
+│   │   ├── generated_xgen_introspection.go
+│   │   ├── generated_xgen_introspection.graphql
+│   │   ├── generated_xgen_mappers.go
+│   │   └── generated_xgen_sortable.go
 │   ├── tests
 │   │   └── default-tests.yaml
-│   ├── generated_xgen_directives.graphql
-│   ├── generated_xgen_introspection.go
-│   ├── generated_xgen_project_handlers.go
 │   ├── graphql.config.yml
 │   ├── resolver.go
 │   ├── schema.main.graphql
 │   ├── schema.resolver.go
 │   ├── schema.todo.graphql
 │   └── schema.users.graphql
+├── .env
+├── .env.default
 ├── .gitignore
 ├── gen.go
 ├── generated_xgen_cli.go
+├── gorm_advanced.db
+├── gorm_example.db
 ├── gormproj.db
 └── xgenc.go
 
 ```
 
+> Note: `generated` directories can be ignored in git. But you can add it to git if you want.
+
 ### 📑 Providing schema
 
 You should provide a schema for each project and run `go generate` again.
 
-All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.main.graphql`
+All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.user.graphql`
 
+#### Gorm example
 
-Let's focus on `gormproj`, which uses the GORM ORM.
-The connection to the GORM database can be configured from the gqlgen standard `resolver.go` file in the `gormproj` directory.
+Let's focus on `gorm_example`, which uses the GORM ORM.
+The connection to the GORM database can be configured from the gqlgen standard `resolver.go` file in the `gorm_example` directory.
 
 > `resolver.go` is designed to support your custom dependency injection (DI) and any services you've provided.
 
 ```go
-package gormproj
+package gorm_example
 
 import (
-	"fmt"
-	"github.com/goxgen/goxgen/utils/mapper"
-	"github.com/urfave/cli/v2"
+	"github.com/goxgen/goxgen/cmd/internal/integration/gorm_example/generated"
+	"github.com/goxgen/goxgen/plugins/cli/settings"
 	"gorm.io/gorm"
+	"embed"
+	"fmt"
 )
 
+//go:embed tests/*
+var TestsFS embed.FS
+
 type Resolver struct {
-	DB     *gorm.DB
-	Mapper *mapper.Mapper
+	DB *gorm.DB
 }
 
-func NewResolver(ctx *cli.Context) (*Resolver, error) {
+func NewResolver(sts *settings.EnvironmentSettings) (*Resolver, error) {
 	r := &Resolver{}
-	db, err := NewGormDB(ctx)
+	db, err := generated.NewGormDB(sts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gorm db: %w", err)
 	}
 	r.DB = db
+
 	return r, nil
 }
-
 ```
 
-### Example of schema file `schema.main.graphql`
+### Example of schema file `schema.user.graphql`
 
 ```graphql
+# Define the User resource(entity) and its fields
+# Enable DB mapping for the resource
 type User
 @Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
 {
-    id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "id", PrimaryKey: true})
-    name: String! @Field(Label: "Text", Description: "Text of the todo", DB: {Column: "name", Unique: true})
-    cars: [Car!]! @Field(Label: "Cars", Description: "Cars of the todo", DB: {})
+    id: ID! @Field(Label: "ID", Description: "ID of the user", DB: {Column: "id", PrimaryKey: true})
+    name: String! @Field(Label: "Text", Description: "Text of the user", DB: {Column: "name", Unique: true})
     phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
 }
 
-type Car
-@Resource(Name: "car", Primary: true, Route: "car", DB: {Table: "car"})
-{
-    id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "id", PrimaryKey: true})
-    make: String! @Field(Label: "Make", Description: "Car make", DB: {Column: "make"})
-    done: Boolean! @Field(Label: "Done", Description: "Done of the todo", DB: {Column: "done"})
-    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
-}
-
-input CarInput
-@Action(Resource: "car", Action: CREATE_MUTATION, Route: "new")
-@Action(Resource: "car", Action: UPDATE_MUTATION, Route: "update")
-{
-    id: ID @ActionField(Label: "ID", Description: "ID of the car", MapTo: ["Car.ID"])
-    make: String @ActionField(Label: "Make", Description: "Text of the todo", MapTo: ["Car.Make"])
-    done: Boolean @ActionField(Label: "Done", Description: "Done of the todo", MapTo: ["Car.Done"])
-    user: UserInput @ActionField(Label: "User", Description: "User of the todo", MapTo: ["Car.User"])
-}
-
+# User input type for create and update actions
+# Define the actions for the resource
 input UserInput
 @Action(Resource: "user", Action: CREATE_MUTATION, Route: "new")
 @Action(Resource: "user", Action: UPDATE_MUTATION, Route: "update")
 {
     id: ID @ActionField(Label: "ID", Description: "ID of the user", MapTo: ["User.ID"])
     name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
-    cars: [CarInput!] @ActionField(Label: "Cars", Description: "Cars of the user", MapTo: ["User.Cars"])
     phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", Description: "Phone numbers of the user", MapTo: ["User.PhoneNumbers"])
 }
 
-input DeleteUsers
-@ListAction(Resource: "user", Action: BATCH_DELETE_MUTATION, Route: "delete")
-{
-    ids: [ID!] @ActionField(Label: "IDs", Description: "IDs of users")
-}
-
-input ListUser
-@ListAction(
-    Resource: "user",
-    Action: BROWSE_QUERY,
-    Route: "list",
-    Pagination: true,
-    Sort: {Default: [{by: "name", direction: ASC}]},
-)
+# User input type for browse action
+input BrowseUserInput
+@ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", Pagination: true, Sort: {Default: [{by: "name", direction: ASC}]})
 {
     id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
     name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
-}
-
-input CarBrowseInput
-@ListAction(Resource: "car", Action: BROWSE_QUERY, Route: "list")
-{
-    id: ID @ActionField(Label: "ID", Description: "ID")
-    userId: ID @ActionField(Label: "User ID", Description: "User ID")
-    make: String @ActionField(Label: "Make", Description: "Make")
-}
-
-type Phone
-@Resource(Name: "phone_number", Primary: true, Route: "phone-number", DB: {Table: "phone_number"})
-{
-    id: ID! @Field(Label: "ID", Description: "ID of the phone number", DB: {Column: "id", PrimaryKey: true})
-    number: String! @Field(Label: "Number", Description: "Number of phone", DB: {Column: "number"})
-    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
-}
-
-input PhoneNumberBrowseInput
-@ListAction(Resource: "phone_number", Action: BROWSE_QUERY, Route: "list")
-{
-    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["Phone.ID"])
-    number: ID @ActionField(Label: "Number", Description: "Number of phone", MapTo: ["Phone.Number"])
-}
-
-input PhoneNumberInput
-@Action(Resource: "phone_number", Action: CREATE_MUTATION, Route: "new")
-@Action(Resource: "phone_number", Action: UPDATE_MUTATION, Route: "update")
-{
-    id: ID @ActionField(Label: "ID", Description: "ID of the phone number", MapTo: ["Phone.ID"])
-    number: String @ActionField(Label: "Name", Description: "Number of phone", MapTo: ["Phone.Number"])
-    user: UserInput @ActionField(Label: "User", Description: "User of the phone", MapTo: ["Phone.User"])
 }
 ```
 
@@ -273,82 +256,6 @@ The directives used in the example above are standard `xgen` directives, intende
 * `Action` - Action that can be done for single resource
 * `ListAction` - Action that can be done for bulk resources
 * `ActionField` - Field of action or list action
-
-The definitions of these directives are located in the `generated_xgen_directives.graphql` file.
-```graphql
-"""This directive is used to mark the object as a resource"""
-directive @Resource(Name: String!, Route: String, Primary: Boolean, DB: XgenResourceDbConfigInput @ExcludeArgumentFromType) on OBJECT
-"""This directive is used to mark the object as a resource action"""
-directive @Action(Resource: String!, Action: XgenResourceActionType!, Route: String, SchemaFieldName: String) repeatable on INPUT_OBJECT
-"""This directive is used to mark the object as a resource list action"""
-directive @ListAction(Resource: String!, Action: XgenResourceListActionType!, Route: String, Pagination: Boolean, Sort: XgenSortResourceConfigInput @ToObjectType(type: "XgenSortResourceConfig"), SchemaFieldName: String) repeatable on INPUT_OBJECT
-"""This directive is used to exclude the argument from the type"""
-directive @ExcludeArgumentFromType(exclude: Boolean) on ARGUMENT_DEFINITION
-"""This directive is used to define the object type"""
-directive @ToObjectType(type: String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-"""This directive is used to mark the object as a resource field"""
-directive @Field(Label: String, Description: String, DB: XgenResourceFieldDbConfigInput @ExcludeArgumentFromType) on FIELD_DEFINITION
-"""This directive is used to mark the object as a resource field"""
-directive @ActionField(Label: String, Description: String,
-  """Map field to resource field, {resource}.{field}, eg. user.id"""
-  MapTo: [String!]
-) on INPUT_FIELD_DEFINITION
-enum XgenResourceActionType {
-  CREATE_MUTATION
-  READ_QUERY
-  UPDATE_MUTATION
-  DELETE_MUTATION
-}
-enum XgenResourceListActionType {
-  BROWSE_QUERY
-  BATCH_DELETE_MUTATION
-}
-enum XgenSortDirection {
-  ASC
-  DESC
-}
-input XgenSortInput {
-  by: String!
-  direction: XgenSortDirection
-}
-type XgenSort {
-  by: String!
-  direction: XgenSortDirection
-}
-input XgenSortResourceConfigInput {
-  Default: [XgenSortInput!] @ToObjectType(type: "XgenSort")
-}
-type XgenSortResourceConfig {
-  Default: XgenSort
-}
-input XgenPaginationInput {
-  page: Int!
-  size: Int!
-}
-input XgenCursorPaginationInput {
-  first: Int!
-  after: String
-  last: Int!
-  before: String
-}
-input XgenResourceDbConfigInput {
-  Table: String
-}
-input XgenResourceFieldDbConfigInput {
-  Column: String
-  PrimaryKey: Boolean
-  AutoIncrement: Boolean
-  Unique: Boolean
-  NotNull: Boolean
-  Index: Boolean
-  UniqueIndex: Boolean
-  Size: Int
-  Precision: Int
-  Type: String
-  Scale: Int
-  AutoIncrementIncrement: Int
-}
-```
 
 After writing a custom schema You should run again `gogen` command.
 
@@ -376,11 +283,7 @@ func (r *mutationResolver) UserCreate(ctx context.Context, input *generated.User
 
 ### "Browse User" query resolver
 ```go
-func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUser, pagination *generated.XgenPaginationInput, sort []*generated.XgenSortInput) ([]*generated.User, error) {
-	// Get logger from context
-	logger := server.GetLogger(ctx)
-	logger.Info("UserBrowse", zap.Any("where", where))
-
+func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.BrowseUserInput, pagination *generated.XgenPaginationInput, sort *generated.UserSortInput) ([]*generated.User, error) {
 	var users []*generated.User
 	u, err := where.ToUserModel(ctx)
 	if err != nil {
@@ -388,15 +291,14 @@ func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.ListUse
 	}
 	res := r.DB.
 		Preload(clause.Associations).
-		Scopes(Paginate(pagination)).
+		Scopes(
+			generated.Paginate(pagination), // passing `pagination` to the xgen `generated.Paginate` scope
+			generated.Sort(sort),           // passing `sort` to the xgen `generated.Sort` scope
+		).
 		Where(&[]*generated.User{u}).
 		Find(&users)
 
-	if res.Error != nil {
-		return nil, res.Error
-	}
-
-	return users, nil
+	return users, res.Error
 }
 ```
 etc.
@@ -409,55 +311,127 @@ In those functions, you can see that the `r.DB` instance is used,
 which is provided from the `resolver.go` file.
 
 ```go
-package gormproj
+package gorm_example
 
 import (
-	"fmt"
-	"github.com/goxgen/goxgen/utils/mapper"
-	"github.com/urfave/cli/v2"
+	"github.com/goxgen/goxgen/cmd/internal/integration/gorm_example/generated"
+	"github.com/goxgen/goxgen/plugins/cli/settings"
 	"gorm.io/gorm"
+	"embed"
+	"fmt"
 )
 
+//go:embed tests/*
+var TestsFS embed.FS
+
 type Resolver struct {
-	DB     *gorm.DB
-	Mapper *mapper.Mapper
+	DB *gorm.DB
 }
 
-func NewResolver(ctx *cli.Context) (*Resolver, error) {
+func NewResolver(sts *settings.EnvironmentSettings) (*Resolver, error) {
 	r := &Resolver{}
-	db, err := NewGormDB(ctx)
+	db, err := generated.NewGormDB(sts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gorm db: %w", err)
 	}
 	r.DB = db
+
 	return r, nil
 }
-
 ```
 
 Great, you're all set to launch your GraphQL application.
 
+### 🖥️ CLI plugin usage
+
 To start the server using the xgen CLI plugin, you can run the following command:
 
 ```shell
-go run generated_xgen_cli.go serve --gql-playground-enabled gormproj
+go run generated_xgen_cli.go run --gql-playground-enabled
 ```
 
-This will initialize and start your GraphQL server, making it ready to handle incoming requests.
+This will initialize and start your all projects GraphQL servers together, making it ready to handle incoming requests.
 
 The output from the xgen CLI will provide information about the server endpoints. Additionally, logs will be written to this output during the server's runtime, giving you insights into its operation.
 
 ```shell
-2023-08-30T13:34:58.750+0400    INFO    gormproj/generated_xgen_project_handlers.go:102 Serving graphql playground      {"url": "http://localhost:80/playground"}
-2023-08-30T13:34:58.750+0400    INFO    gormproj/generated_xgen_project_handlers.go:113 Serving graphql                 {"url": "http://localhost:80/query"}
+2023-10-09T00:46:43.600+0400    INFO    server/server.go:77     Serving graphql playground      {"project": "gorm_example", "url": "http://localhost:8080/playground"}
+2023-10-09T00:46:43.600+0400    INFO    server/server.go:88     Serving graphql                 {"project": "gorm_example", "url": "http://localhost:8080/query"}
 ```
 
-> For more information about the xgen CLI, you can run the following command: 
+If You have a more then one project, and you want to run only one or some projects, you can use `--project` flag
+
+```shell
+go run generated_xgen_cli.go run --gql-playground-enabled --project gorm_example
+```
+
+Or for multiple projects
+```shell
+go run generated_xgen_cli.go run --gql-playground-enabled --project gorm_example --project otherproj
+```
+
+#### 📖 GraphQL Playground
+To enable the GraphQL playground, you can use the `--gql-playground-enabled` flag.
+
+#### 🔡 Environment variables
+By default, the xgen generating two dotenv files in your root directory - `.env` and `.env.default`.
+
+* `.env.default` file is auto-generated and contains necessary environment variables for your project. Do not edit this file because it will be overwritten on each generation.
+    ```properties
+    # Auto generated by goxgen, do not edit manually
+    # This is default environment variables for github.com/goxgen/goxgen/cmd/internal/integration project
+    
+    # gorm_advanced project default environment variables
+    GORM_ADVANCED_PORT=8080
+    GORM_ADVANCED_DB_DRIVER=sqlite
+    GORM_ADVANCED_DB_DSN=file:gorm_advanced.db?mode=rwc&cache=shared&_fk=1
+    
+    # gorm_example project default environment variables
+    GORM_EXAMPLE_PORT=8081
+    GORM_EXAMPLE_DB_DRIVER=sqlite
+    GORM_EXAMPLE_DB_DSN=file:gorm_example.db?mode=rwc&cache=shared&_fk=1
+    
+    # myproject project default environment variables
+    MYPROJECT_PORT=8082
+    MYPROJECT_DB_DRIVER=sqlite
+    MYPROJECT_DB_DSN=file:myproject.db?mode=rwc&cache=shared&_fk=1
+    ```
+* `.env` file is a file that you can edit and add your own environment variables. This file is not overwritten on each generation.
+
+You can also use .env.local file for local environment variables.
+
+##### Structure of environment variables
+Xgen CLI has a special structure for environment variables.
+You can define default environment variables for all projects
+and override them for each project with project name prefix.
+
+```properties
+{ENVIRONMENT_VARIABLE_NAME}={VALUE}
+{PROJECT_NAME}_{ENVIRONMENT_VARIABLE_NAME}={VALUE}
+```
+
+e.g.
+```properties
+# Default environment variable for all projects
+DB_DSN=sqllite://file.db
+# Environment variable for gorm_example project
+GORM_EXAMPLE_DB_DSN=postgres://user:pass@localhost:5432/gorm_example?sslmode=disable
+```
+
+##### Available environment variables
+To see all available environment variables, you can run the following command:
+
+```shell
+go run generated_xgen_cli.go run --help
+```
+
+> For more information about the xgen CLI, you can run main help command:
 > 
 > `go run generated_xgen_cli.go help`
 > 
 > This will display a list of available commands, options, and descriptions to help you navigate the xgen CLI more effectively.
 
+## Playground and testing
 You can copy the URL `http://localhost:80/playground` from the logs 
 and open it in your browser to access the GraphQL playground. 
 This interface will allow you to test queries, mutations, and subscriptions in real-time.
@@ -466,22 +440,14 @@ Then we see graphql playground, let's run some mutation query to add two new use
 
 ```graphql
 mutation{
-    user1: user_create(input: {name: "My user 1", cars: {make:"BMW"}}){
-        id
-        name
-        cars {
-            make
-            id
-        }
-    }
-    user2: user_create(input: {name: "My user 2", cars: {make:"Mercedes"}}){
-        id
-        name
-        cars {
-            make
-            id
-        }
-    }
+  user1: user_create(input: {name: "My user 1"}){
+      id
+      name
+  }
+  user2: user_create(input: {name: "My user 2"}){
+      id
+      name
+  }
 }
 
 ```
@@ -490,28 +456,14 @@ After execution of this mutation, graphql should be return result like this
 
 ```json
 {
-  "data": {
     "user1": {
       "id": 1,
-      "name": "My user 1",
-      "cars": [
-        {
-          "make": "BMW",
-          "id": 1
-        }
-      ]
+      "name": "My user 1"
     },
     "user2": {
       "id": 2,
-      "name": "My user 2",
-      "cars": [
-        {
-          "make": "Mercedes",
-          "id": 2
-        }
-      ]
+      "name": "My user 2"
     }
-  }
 }
 
 ```
@@ -532,7 +484,6 @@ The result of this query should be like this
 
 ```graphql
 {
-  "data": {
     "user_browse": [
       {
         "id": 1,
@@ -543,9 +494,73 @@ The result of this query should be like this
         "name": "My user 2"
       }
     ]
-  }
 }
 
+```
+
+## Testing
+
+Xgen has a support for custom api tests. You can write your own tests in yaml format and run it CLI command.
+
+In generated project directory you can find `tests` directory. Xgen also generates a default test file `tests/default-tests.yaml`.
+
+```yaml
+name: "Default tests"
+tests:
+    - name: "Healthcheck"
+      query: |
+        query{
+          __schema{
+            __typename
+          }
+        }
+      expectedResult: |
+        {
+          "__schema": {
+            "__typename": "__Schema"
+          }
+        }
+```
+
+You can create your own test file and run it with CLI command.
+
+```shell
+go run generated_xgen_cli.go run --test
+```
+
+This command will run all tests in all projects. If you want to run tests only for one project, you can use `--project` flag.
+
+## Available Project Types
+
+### Basic Project
+Basic project is a project without any ORM. It's a simple project with a simple structure.
+You can use it for your own custom implementation.
+
+### Gorm Project
+Gorm project is a project with GORM ORM.
+
+#### Pagination and Sorting
+Resolver method `UserBrowse` has a `Pagination` and `Sort` arguments. This arguments is a set of standard pagination and sort parameters.
+Xgen provides a special GORM scopes for pagination and sort functionalities. You can use it in your custom implementation.
+
+```go
+func (r *queryResolver) UserBrowse(ctx context.Context, where *generated.BrowseUserInput, pagination *generated.XgenPaginationInput, sort *generated.UserSortInput) ([]*generated.User, error) {
+	var users []*generated.User
+	u, err := where.ToUserModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.
+		Preload(clause.Associations).
+		Scopes(
+			generated.Paginate(pagination), // passing `pagination` to the xgen `generated.Paginate` scope
+			generated.Sort(sort),           // passing `sort` to the xgen `generated.Sort` scope
+		).
+		Where(&[]*generated.User{u}).
+		Find(&users)
+
+	return users, res.Error
+}
 ```
 
 ## 🤝 Contributing

@@ -1,6 +1,6 @@
-package common
+package settings
 
-type ProjectSettings struct {
+type EnvironmentSettings struct {
 	LogLevel                 string
 	DevMode                  bool
 	Https                    bool

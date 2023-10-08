@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	FieldDirective = directives.FieldDirectiveDefinition{
+	Directive = directives.FieldDirectiveDefinition{
 		Definition: &ast.DirectiveDefinition{
 			Name:        consts.SchemaDefDirectiveFieldName,
 			Description: `This directive is used to mark the object as a resource field`,

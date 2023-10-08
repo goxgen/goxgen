@@ -87,7 +87,6 @@ func SchemaGeneratorHook(
 }
 
 type ResolverBuild struct {
-	ParentPackageName          string
 	PackageName                string
 	GeneratedGqlgenPackageName string
 	IntrospectionData          any
@@ -98,7 +97,6 @@ func saveIntrospectionValuesToFile(generatedFilePath string, values any, package
 
 	data := &ResolverBuild{
 		PackageName:                packageName,
-		ParentPackageName:          parentPackageName,
 		GeneratedGqlgenPackageName: consts.GeneratedGqlgenPackageName,
 		IntrospectionData:          values,
 	}

@@ -3,8 +3,8 @@ package singular
 import (
 	"fmt"
 	"github.com/goxgen/goxgen/consts"
+	"github.com/goxgen/goxgen/graphql/actions"
 	"github.com/goxgen/goxgen/graphql/directives"
-	"github.com/goxgen/goxgen/graphql/resource/schema/actions"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 

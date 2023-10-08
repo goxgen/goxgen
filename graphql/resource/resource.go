@@ -2,10 +2,10 @@ package resource
 
 import (
 	"github.com/goxgen/goxgen/consts"
+	"github.com/goxgen/goxgen/graphql/actions/list"
+	"github.com/goxgen/goxgen/graphql/actions/singular"
 	"github.com/goxgen/goxgen/graphql/db"
 	"github.com/goxgen/goxgen/graphql/directives"
-	"github.com/goxgen/goxgen/graphql/resource/schema/actions/list"
-	"github.com/goxgen/goxgen/graphql/resource/schema/actions/singular"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 

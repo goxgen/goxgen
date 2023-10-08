@@ -1,9 +1,16 @@
-type User
-@Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
+type Phone
+@Resource(Name: "phone_number", Primary: true, Route: "phone-number", DB: {Table: "phone_number"})
 {
-    id: ID! @Field(Label: "ID", Description: "ID of the user", DB: {Column: "id", PrimaryKey: true})
-    name: String! @Field(Label: "Text", Description: "Text of the user", DB: {Column: "name", Unique: true})
-    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
+    id: ID! @Field(Label: "ID", Description: "ID of the phone number", DB: {Column: "id", PrimaryKey: true})
+    number: String! @Field(Label: "Number", Description: "Number of phone", DB: {Column: "number"})
+    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
 }
 
-
+input PhoneNumberInput
+@Action(Resource: "phone_number", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "phone_number", Action: UPDATE_MUTATION, Route: "update")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID of the phone number", MapTo: ["Phone.ID"])
+    number: String @ActionField(Label: "Name", Description: "Number of phone", MapTo: ["Phone.Number"])
+    user: UserInput @ActionField(Label: "User", Description: "User of the phone", MapTo: ["Phone.User"])
+}

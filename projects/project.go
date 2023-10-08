@@ -37,7 +37,7 @@ func GetContext(ctx context.Context) (*Context, error) {
 type Project interface {
 	GetType() string
 	TestsDirectory() string
-	MutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild
+	ModelMutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild
 	ConstraintFieldHook(td *ast.Definition, fd *ast.FieldDefinition, f *modelgen.Field) (*modelgen.Field, error)
 	SchemaHook(schema *ast.Schema) error
 	SchemaDocumentHook(schemaDocument *ast.SchemaDocument) error

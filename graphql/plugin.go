@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/99designs/gqlgen/codegen"
+	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/generator"
 	"github.com/goxgen/goxgen/graphql/introspection"
 	"github.com/goxgen/goxgen/graphql/resource"
@@ -51,16 +52,16 @@ func NewPlugin(
 	}
 
 	p.introspectionGraphqlFileName = p.generatedFilePrefix + "introspection.graphql"
-	p.introspectionGraphqlFilePath = path.Join(p.name, p.introspectionGraphqlFileName)
+	p.introspectionGraphqlFilePath = path.Join(p.name, consts.GeneratedGqlgenPackageName, p.introspectionGraphqlFileName)
 
 	p.resourcesGraphqlFileName = p.generatedFilePrefix + "resources.graphql"
-	p.resourcesGraphqlFilePath = path.Join(p.name, p.resourcesGraphqlFileName)
+	p.resourcesGraphqlFilePath = path.Join(p.name, consts.GeneratedGqlgenPackageName, p.resourcesGraphqlFileName)
 
 	p.commonsFileName = p.generatedFilePrefix + "commons.go"
 	p.commonsFilePath = path.Join(p.name, p.commonsFileName)
 
 	p.introspectionFileName = p.generatedFilePrefix + "introspection.go"
-	p.introspectionFilePath = path.Join(p.name, p.introspectionFileName)
+	p.introspectionFilePath = path.Join(p.name, consts.GeneratedGqlgenPackageName, p.introspectionFileName)
 
 	return p
 }
@@ -72,7 +73,7 @@ func (m *Plugin) Name() string {
 
 func (m *Plugin) Implement(field *codegen.Field) string {
 	if field.Name == IntrospectionQueryField {
-		return "return r.Resolver.XgenIntrospection()"
+		return "return " + consts.GeneratedGqlgenPackageName + ".XgenIntrospectionValues()"
 	}
 	return fmt.Sprintf("panic(fmt.Errorf(\"not implemented: %v - %v\"))", field.GoFieldName, field.Name)
 }

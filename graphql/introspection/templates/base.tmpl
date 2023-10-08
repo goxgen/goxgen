@@ -4,17 +4,16 @@
 
 {{ header }}
 
-package {{ .PackageName }}
+package {{ .GeneratedGqlgenPackageName }}
 
 import (
     _ "embed"
     "encoding/json"
-    "{{.ParentPackageName}}/{{.GeneratedGqlgenPackageName}}"
 )
 
 // XgenIntrospection is the resolver for the XgenIntrospection field.
-func (r *Resolver) XgenIntrospection() (*{{.GeneratedGqlgenPackageName}}.XgenIntrospection, error) {
-    var intr {{.GeneratedGqlgenPackageName}}.XgenIntrospection
+func XgenIntrospectionValues() (*XgenIntrospection, error) {
+    var intr XgenIntrospection
     err := json.Unmarshal(
 		[]byte(`{{ .IntrospectionData | toJson }}`),
 		&intr,

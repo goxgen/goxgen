@@ -1,4 +1,4 @@
-package gormproj
+package gorm_advanced
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,36 +7,17 @@ package gormproj
 import (
 	"context"
 
-	"github.com/goxgen/goxgen/cmd/internal/integration/gormproj/generated"
+	"github.com/goxgen/goxgen/cmd/internal/integration/gorm_advanced/generated"
 	"github.com/goxgen/goxgen/plugins/cli/server"
 	"go.uber.org/zap"
 	"gorm.io/gorm/clause"
 )
 
-// CarCreate is the resolver for the car_create field.
-func (r *mutationResolver) CarCreate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
-	car, err := input.ToCarModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Create(car)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return car, nil
-}
-
-// CarUpdate is the resolver for the car_update field.
-func (r *mutationResolver) CarUpdate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
-	car, err := input.ToCarModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Save(car)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return car, nil
+// UserBatchDelete is the resolver for the user_batch_delete field.
+func (r *mutationResolver) UserBatchDelete(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
+	var users []*generated.User
+	r.DB.Delete(&users, input.Ids)
+	return users, nil
 }
 
 // PhoneNumberCreate is the resolver for the phone_number_create field.
@@ -91,32 +72,35 @@ func (r *mutationResolver) UserUpdate(ctx context.Context, input *generated.User
 	return u, nil
 }
 
-// UserBatchDelete is the resolver for the user_batch_delete field.
-func (r *mutationResolver) UserBatchDelete(ctx context.Context, input *generated.DeleteUsers) ([]*generated.User, error) {
-	var users []*generated.User
-	r.DB.Delete(&users, input.Ids)
-	return users, nil
+// CarCreate is the resolver for the car_create field.
+func (r *mutationResolver) CarCreate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
+	car, err := input.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Create(car)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return car, nil
+}
+
+// CarUpdate is the resolver for the car_update field.
+func (r *mutationResolver) CarUpdate(ctx context.Context, input *generated.CarInput) (*generated.Car, error) {
+	car, err := input.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Save(car)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return car, nil
 }
 
 // XgenIntrospection is the resolver for the _xgen_introspection field.
 func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenIntrospection, error) {
 	return generated.XgenIntrospectionValues()
-}
-
-// CarBrowse is the resolver for the car_browse field.
-func (r *queryResolver) CarBrowse(ctx context.Context, where *generated.CarBrowseInput) ([]*generated.Car, error) {
-	var cars []*generated.Car
-	u, err := where.ToCarModel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
-
-	if res.Error != nil {
-		return nil, res.Error
-	}
-
-	return cars, nil
 }
 
 // UserBrowse is the resolver for the user_browse field.
@@ -157,6 +141,22 @@ func (r *queryResolver) PhoneNumberBrowse(ctx context.Context, where *generated.
 	}
 
 	return phones, nil
+}
+
+// CarBrowse is the resolver for the car_browse field.
+func (r *queryResolver) CarBrowse(ctx context.Context, where *generated.CarBrowseInput) ([]*generated.Car, error) {
+	var cars []*generated.Car
+	u, err := where.ToCarModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := r.DB.Preload(clause.Associations).Where(&[]*generated.Car{u}).Find(&cars)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return cars, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

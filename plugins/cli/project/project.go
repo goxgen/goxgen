@@ -1,35 +1,33 @@
-package common
+package project
 
 import (
+	"github.com/goxgen/goxgen/plugins/cli/common"
 	"github.com/goxgen/goxgen/plugins/cli/consts"
-	"github.com/goxgen/goxgen/plugins/cli/server"
 	"github.com/goxgen/goxgen/plugins/cli/settings"
 	"github.com/urfave/cli/v2"
 	"io/fs"
 )
 
-type Project struct {
+type CliProject struct {
 	Name    string
-	Server  server.Constructor
+	Server  common.Constructor
 	TestsFS fs.FS
 	TestDir string
+
+	Env *settings.EnvironmentSettings
 }
 
-type ProjectList []*Project
+type List []*CliProject
 
-type Settings struct {
-	Projects *ProjectList
-}
-
-func NewProjectList(projects ...*Project) *ProjectList {
-	pl := &ProjectList{}
+func NewProjectList(projects ...*CliProject) *List {
+	pl := &List{}
 	for _, p := range projects {
 		pl.Add(p)
 	}
 	return pl
 }
 
-func (pl *ProjectList) Get(name string) *Project {
+func (pl *List) Get(name string) *CliProject {
 	for _, p := range *pl {
 		if p.Name == name {
 			return p
@@ -38,7 +36,7 @@ func (pl *ProjectList) Get(name string) *Project {
 	return nil
 }
 
-func (pl *ProjectList) GetNames() []string {
+func (pl *List) GetNames() []string {
 	var names []string
 	for _, p := range *pl {
 		names = append(names, p.Name)
@@ -46,11 +44,11 @@ func (pl *ProjectList) GetNames() []string {
 	return names
 }
 
-func (pl *ProjectList) Add(p *Project) {
+func (pl *List) Add(p *CliProject) {
 	*pl = append(*pl, p)
 }
 
-func (pl *ProjectList) ContainsAll(names ...string) bool {
+func (pl *List) ContainsAll(names ...string) bool {
 	for _, name := range names {
 		if pl.Get(name) == nil {
 			return false
@@ -60,29 +58,29 @@ func (pl *ProjectList) ContainsAll(names ...string) bool {
 }
 
 func prepareString(c *cli.Context, project string, flag string) string {
-	projectFlag := FlagName(project, flag)
+	projectFlag := common.FlagName(project, flag)
 	if c.IsSet(projectFlag) {
 		return c.String(projectFlag)
 	}
 	return c.String(flag)
 }
 func prepareBool(c *cli.Context, project string, flag string) bool {
-	projectFlag := FlagName(project, flag)
+	projectFlag := common.FlagName(project, flag)
 	if c.IsSet(projectFlag) {
 		return c.Bool(projectFlag)
 	}
 	return c.Bool(flag)
 }
 func prepareInt(c *cli.Context, project string, flag string) int {
-	projectFlag := FlagName(project, flag)
+	projectFlag := common.FlagName(project, flag)
 	if c.IsSet(projectFlag) {
 		return c.Int(projectFlag)
 	}
 	return c.Int(flag)
 }
 
-func (p *Project) GetEnvironmentSettings(c *cli.Context) *settings.EnvironmentSettings {
-	return &settings.EnvironmentSettings{
+func (p *CliProject) Init(c *cli.Context) {
+	p.Env = &settings.EnvironmentSettings{
 		LogLevel:                 prepareString(c, p.Name, consts.LogLevelFlag),
 		DevMode:                  prepareBool(c, p.Name, consts.DevModeFlag),
 		Https:                    prepareBool(c, p.Name, consts.HttpsFlag),

@@ -3,44 +3,24 @@ tests:
   - name: "Create new user"
     query: |
       mutation{
-        user1: user_create(input: {name: "My user 1", cars: {make:"BMW"}}){
+        user1: user_create(input: {name: "My user 1"}){
             id
             name
-            cars {
-                make
-                id
-            }
         }
-        user2: user_create(input: {name: "My user 2", cars: {make:"Mercedes"}}){
+        user2: user_create(input: {name: "My user 2"}){
             id
             name
-            cars {
-                make
-                id
-            }
         }
       }
     expectedResult: |
       {
           "user1": {
             "id": 1,
-            "name": "My user 1",
-            "cars": [
-              {
-                "make": "BMW",
-                "id": 1
-              }
-            ]
+            "name": "My user 1"
           },
           "user2": {
             "id": 2,
-            "name": "My user 2",
-            "cars": [
-              {
-                "make": "Mercedes",
-                "id": 2
-              }
-            ]
+            "name": "My user 2"
           }
       }
   - name: "List created users"
