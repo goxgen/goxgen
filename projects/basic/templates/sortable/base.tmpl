@@ -1,0 +1,24 @@
+{{- /* gotype: github.com/goxgen/goxgen/projects/basic.TemplateData*/ -}}
+
+{{- define "BaseTemplate" -}}
+
+package {{.GeneratedGqlgenPackageName}}
+{{- if .Resources }}
+import (
+)
+
+{{- range $res, $type := .Resources }}
+func (io *{{$res | inputObjectName}}) SortSqlStrings() []string {
+	if io == nil {
+		return []string{}
+	}
+	var sortSqlStrings []string
+	for _, si := range io.By {
+		str := si.Field.String() + " " + si.Direction.String()
+		sortSqlStrings = append(sortSqlStrings, str)
+	}
+	return sortSqlStrings
+}
+{{- end -}}
+{{- end -}}
+{{- end -}}

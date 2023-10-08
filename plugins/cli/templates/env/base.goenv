@@ -1,0 +1,6 @@
+{{- /* gotype: github.com/goxgen/goxgen/plugins/cli.templateData*/ -}}
+{{- define "BaseTemplate" -}}
+# This is custom environment variables for {{.ParentPackageName}} project
+# Add Your custom environment variables here
+
+{{ end }}

@@ -71,11 +71,18 @@ func (pg *ProjectGenerator) generateProject(projCtx *Context, project Project, n
 
 	modelgenPlugin := &modelgen.Plugin{
 		MutateHook: func(b *modelgen.ModelBuild) *modelgen.ModelBuild {
-			return project.MutationHook(b)
+			return project.ModelMutationHook(b)
 		},
 		FieldHook: func(td *ast.Definition, fd *ast.FieldDefinition, f *modelgen.Field) (*modelgen.Field, error) {
 			return project.ConstraintFieldHook(td, fd, f)
 		},
+	}
+
+	fmt.Println("Generating project", name)
+
+	err = utils.MkdirIfNotExist(name)
+	if err != nil {
+		return fmt.Errorf("failed to create project directory: %w", err)
 	}
 
 	err = graphql.Generate(

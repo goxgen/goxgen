@@ -12,7 +12,7 @@ import (
 
 // XgenIntrospection is the resolver for the _xgen_introspection field.
 func (r *queryResolver) XgenIntrospection(ctx context.Context) (*generated.XgenIntrospection, error) {
-	return r.Resolver.XgenIntrospection()
+	return generated.XgenIntrospectionValues()
 }
 
 // Query returns generated.QueryResolver implementation.

@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/google/uuid"
+	"github.com/goxgen/goxgen/plugins/cli/common"
+	"github.com/goxgen/goxgen/plugins/cli/project"
 	"github.com/goxgen/goxgen/utils/mapper"
 	"github.com/rs/cors"
-	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"
@@ -27,21 +27,21 @@ const (
 )
 
 type Server struct {
-	cliContext *cli.Context
+	cliProject *project.CliProject
 	mapper     *mapper.Mapper
 	logger     *zap.Logger
 }
 
 // New creates a new server instance
-func New(ctx *cli.Context) (s *Server, err error) {
+func New(cliProject *project.CliProject) (s *Server, err error) {
 	s = &Server{
-		cliContext: ctx,
+		cliProject: cliProject,
 	}
-	s.mapper, err = s.prepareMapper(ctx)
+	s.mapper, err = s.prepareMapper()
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare mapper: %w", err)
 	}
-	s.logger, err = s.prepareLogger(ctx)
+	s.logger, err = s.prepareLogger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare logger: %w", err)
 	}
@@ -60,15 +60,12 @@ type Data struct {
 	GraphqlPlaygroundUrl     string
 }
 
-type Constructor func(ctx *cli.Context) (*handler.Server, error)
-
-func (s *Server) ListenAndServe(serverConstructor Constructor) error {
-
+func (s *Server) ListenAndServe(serverConstructor common.Constructor) error {
 	defer s.logger.Sync()
 
 	data := s.GetDataFromCliContext()
 
-	httpHandler, err := serverConstructor(s.cliContext)
+	httpHandler, err := serverConstructor(s.cliProject.Env)
 	if err != nil {
 		return err
 	}
@@ -99,20 +96,14 @@ func (s *Server) ListenAndServe(serverConstructor Constructor) error {
 }
 
 // TestServer creates a new test server instance
-func (s *Server) TestServer(serverConstructor Constructor) (testSrv *httptest.Server, cancel func()) {
+func (s *Server) TestServer(serverConstructor common.Constructor) (testSrv *httptest.Server, cancel func()) {
 	tempDB := os.TempDir() + "/" + uuid.New().String() + ".db"
 
-	err := s.cliContext.Set("DatabaseSourceName", "file:"+tempDB+"?mode=rwc&cache=shared&_fk=1")
-	if err != nil {
-		panic(err)
-	}
+	newSettings := *s.cliProject.Env
+	newSettings.DatabaseDsn = "file:" + tempDB + "?mode=rwc&cache=shared&_fk=1"
+	newSettings.DatabaseDriver = "sqlite"
 
-	err = s.cliContext.Set("DatabaseDriver", "sqlite")
-	if err != nil {
-		panic(err)
-	}
-
-	srv, err := serverConstructor(s.cliContext)
+	srv, err := serverConstructor(&newSettings)
 	if err != nil {
 		panic(err)
 	}
@@ -146,7 +137,7 @@ func (s *Server) commonMiddleware(next http.Handler) http.Handler {
 }
 
 // prepareMapper creates a new mapper instance
-func (s *Server) prepareMapper(ctx *cli.Context) (*mapper.Mapper, error) {
+func (s *Server) prepareMapper() (*mapper.Mapper, error) {
 	mpr, err := mapper.New()
 	if err != nil {
 		return nil, err
@@ -158,15 +149,20 @@ func (s *Server) prepareMapper(ctx *cli.Context) (*mapper.Mapper, error) {
 // Use the DevMode flag to enable development mode
 // Use the LogLevel flag to set the log level
 // Using zap logger
-func (s *Server) prepareLogger(ctx *cli.Context) (*zap.Logger, error) {
+func (s *Server) prepareLogger() (*zap.Logger, error) {
 	var log *zap.Logger
-	if ctx.Bool("DevMode") {
-		log, _ = zap.NewDevelopment()
+	if s.cliProject.Env.DevMode {
+		cfg := zap.NewDevelopmentConfig()
+		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		log, _ = cfg.Build()
+
 	} else {
 		log, _ = zap.NewProduction()
 	}
 
-	providedLevel := ctx.String("LogLevel")
+	log = log.With(zap.String("project", s.cliProject.Name))
+
+	providedLevel := s.cliProject.Env.LogLevel
 	level, err := zapcore.ParseLevel(providedLevel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse log level: %w", err)
@@ -188,20 +184,20 @@ func GetLogger(ctx context.Context) *zap.Logger {
 // GetDataFromCliContext returns the data from the cli context for the server
 func (s *Server) GetDataFromCliContext() *Data {
 	data := &Data{}
-	data.HTTPS = s.cliContext.Bool("HTTPS")
-	data.Host = s.cliContext.String("Host")
-	data.Port = ":" + strconv.Itoa(s.cliContext.Int("Port"))
-	data.AppPath = strings.Trim(s.cliContext.String("AppPath"), "/")
+	data.HTTPS = s.cliProject.Env.Https
+	data.Host = s.cliProject.Env.Host
+	data.Port = ":" + strconv.Itoa(s.cliProject.Env.Port)
+	data.AppPath = strings.Trim(s.cliProject.Env.AppPath, "/")
 	if data.AppPath == "" {
 		data.AppPath = "/"
 	} else {
 		data.AppPath = "/" + data.AppPath + "/"
 	}
-	data.GraphqlURL = s.cliContext.String("GraphqlURL")
-	data.GraphqlURIPath = s.cliContext.String("GraphqlURIPath")
-	data.GraphqlPlaygroundURIPath = s.cliContext.String("GraphqlPlaygroundURIPath")
+	data.GraphqlURL = s.cliProject.Env.GraphqlUrl
+	data.GraphqlURIPath = s.cliProject.Env.GraphqlUriPath
+	data.GraphqlPlaygroundURIPath = s.cliProject.Env.GraphqlPlaygroundUriPath
 	proto := "http://"
-	data.GraphqlPlaygroundEnabled = s.cliContext.Bool("GraphqlPlaygroundEnabled")
+	data.GraphqlPlaygroundEnabled = s.cliProject.Env.GraphqlPlaygroundEnabled
 
 	if data.HTTPS {
 		proto = "https://"

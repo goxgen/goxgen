@@ -10,152 +10,205 @@ import (
 
 // This directive is used to mark the object as a resource action
 type Action struct {
-	Resource        string                 `json:"Resource" gorm:""`
-	Action          XgenResourceActionType `json:"Action" gorm:""`
-	Route           *string                `json:"Route,omitempty" gorm:""`
-	SchemaFieldName *string                `json:"SchemaFieldName,omitempty" gorm:""`
+	Resource        string                 `json:"Resource"`
+	Action          XgenResourceActionType `json:"Action"`
+	Route           *string                `json:"Route,omitempty"`
+	SchemaFieldName *string                `json:"SchemaFieldName,omitempty"`
 }
 
 type ActionAnnotationSingle struct {
-	Name  *string `json:"name,omitempty" gorm:""`
-	Value *Action `json:"value,omitempty" gorm:""`
+	Name  *string `json:"name,omitempty"`
+	Value *Action `json:"value,omitempty"`
 }
 
 // This directive is used to mark the object as a resource field
 type ActionField struct {
-	Label       *string `json:"Label,omitempty" gorm:""`
-	Description *string `json:"Description,omitempty" gorm:""`
+	Label       *string `json:"Label,omitempty"`
+	Description *string `json:"Description,omitempty"`
 	// Map field to resource field, {resource}.{field}, eg. user.id
-	MapTo []string `json:"MapTo,omitempty" gorm:""`
+	MapTo []string `json:"MapTo,omitempty"`
 }
 
 // This directive is used to mark the object as a resource field
 type Field struct {
-	Label       *string `json:"Label,omitempty" gorm:""`
-	Description *string `json:"Description,omitempty" gorm:""`
+	Label       *string `json:"Label,omitempty"`
+	Description *string `json:"Description,omitempty"`
 }
 
 // This directive is used to mark the object as a resource list action
 type ListAction struct {
-	Resource        string                     `json:"Resource" gorm:""`
-	Action          XgenResourceListActionType `json:"Action" gorm:""`
-	Route           *string                    `json:"Route,omitempty" gorm:""`
-	Pagination      *bool                      `json:"Pagination,omitempty" gorm:""`
-	SchemaFieldName *string                    `json:"SchemaFieldName,omitempty" gorm:""`
+	Resource        string                     `json:"Resource"`
+	Action          XgenResourceListActionType `json:"Action"`
+	Route           *string                    `json:"Route,omitempty"`
+	Pagination      *bool                      `json:"Pagination,omitempty"`
+	Sort            *XgenSortResourceConfig    `json:"Sort,omitempty"`
+	SchemaFieldName *string                    `json:"SchemaFieldName,omitempty"`
 }
 
 type ListActionAnnotationSingle struct {
-	Name  *string     `json:"name,omitempty" gorm:""`
-	Value *ListAction `json:"value,omitempty" gorm:""`
+	Name  *string     `json:"name,omitempty"`
+	Value *ListAction `json:"value,omitempty"`
 }
 
 // This directive is used to mark the object as a resource
 type Resource struct {
-	Name    string  `json:"Name" gorm:""`
-	Route   *string `json:"Route,omitempty" gorm:""`
-	Primary *bool   `json:"Primary,omitempty" gorm:""`
+	Name    string  `json:"Name"`
+	Route   *string `json:"Route,omitempty"`
+	Primary *bool   `json:"Primary,omitempty"`
 }
 
 type ResourceAnnotationSingle struct {
-	Name  *string   `json:"name,omitempty" gorm:""`
-	Value *Resource `json:"value,omitempty" gorm:""`
+	Name  *string   `json:"name,omitempty"`
+	Value *Resource `json:"value,omitempty"`
 }
 
 type XgenAnnotationMap struct {
-	Resource   []*ResourceAnnotationSingle   `json:"Resource" gorm:""`
-	Action     []*ActionAnnotationSingle     `json:"Action" gorm:""`
-	ListAction []*ListActionAnnotationSingle `json:"ListAction" gorm:""`
+	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
+	Action     []*ActionAnnotationSingle     `json:"Action"`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 }
 
 type XgenCursorPaginationInput struct {
-	First  int     `json:"first" gorm:""`
-	After  *string `json:"after,omitempty" gorm:""`
-	Last   int     `json:"last" gorm:""`
-	Before *string `json:"before,omitempty" gorm:""`
+	First  int     `json:"first"`
+	After  *string `json:"after,omitempty"`
+	Last   int     `json:"last"`
+	Before *string `json:"before,omitempty"`
 }
 
 type XgenCursorPaginationInputXgenDef struct {
-	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
-	Field  []*XgenObjectField    `json:"field" gorm:""`
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
 }
 
 type XgenFieldDef struct {
-	Field       *Field       `json:"Field,omitempty" gorm:""`
-	ActionField *ActionField `json:"ActionField,omitempty" gorm:""`
+	Field       *Field       `json:"Field,omitempty"`
+	ActionField *ActionField `json:"ActionField,omitempty"`
 }
 
 type XgenIntrospection struct {
-	Annotation *XgenAnnotationMap `json:"annotation,omitempty" gorm:""`
-	Object     *XgenObjectMap     `json:"object,omitempty" gorm:""`
+	Annotation *XgenAnnotationMap `json:"annotation,omitempty"`
+	Object     *XgenObjectMap     `json:"object,omitempty"`
 }
 
 type XgenObjectDefinition struct {
-	Resource   *Resource   `json:"Resource,omitempty" gorm:""`
-	Action     *Action     `json:"Action,omitempty" gorm:""`
-	ListAction *ListAction `json:"ListAction,omitempty" gorm:""`
+	Action     *Action     `json:"Action,omitempty"`
+	ListAction *ListAction `json:"ListAction,omitempty"`
+	Resource   *Resource   `json:"Resource,omitempty"`
 }
 
 type XgenObjectField struct {
-	Name       *string       `json:"name,omitempty" gorm:""`
-	Definition *XgenFieldDef `json:"definition,omitempty" gorm:""`
+	Name       *string       `json:"name,omitempty"`
+	Definition *XgenFieldDef `json:"definition,omitempty"`
 }
 
 type XgenObjectMap struct {
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty" gorm:""`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty" gorm:""`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty" gorm:""`
-	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty" gorm:""`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty" gorm:""`
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty" gorm:""`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
+	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
+	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
+	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
 }
 
 type XgenPaginationInput struct {
-	Page int `json:"page" gorm:""`
-	Size int `json:"size" gorm:""`
+	Page int `json:"page"`
+	Size int `json:"size"`
 }
 
 type XgenPaginationInputXgenDef struct {
-	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
-	Field  []*XgenObjectField    `json:"field" gorm:""`
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
 }
 
 type XgenResourceActionTypeXgenDef struct {
-	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
-	Field  []*XgenObjectField    `json:"field" gorm:""`
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
 }
 
 type XgenResourceDbConfigInput struct {
-	Table *string `json:"Table,omitempty" gorm:""`
+	Table *string `json:"Table,omitempty"`
 }
 
 type XgenResourceDbConfigInputXgenDef struct {
-	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
-	Field  []*XgenObjectField    `json:"field" gorm:""`
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
 }
 
 type XgenResourceFieldDbConfigInput struct {
-	Column                 *string `json:"Column,omitempty" gorm:""`
-	PrimaryKey             *bool   `json:"PrimaryKey,omitempty" gorm:""`
-	AutoIncrement          *bool   `json:"AutoIncrement,omitempty" gorm:""`
-	Unique                 *bool   `json:"Unique,omitempty" gorm:""`
-	NotNull                *bool   `json:"NotNull,omitempty" gorm:""`
-	Index                  *bool   `json:"Index,omitempty" gorm:""`
-	UniqueIndex            *bool   `json:"UniqueIndex,omitempty" gorm:""`
-	Size                   *int    `json:"Size,omitempty" gorm:""`
-	Precision              *int    `json:"Precision,omitempty" gorm:""`
-	Type                   *string `json:"Type,omitempty" gorm:""`
-	Scale                  *int    `json:"Scale,omitempty" gorm:""`
-	AutoIncrementIncrement *int    `json:"AutoIncrementIncrement,omitempty" gorm:""`
+	Column                 *string `json:"Column,omitempty"`
+	PrimaryKey             *bool   `json:"PrimaryKey,omitempty"`
+	AutoIncrement          *bool   `json:"AutoIncrement,omitempty"`
+	Unique                 *bool   `json:"Unique,omitempty"`
+	NotNull                *bool   `json:"NotNull,omitempty"`
+	Index                  *bool   `json:"Index,omitempty"`
+	UniqueIndex            *bool   `json:"UniqueIndex,omitempty"`
+	Size                   *int    `json:"Size,omitempty"`
+	Precision              *int    `json:"Precision,omitempty"`
+	Type                   *string `json:"Type,omitempty"`
+	Scale                  *int    `json:"Scale,omitempty"`
+	AutoIncrementIncrement *int    `json:"AutoIncrementIncrement,omitempty"`
 }
 
 type XgenResourceFieldDbConfigInputXgenDef struct {
-	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
-	Field  []*XgenObjectField    `json:"field" gorm:""`
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
 }
 
 type XgenResourceListActionTypeXgenDef struct {
-	Object *XgenObjectDefinition `json:"object,omitempty" gorm:""`
-	Field  []*XgenObjectField    `json:"field" gorm:""`
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSort struct {
+	By        string             `json:"by"`
+	Direction *XgenSortDirection `json:"direction,omitempty"`
+}
+
+type XgenSortDirectionXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortInput struct {
+	By        string             `json:"by"`
+	Direction *XgenSortDirection `json:"direction,omitempty"`
+}
+
+type XgenSortInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortResourceConfig struct {
+	// If set to true, the sort will be disabled.
+	Disabled *bool       `json:"Disabled,omitempty"`
+	Default  []*XgenSort `json:"Default,omitempty"`
+}
+
+type XgenSortResourceConfigInput struct {
+	// If set to true, the sort will be disabled.
+	Disabled *bool            `json:"Disabled,omitempty"`
+	Default  []*XgenSortInput `json:"Default,omitempty"`
+}
+
+type XgenSortResourceConfigInputXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortResourceConfigXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
+}
+
+type XgenSortXgenDef struct {
+	Object *XgenObjectDefinition `json:"object,omitempty"`
+	Field  []*XgenObjectField    `json:"field"`
 }
 
 type XgenResourceActionType string
@@ -241,5 +294,46 @@ func (e *XgenResourceListActionType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e XgenResourceListActionType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type XgenSortDirection string
+
+const (
+	XgenSortDirectionAsc  XgenSortDirection = "ASC"
+	XgenSortDirectionDesc XgenSortDirection = "DESC"
+)
+
+var AllXgenSortDirection = []XgenSortDirection{
+	XgenSortDirectionAsc,
+	XgenSortDirectionDesc,
+}
+
+func (e XgenSortDirection) IsValid() bool {
+	switch e {
+	case XgenSortDirectionAsc, XgenSortDirectionDesc:
+		return true
+	}
+	return false
+}
+
+func (e XgenSortDirection) String() string {
+	return string(e)
+}
+
+func (e *XgenSortDirection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = XgenSortDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid XgenSortDirection", str)
+	}
+	return nil
+}
+
+func (e XgenSortDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

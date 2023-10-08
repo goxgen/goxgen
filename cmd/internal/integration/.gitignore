@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# Database
+*.db
+
+# Environment file
+.env.local

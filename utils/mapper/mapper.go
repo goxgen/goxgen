@@ -6,13 +6,16 @@ import (
 	"strings"
 )
 
+// Mapper is a struct mapper.
 type Mapper struct {
 	logger      *zap.Logger
 	maptoTagKey string
 }
 
+// Option is a mapper option.
 type Option func(*Mapper) error
 
+// New creates a new mapper.
 func New(opts ...Option) (*Mapper, error) {
 	m := &Mapper{
 		logger:      zap.NewNop(),
@@ -27,6 +30,7 @@ func New(opts ...Option) (*Mapper, error) {
 	return m, nil
 }
 
+// WithLogger sets the logger for the mapper.
 func WithLogger(logger *zap.Logger) Option {
 	return func(m *Mapper) error {
 		m.logger = logger
@@ -42,6 +46,11 @@ func (m *Mapper) Map(src interface{}, dest interface{}) error {
 	)
 
 	srcRef := reflect.ValueOf(src)
+
+	if srcRef.Kind() == reflect.Ptr && srcRef.IsNil() {
+		return nil // Skip if the source is nil
+	}
+
 	destRef := reflect.ValueOf(dest)
 
 	if destRef.Kind() != reflect.Ptr {

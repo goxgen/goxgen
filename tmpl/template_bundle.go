@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/Masterminds/sprig/v3"
+	"github.com/iancoleman/strcase"
 	"os"
 	"path"
 	"path/filepath"
@@ -78,6 +79,7 @@ func (tb *TemplateBundle) Generate(outputDir string, data any) error {
 
 				return commentStart + comment + commentEnd
 			},
+			"scrsnake": strcase.ToScreamingSnake,
 		}).
 		Funcs(tb.FuncMap)
 	baseTemplate, err = baseTemplate.ParseFS(tb.FS, templateNames...)

@@ -1,5 +1,5 @@
 {{- /* gotype: github.com/goxgen/goxgen.ProjectGeneratorData*/ -}}
 
 {{- define "BaseTemplate" -}}
-schema: ["./*.graphql", "./*.graphqls"]
+schema: ["./*.graphql", "./*.graphqls", "./**/*.graphql", "./**/*.graphqls"]
 {{ end }}

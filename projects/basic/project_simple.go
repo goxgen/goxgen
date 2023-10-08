@@ -7,33 +7,53 @@ import (
 	"github.com/99designs/gqlgen/plugin/modelgen"
 	"github.com/goxgen/goxgen/consts"
 	"github.com/goxgen/goxgen/graphql/common"
+	"github.com/goxgen/goxgen/graphql/sort"
 	"github.com/goxgen/goxgen/tmpl"
 	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/exp/slices"
+	"path"
 	"strings"
+	"text/template"
 )
+
+type Resources map[string]string
 
 // Project is a default project configuration
 type Project struct {
-	typeName                    string // name of generated code
-	testDirectory               string // name of tests directory
-	Resources                   []string
+	typeName                    string    // name of generated code
+	testDirectory               string    // name of tests directory
+	Resources                   Resources // map of resource name to type name
 	ResourceTypeNameToActionMap map[string][]string
-	ResourceNameToTypeNameMap   map[string][]string
 	Name                        string
 	ParentPackageName           string
 	GeneratedFilePrefix         string
 }
 
 type TemplateData struct {
-	Name                       string
-	GeneratedGqlgenPackageName string
-	TestsDir                   string
-	ParentPackageName          string
+	Name              string
+	TestsDir          string
+	ParentPackageName string
 
 	// Resource related data
 	ResourceTypeNameToActionMap map[string][]string
-	Resources                   []string
+	Resources                   map[string]string
+
+	// Constants
+	GeneratedGqlgenPackageName string
+}
+
+func (r *Resources) TypeExists(value string) bool {
+	for _, v := range *r {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+func (r *Resources) KeyExists(key string) bool {
+	_, exists := (*r)[key]
+	return exists
 }
 
 func (p *Project) Init(Name string, ParentPackageName string, GeneratedFilePrefix string) error {
@@ -71,43 +91,59 @@ func (p *Project) StandardTemplateBundleList() *tmpl.TemplateBundleList {
 		{
 			TemplateDir: "templates/handler",
 			FS:          templatesFS,
-			OutputFile:  "./" + p.GeneratedFilePrefix + "project_handlers.go",
-			Regenerate:  true,
+			//OutputFile:  "./" + p.GeneratedFilePrefix + "project_handlers.go",
+			OutputFile: path.Join(consts.GeneratedGqlgenPackageName, "server", p.GeneratedFilePrefix+"project_handlers.go"),
+			Regenerate: true,
 		},
 		{
 			TemplateDir: "templates/default-tests.yaml",
 			FS:          templatesFS,
-			OutputFile:  "./" + p.TestsDirectory() + "/default-tests.yaml",
-			Regenerate:  false,
+			//OutputFile:  "./" + p.TestsDirectory() + "/default-tests.yaml",
+			OutputFile: path.Join(p.TestsDirectory(), "default-tests.yaml"),
+			Regenerate: true,
 		},
 		{
 			TemplateDir: "templates/graphql.config",
 			FS:          templatesFS,
-			OutputFile:  "./graphql.config.yml",
-			Regenerate:  true,
+			//OutputFile:  "./graphql.config.yml",
+			OutputFile: path.Join("graphql.config.yml"),
+			Regenerate: true,
 		},
 		{
 			TemplateDir: "templates/resolver",
 			FS:          templatesFS,
-			OutputFile:  "./resolver.go",
-			Regenerate:  false,
+			//OutputFile:  "./resolver.go",
+			OutputFile: path.Join("resolver.go"),
+			Regenerate: false,
 		},
 		{
 			TemplateDir: "templates/mapper",
 			FS:          templatesFS,
-			OutputFile:  "./" + consts.GeneratedGqlgenPackageName + "/" + p.GeneratedFilePrefix + "mappers.go",
-			Regenerate:  true,
+			//OutputFile:  "./" + consts.GeneratedGqlgenPackageName + "/" + p.GeneratedFilePrefix + "mappers.go",
+			OutputFile: path.Join(consts.GeneratedGqlgenPackageName, p.GeneratedFilePrefix+"mappers.go"),
+			Regenerate: true,
+		},
+		{
+			TemplateDir: "templates/sortable",
+			FS:          templatesFS,
+			//OutputFile:  "./" + consts.GeneratedGqlgenPackageName + "/" + p.GeneratedFilePrefix + "sortable.go",
+			OutputFile: path.Join(consts.GeneratedGqlgenPackageName, p.GeneratedFilePrefix+"sortable.go"),
+			Regenerate: true,
+			FuncMap: template.FuncMap{
+				"singleInputObjectName": sort.ResourceSingleSortInputObjectName,
+				"inputObjectName":       sort.ResourceSortInputObjectName,
+			},
 		},
 	}
 }
 
 func (p *Project) PrepareTemplateData() *TemplateData {
 	return &TemplateData{
-		GeneratedGqlgenPackageName:  consts.GeneratedGqlgenPackageName,
 		Name:                        p.Name,
 		TestsDir:                    p.testDirectory,
 		ParentPackageName:           p.ParentPackageName,
 		ResourceTypeNameToActionMap: p.ResourceTypeNameToActionMap,
+		GeneratedGqlgenPackageName:  consts.GeneratedGqlgenPackageName,
 	}
 }
 
@@ -118,10 +154,10 @@ func (p *Project) ConstraintFieldHook(td *ast.Definition, fd *ast.FieldDefinitio
 		return f, err
 	}
 
-	resourceActionDirective := fd.Directives.ForName(consts.ActionFieldDirectiveName)
+	resourceActionDirective := fd.Directives.ForName(consts.SchemaDefDirectiveActionFieldName)
 	resourceTagValue := ""
 	if resourceActionDirective != nil {
-		resourceArg := resourceActionDirective.Arguments.ForName(consts.ActionFieldMapToArgName)
+		resourceArg := resourceActionDirective.Arguments.ForName(consts.SchemaDefActionFieldDirectiveArgMapTo)
 		if resourceArg != nil {
 			resourceFields, err := resourceArg.Value.Value(nil)
 			if err != nil {
@@ -144,13 +180,13 @@ func (p *Project) ConstraintFieldHook(td *ast.Definition, fd *ast.FieldDefinitio
 			resourceTagValue += strings.Join(resourceFieldsStrs, ",")
 		}
 
-		f.Tag += fmt.Sprintf(` %s:"%s"`, consts.MapToTagName, resourceTagValue)
+		f.Tag += fmt.Sprintf(` %s:"%s"`, consts.MapToGolangStructTagName, resourceTagValue)
 	}
 
 	return f, nil
 }
 
-func (p *Project) MutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
+func (p *Project) ModelMutationHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 	return b
 }
 
@@ -187,6 +223,7 @@ func (p *Project) ConfigOverride(cfg *config.Config) error {
 func NewProject(options ...ProjectOption) *Project {
 	proj := &Project{
 		testDirectory:               "tests",
+		Resources:                   map[string]string{},
 		ResourceTypeNameToActionMap: map[string][]string{},
 	}
 	for _, opt := range options {
@@ -202,16 +239,18 @@ func (p *Project) preserveResources(schema *ast.Schema) {
 	objects := common.GetDefinedObjects(schema)
 
 	for _, object := range objects {
-		if object.Directives.ForName(consts.ResourceDirectiveName) != nil {
-			p.Resources = append(p.Resources, object.Name)
+		resourceDirective := object.Directives.ForName(consts.SchemaDefDirectiveResourceName)
+		if resourceDirective != nil {
+			resourceName := resourceDirective.Arguments.ForName(consts.SchemaDefResourceDirectiveArgName).Value.Raw
+			p.Resources[resourceName] = object.Name
 		}
 
 		actionDirectives := append(
-			object.Directives.ForNames(consts.ActionDirectiveName),
-			object.Directives.ForNames(consts.ListActionDirectiveName)...,
+			object.Directives.ForNames(consts.SchemaDefDirectiveActionName),
+			object.Directives.ForNames(consts.SchemaDefDirectiveListActionName)...,
 		)
 		for _, actionDirective := range actionDirectives {
-			resName := actionDirective.Arguments.ForName(consts.ResourceFieldName)
+			resName := actionDirective.Arguments.ForName(consts.SchemaDefActionDirectiveArgResource)
 			if resName == nil {
 				panic(fmt.Errorf("resource name is required for %s directive", actionDirective.Name))
 			}

@@ -1,0 +1,88 @@
+type User
+@Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the user", DB: {Column: "id", PrimaryKey: true})
+    name: String! @Field(Label: "Text", Description: "Text of the user", DB: {Column: "name", Unique: true})
+    cars: [Car!]! @Field(Label: "Cars", Description: "Cars of the user", DB: {})
+    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
+}
+
+type Car
+@Resource(Name: "car", Primary: true, Route: "car", DB: {Table: "car"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the todo", DB: {Column: "id", PrimaryKey: true})
+    make: String! @Field(Label: "Make", Description: "Car make", DB: {Column: "make"})
+    done: Boolean! @Field(Label: "Done", Description: "Done of the todo", DB: {Column: "done"})
+    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
+}
+
+input CarInput
+@Action(Resource: "car", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "car", Action: UPDATE_MUTATION, Route: "update")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID of the car", MapTo: ["Car.ID"])
+    make: String @ActionField(Label: "Make", Description: "Text of the todo", MapTo: ["Car.Make"])
+    done: Boolean @ActionField(Label: "Done", Description: "Done of the todo", MapTo: ["Car.Done"])
+    user: UserInput @ActionField(Label: "User", Description: "User of the todo", MapTo: ["Car.User"])
+}
+
+input UserInput
+@Action(Resource: "user", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "user", Action: UPDATE_MUTATION, Route: "update")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID of the user", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
+    cars: [CarInput!] @ActionField(Label: "Cars", Description: "Cars of the user", MapTo: ["User.Cars"])
+    phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", Description: "Phone numbers of the user", MapTo: ["User.PhoneNumbers"])
+}
+
+input DeleteUsers
+@ListAction(Resource: "user", Action: BATCH_DELETE_MUTATION, Route: "delete")
+{
+    ids: [ID!] @ActionField(Label: "IDs", Description: "IDs of users")
+}
+
+input ListUser
+@ListAction(
+    Resource: "user",
+    Action: BROWSE_QUERY,
+    Route: "list",
+    Pagination: true,
+    Sort: {Default: [{by: "name", direction: ASC}]},
+)
+{
+    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
+}
+
+input CarBrowseInput
+@ListAction(Resource: "car", Action: BROWSE_QUERY, Route: "list")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID")
+    userId: ID @ActionField(Label: "User ID", Description: "User ID")
+    make: String @ActionField(Label: "Make", Description: "Make")
+}
+
+type Phone
+@Resource(Name: "phone_number", Primary: true, Route: "phone-number", DB: {Table: "phone_number"})
+{
+    id: ID! @Field(Label: "ID", Description: "ID of the phone number", DB: {Column: "id", PrimaryKey: true})
+    number: String! @Field(Label: "Number", Description: "Number of phone", DB: {Column: "number"})
+    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
+}
+
+input PhoneNumberBrowseInput
+@ListAction(Resource: "phone_number", Action: BROWSE_QUERY, Route: "list")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["Phone.ID"])
+    number: ID @ActionField(Label: "Number", Description: "Number of phone", MapTo: ["Phone.Number"])
+}
+
+input PhoneNumberInput
+@Action(Resource: "phone_number", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "phone_number", Action: UPDATE_MUTATION, Route: "update")
+{
+    id: ID @ActionField(Label: "ID", Description: "ID of the phone number", MapTo: ["Phone.ID"])
+    number: String @ActionField(Label: "Name", Description: "Number of phone", MapTo: ["Phone.Number"])
+    user: UserInput @ActionField(Label: "User", Description: "User of the phone", MapTo: ["Phone.User"])
+}

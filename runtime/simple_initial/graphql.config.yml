@@ -1,1 +1,1 @@
-schema: ["./*.graphql", "./*.graphqls"]
+schema: ["./*.graphql", "./*.graphqls", "./**/*.graphql", "./**/*.graphqls"]

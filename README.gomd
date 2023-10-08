@@ -56,23 +56,26 @@ After running `go generate` command, goxgen will generate project structure like
 
 {{ fsTree "cmd/internal/integration" | codeBlock "shell"}}
 
+> Note: `generated` directories can be ignored in git. But you can add it to git if you want.
+
 ### 📑 Providing schema
 
 You should provide a schema for each project and run `go generate` again.
 
-All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.main.graphql`
+All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.user.graphql`
 
+#### Gorm example
 
-Let's focus on `gormproj`, which uses the GORM ORM.
-The connection to the GORM database can be configured from the gqlgen standard `resolver.go` file in the `gormproj` directory.
+Let's focus on `gorm_example`, which uses the GORM ORM.
+The connection to the GORM database can be configured from the gqlgen standard `resolver.go` file in the `gorm_example` directory.
 
 > `resolver.go` is designed to support your custom dependency injection (DI) and any services you've provided.
 
-{{ embedFile "cmd/internal/integration/gormproj/resolver.go" | codeBlock "go"}}
+{{ embedFile "cmd/internal/integration/gorm_example/resolver.go" | codeBlock "go"}}
 
-### Example of schema file `schema.main.graphql`
+### Example of schema file `schema.user.graphql`
 
-{{ embedFile "cmd/internal/integration/gormproj/schema.main.graphql" | codeBlock "graphql" }}
+{{ embedFile "cmd/internal/integration/gorm_example/schema.user.graphql" | codeBlock "graphql" }}
 
 The directives used in the example above are standard `xgen` directives, intended to provide metadata.
 
@@ -81,9 +84,6 @@ The directives used in the example above are standard `xgen` directives, intende
 * `Action` - Action that can be done for single resource
 * `ListAction` - Action that can be done for bulk resources
 * `ActionField` - Field of action or list action
-
-The definitions of these directives are located in the `generated_xgen_directives.graphql` file.
-{{ embedFile "cmd/internal/integration/gormproj/generated_xgen_directives.graphql" | codeBlock "graphql" }}
 
 After writing a custom schema You should run again `gogen` command.
 
@@ -95,10 +95,10 @@ After regenerating the code, the `schema.resolver.go` file will be updated based
 You can find the resolver functions for each field in the `schema.resolver.go` file.
 
 ### "Create User" mutation resolver
-{{ funcSrc "cmd/internal/integration/gormproj.mutationResolver.UserCreate" | codeBlock "go" }}
+{{ funcSrc "cmd/internal/integration/gorm_example.mutationResolver.UserCreate" | codeBlock "go" }}
 
 ### "Browse User" query resolver
-{{ funcSrc "cmd/internal/integration/gormproj.queryResolver.UserBrowse" | codeBlock "go" }}
+{{ funcSrc "cmd/internal/integration/gorm_example.queryResolver.UserBrowse" | codeBlock "go" }}
 etc.
 
 You can add your own implementation for each function in the updated `schema.resolver.go` file.
@@ -108,38 +108,89 @@ You can read the [gqlgen documentation](https://gqlgen.com/getting-started/#impl
 In those functions, you can see that the `r.DB` instance is used, 
 which is provided from the `resolver.go` file.
 
-{{ embedFile "cmd/internal/integration/gormproj/resolver.go" | codeBlock "go" }}
+{{ embedFile "cmd/internal/integration/gorm_example/resolver.go" | codeBlock "go" }}
 
 Great, you're all set to launch your GraphQL application.
+
+### 🖥️ CLI plugin usage
 
 To start the server using the xgen CLI plugin, you can run the following command:
 
 ```shell
-go run generated_xgen_cli.go serve --gql-playground-enabled gormproj
+go run generated_xgen_cli.go run --gql-playground-enabled
 ```
 
-This will initialize and start your GraphQL server, making it ready to handle incoming requests.
+This will initialize and start your all projects GraphQL servers together, making it ready to handle incoming requests.
 
 The output from the xgen CLI will provide information about the server endpoints. Additionally, logs will be written to this output during the server's runtime, giving you insights into its operation.
 
 ```shell
-2023-08-30T13:34:58.750+0400    INFO    gormproj/generated_xgen_project_handlers.go:102 Serving graphql playground      {"url": "http://localhost:80/playground"}
-2023-08-30T13:34:58.750+0400    INFO    gormproj/generated_xgen_project_handlers.go:113 Serving graphql                 {"url": "http://localhost:80/query"}
+2023-10-09T00:46:43.600+0400    INFO    server/server.go:77     Serving graphql playground      {"project": "gorm_example", "url": "http://localhost:8080/playground"}
+2023-10-09T00:46:43.600+0400    INFO    server/server.go:88     Serving graphql                 {"project": "gorm_example", "url": "http://localhost:8080/query"}
 ```
 
-> For more information about the xgen CLI, you can run the following command: 
+If You have a more then one project, and you want to run only one or some projects, you can use `--project` flag
+
+```shell
+go run generated_xgen_cli.go run --gql-playground-enabled --project gorm_example
+```
+
+Or for multiple projects
+```shell
+go run generated_xgen_cli.go run --gql-playground-enabled --project gorm_example --project otherproj
+```
+
+#### 📖 GraphQL Playground
+To enable the GraphQL playground, you can use the `--gql-playground-enabled` flag.
+
+#### 🔡 Environment variables
+By default, the xgen generating two dotenv files in your root directory - `.env` and `.env.default`.
+
+* `.env.default` file is auto-generated and contains necessary environment variables for your project. Do not edit this file because it will be overwritten on each generation.
+{{ embedFile "cmd/internal/integration/.env.default" | codeBlock "properties" | indent 4 }}
+* `.env` file is a file that you can edit and add your own environment variables. This file is not overwritten on each generation.
+
+You can also use .env.local file for local environment variables.
+
+##### Structure of environment variables
+Xgen CLI has a special structure for environment variables.
+You can define default environment variables for all projects
+and override them for each project with project name prefix.
+
+```properties
+{ENVIRONMENT_VARIABLE_NAME}={VALUE}
+{PROJECT_NAME}_{ENVIRONMENT_VARIABLE_NAME}={VALUE}
+```
+
+e.g.
+```properties
+# Default environment variable for all projects
+DB_DSN=sqllite://file.db
+# Environment variable for gorm_example project
+GORM_EXAMPLE_DB_DSN=postgres://user:pass@localhost:5432/gorm_example?sslmode=disable
+```
+
+##### Available environment variables
+To see all available environment variables, you can run the following command:
+
+```shell
+go run generated_xgen_cli.go run --help
+```
+
+> For more information about the xgen CLI, you can run main help command:
 > 
 > `go run generated_xgen_cli.go help`
 > 
 > This will display a list of available commands, options, and descriptions to help you navigate the xgen CLI more effectively.
 
+## Playground and testing
 You can copy the URL `http://localhost:80/playground` from the logs 
 and open it in your browser to access the GraphQL playground. 
 This interface will allow you to test queries, mutations, and subscriptions in real-time.
 
 Then we see graphql playground, let's run some mutation query to add two new users
 
-{{- $test1 := yamlFileParse "cmd/internal/integration/gormproj/tests/user-lifecycle.yaml" }}
+{{- $test1 := yamlFileParse "cmd/internal/integration/gorm_example/tests/user-lifecycle.yaml" }}
 
 {{ $test1 | dig "tests" 0 "query" "n/a" | codeBlock "graphql"  }}
 
@@ -154,6 +205,37 @@ One more example, let's list our new users by query
 The result of this query should be like this
 
 {{ $test1 | dig "tests" 1 "expectedResult" "n/a" | codeBlock "graphql"  }}
+
+## Testing
+
+Xgen has a support for custom api tests. You can write your own tests in yaml format and run it CLI command.
+
+In generated project directory you can find `tests` directory. Xgen also generates a default test file `tests/default-tests.yaml`.
+
+{{ embedFile "cmd/internal/integration/gorm_example/tests/default-tests.yaml" | codeBlock "yaml" }}
+
+You can create your own test file and run it with CLI command.
+
+```shell
+go run generated_xgen_cli.go run --test
+```
+
+This command will run all tests in all projects. If you want to run tests only for one project, you can use `--project` flag.
+
+## Available Project Types
+
+### Basic Project
+Basic project is a project without any ORM. It's a simple project with a simple structure.
+You can use it for your own custom implementation.
+
+### Gorm Project
+Gorm project is a project with GORM ORM.
+
+#### Pagination and Sorting
+Resolver method `UserBrowse` has a `Pagination` and `Sort` arguments. This arguments is a set of standard pagination and sort parameters.
+Xgen provides a special GORM scopes for pagination and sort functionalities. You can use it in your custom implementation.
+
+{{ funcSrc "cmd/internal/integration/gorm_example.queryResolver.UserBrowse" | codeBlock "go" }}
 
 ## 🤝 Contributing
 
