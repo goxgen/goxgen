@@ -8,10 +8,14 @@
 
 Your One-Stop Solution for GraphQL Application Generation
 
-`goxgen` is a powerful library designed to simplify the creation of GraphQL applications.
+<p style="text-align: center">
+    <img src="docs/images/logo.png" width="200px" alt="">
+</p>
+
+**goxgen** is a powerful library designed to simplify the creation of GraphQL applications.
 By defining your domain and API interface through a single syntax,
 You can quickly generate a fully-functional GraphQL server.
-Beyond that, `goxgen` also provides support for ORM(GORM)
+Beyond that, **goxgen** also provides support for ORM(GORM)
 and a Command-Line Interface for server operations.
 
 > Built upon the `gqlgen` framework, `goxgen` extends its

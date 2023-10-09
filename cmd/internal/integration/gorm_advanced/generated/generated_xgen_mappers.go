@@ -36,6 +36,14 @@ func (ra *PhoneNumberInput) ToPhoneModel(ctx context.Context) (*Phone, error){
 	return target, err
 }
 
+// ToUserModel Map ListUser to User model
+func (ra *ListUser) ToUserModel(ctx context.Context) (*User, error){
+	mapper := server.GetMapper(ctx)
+	target := &User{}
+	err := mapper.Map(ra, target)
+	return target, err
+}
+
 // ToUserModel Map UserInput to User model
 func (ra *UserInput) ToUserModel(ctx context.Context) (*User, error){
 	mapper := server.GetMapper(ctx)
@@ -46,14 +54,6 @@ func (ra *UserInput) ToUserModel(ctx context.Context) (*User, error){
 
 // ToUserModel Map DeleteUsers to User model
 func (ra *DeleteUsers) ToUserModel(ctx context.Context) (*User, error){
-	mapper := server.GetMapper(ctx)
-	target := &User{}
-	err := mapper.Map(ra, target)
-	return target, err
-}
-
-// ToUserModel Map ListUser to User model
-func (ra *ListUser) ToUserModel(ctx context.Context) (*User, error){
 	mapper := server.GetMapper(ctx)
 	target := &User{}
 	err := mapper.Map(ra, target)
