@@ -207,8 +207,8 @@ type UserXgenDef struct {
 }
 
 type XgenAnnotationMap struct {
-	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
+	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
 	Action     []*ActionAnnotationSingle     `json:"Action"`
 }
 
@@ -237,8 +237,8 @@ type XgenIntrospection struct {
 
 type XgenObjectDefinition struct {
 	Resource   *Resource   `json:"Resource,omitempty"`
-	Action     *Action     `json:"Action,omitempty"`
 	ListAction *ListAction `json:"ListAction,omitempty"`
+	Action     *Action     `json:"Action,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -247,27 +247,27 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
-	Car                            *CarXgenDef                            `json:"Car,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
-	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
-	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
+	PhoneNumberInput               *PhoneNumberInputXgenDef               `json:"PhoneNumberInput,omitempty"`
 	User                           *UserXgenDef                           `json:"User,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
+	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
+	PhoneNumberBrowseInput         *PhoneNumberBrowseInputXgenDef         `json:"PhoneNumberBrowseInput,omitempty"`
 	CarBrowseInput                 *CarBrowseInputXgenDef                 `json:"CarBrowseInput,omitempty"`
-	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty"`
+	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
 	Phone                          *PhoneXgenDef                          `json:"Phone,omitempty"`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
+	UserInput                      *UserInputXgenDef                      `json:"UserInput,omitempty"`
+	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
 	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
 	DeleteUsers                    *DeleteUsersXgenDef                    `json:"DeleteUsers,omitempty"`
-	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
-	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty"`
-	PhoneNumberBrowseInput         *PhoneNumberBrowseInputXgenDef         `json:"PhoneNumberBrowseInput,omitempty"`
+	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	ListUser                       *ListUserXgenDef                       `json:"ListUser,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
-	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
-	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
-	UserInput                      *UserInputXgenDef                      `json:"UserInput,omitempty"`
-	PhoneNumberInput               *PhoneNumberInputXgenDef               `json:"PhoneNumberInput,omitempty"`
+	Car                            *CarXgenDef                            `json:"Car,omitempty"`
+	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
+	CarInput                       *CarInputXgenDef                       `json:"CarInput,omitempty"`
 }
 
 type XgenPaginationInput struct {
@@ -333,9 +333,9 @@ type XgenResourceListActionTypeXgenDef struct {
 }
 
 type XgenResourceMap struct {
+	Car         *XgenResourceDefinition `json:"car,omitempty"`
 	PhoneNumber *XgenResourceDefinition `json:"phone_number,omitempty"`
 	User        *XgenResourceDefinition `json:"user,omitempty"`
-	Car         *XgenResourceDefinition `json:"car,omitempty"`
 }
 
 type XgenResourceProperty struct {
