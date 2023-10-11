@@ -1,16 +1,16 @@
 type Phone
-@Resource(Name: "phone_number", Primary: true, Route: "phone-number", DB: {Table: "phone_number"})
+@Resource(Name: "phone_number",  DB: {Table: "phone_number"})
 {
-    id: ID! @Field(Label: "ID", Description: "ID of the phone number", DB: {Column: "id", PrimaryKey: true})
-    number: String! @Field(Label: "Number", Description: "Number of phone", DB: {Column: "number"})
-    user: User! @Field(Label: "User", Description: "User of the todo", DB: {})
+    id: ID! @Field(Label: "ID", DB: {Column: "id", PrimaryKey: true})
+    number: String! @Field(Label: "Number", DB: {Column: "number"})
+    user: User! @Field(Label: "User", DB: {})
 }
 
 input PhoneNumberInput
 @Action(Resource: "phone_number", Action: CREATE_MUTATION, Route: "new")
 @Action(Resource: "phone_number", Action: UPDATE_MUTATION, Route: "update")
 {
-    id: ID @ActionField(Label: "ID", Description: "ID of the phone number", MapTo: ["Phone.ID"])
-    number: String @ActionField(Label: "Name", Description: "Number of phone", MapTo: ["Phone.Number"])
-    user: UserInput @ActionField(Label: "User", Description: "User of the phone", MapTo: ["Phone.User"])
+    id: ID @ActionField(Label: "ID", MapTo: ["Phone.ID"])
+    number: String @ActionField(Label: "Name", MapTo: ["Phone.Number"])
+    user: UserInput @ActionField(Label: "User", MapTo: ["Phone.User"])
 }

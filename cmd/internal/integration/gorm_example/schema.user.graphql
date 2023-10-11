@@ -1,11 +1,11 @@
 # Define the User resource(entity) and its fields
 # Enable DB mapping for the resource
 type User
-@Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
+@Resource(Name: "user", DB: {Table: "user"})
 {
-    id: ID! @Field(Label: "ID", Description: "ID of the user", DB: {Column: "id", PrimaryKey: true})
-    name: String! @Field(Label: "Text", Description: "Text of the user", DB: {Column: "name", Unique: true})
-    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
+    id: ID! @Field(Label: "ID", DB: {Column: "id", PrimaryKey: true})
+    name: String! @Field(Label: "Text", DB: {Column: "name", Unique: true})
+    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", DB: {})
 }
 
 # User input type for create and update actions
@@ -14,15 +14,15 @@ input UserInput
 @Action(Resource: "user", Action: CREATE_MUTATION, Route: "new")
 @Action(Resource: "user", Action: UPDATE_MUTATION, Route: "update")
 {
-    id: ID @ActionField(Label: "ID", Description: "ID of the user", MapTo: ["User.ID"])
-    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
-    phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", Description: "Phone numbers of the user", MapTo: ["User.PhoneNumbers"])
+    id: ID @ActionField(Label: "ID", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", MapTo: ["User.Name"])
+    phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", MapTo: ["User.PhoneNumbers"])
 }
 
 # User input type for browse action
 input BrowseUserInput
 @ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", Pagination: true, Sort: {Default: [{by: "name", direction: ASC}]})
 {
-    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
-    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
+    id: ID @ActionField(Label: "ID", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", MapTo: ["User.Name"])
 }

@@ -30,11 +30,21 @@ and a Command-Line Interface for server operations.
 - 📚 **Domain Driven Design:** Extensible project structure
 - 🛡️ **Future-Ready:** Plans to roll out UI for admin back-office, along with comprehensive authentication and authorization features.
 
-## 📦 Dependencies
+# Schema definition
 
-- [gqlgen](https://github.com/99designs/gqlgen)
-- [gorm](https://gorm.io/index.html)
-- [urfave/cli](https://cli.urfave.org)
+**goxgen** using a directives for business logic and domain definition.
+
+All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.user.graphql`
+
+## Resource directives
+Resource directives is a main directives for domain resource definition.
+* `@Resource` - Your domain resource
+* `@Field` - Field of resource
+
+## Action Directives
+* `@Action` - Action that can be done for single resource
+* `@ListAction` - Action that can be done for bulk resources
+* `@ActionField` - Field of action or list action
 
 # 🚀 Quick Start
 
@@ -179,9 +189,9 @@ After running `go generate` command, goxgen will generate project structure like
 
 ### 📑 Providing schema
 
-You should provide a schema for each project and run `go generate` again.
+Check the [schema definition](#schema-definition) section for more information.
 
-All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.user.graphql`
+You should provide a schema for each project and run `go generate` again.
 
 #### Gorm example
 
@@ -220,17 +230,18 @@ func NewResolver(sts *settings.EnvironmentSettings) (*Resolver, error) {
 }
 ```
 
-### Example of schema file `schema.user.graphql`
+### Creating a example schema for resources
 
+**schema.user.graphql**
 ```graphql
 # Define the User resource(entity) and its fields
 # Enable DB mapping for the resource
 type User
-@Resource(Name: "user", Primary: true, Route: "user", DB: {Table: "user"})
+@Resource(Name: "user", DB: {Table: "user"})
 {
-    id: ID! @Field(Label: "ID", Description: "ID of the user", DB: {Column: "id", PrimaryKey: true})
-    name: String! @Field(Label: "Text", Description: "Text of the user", DB: {Column: "name", Unique: true})
-    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", Description: "Phone numbers of the user", DB: {})
+    id: ID! @Field(Label: "ID", DB: {Column: "id", PrimaryKey: true})
+    name: String! @Field(Label: "Text", DB: {Column: "name", Unique: true})
+    phoneNumbers: [Phone!]! @Field(Label: "Phone Numbers", DB: {})
 }
 
 # User input type for create and update actions
@@ -239,27 +250,39 @@ input UserInput
 @Action(Resource: "user", Action: CREATE_MUTATION, Route: "new")
 @Action(Resource: "user", Action: UPDATE_MUTATION, Route: "update")
 {
-    id: ID @ActionField(Label: "ID", Description: "ID of the user", MapTo: ["User.ID"])
-    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
-    phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", Description: "Phone numbers of the user", MapTo: ["User.PhoneNumbers"])
+    id: ID @ActionField(Label: "ID", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", MapTo: ["User.Name"])
+    phones: [PhoneNumberInput!] @ActionField(Label: "Phone Numbers", MapTo: ["User.PhoneNumbers"])
 }
 
 # User input type for browse action
 input BrowseUserInput
 @ListAction(Resource: "user", Action: BROWSE_QUERY, Route: "list", Pagination: true, Sort: {Default: [{by: "name", direction: ASC}]})
 {
-    id: ID @ActionField(Label: "ID", Description: "ID", MapTo: ["User.ID"])
-    name: String @ActionField(Label: "Name", Description: "Name", MapTo: ["User.Name"])
+    id: ID @ActionField(Label: "ID", MapTo: ["User.ID"])
+    name: String @ActionField(Label: "Name", MapTo: ["User.Name"])
 }
 ```
 
-The directives used in the example above are standard `xgen` directives, intended to provide metadata.
+**schema.phone.graphql**
+```graphql
+type Phone
+@Resource(Name: "phone_number",  DB: {Table: "phone_number"})
+{
+    id: ID! @Field(Label: "ID", DB: {Column: "id", PrimaryKey: true})
+    number: String! @Field(Label: "Number", DB: {Column: "number"})
+    user: User! @Field(Label: "User", DB: {})
+}
 
-* `Resource` - Entity or object or thing
-* `Field` - Field of resource
-* `Action` - Action that can be done for single resource
-* `ListAction` - Action that can be done for bulk resources
-* `ActionField` - Field of action or list action
+input PhoneNumberInput
+@Action(Resource: "phone_number", Action: CREATE_MUTATION, Route: "new")
+@Action(Resource: "phone_number", Action: UPDATE_MUTATION, Route: "update")
+{
+    id: ID @ActionField(Label: "ID", MapTo: ["Phone.ID"])
+    number: String @ActionField(Label: "Name", MapTo: ["Phone.Number"])
+    user: UserInput @ActionField(Label: "User", MapTo: ["Phone.User"])
+}
+```
 
 After writing a custom schema You should run again `gogen` command.
 
@@ -584,6 +607,12 @@ To simplify the development process, we use Makefile.
 - `make runtime-generate` - Generate a runtime project that using for goxgen code generation
 - `make build-readme` - Build README.md file from README.gomd
 - `make build` - Build all and prepare release
+
+## 📦 Dependencies
+
+- [gqlgen](https://github.com/99designs/gqlgen)
+- [gorm](https://gorm.io/index.html)
+- [urfave/cli](https://cli.urfave.org)
 
 ## 📝 License
 
