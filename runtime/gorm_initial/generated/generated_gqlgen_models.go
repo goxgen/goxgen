@@ -63,9 +63,9 @@ type ResourceAnnotationSingle struct {
 }
 
 type XgenAnnotationMap struct {
+	Action     []*ActionAnnotationSingle     `json:"Action"`
 	Resource   []*ResourceAnnotationSingle   `json:"Resource"`
 	ListAction []*ListActionAnnotationSingle `json:"ListAction"`
-	Action     []*ActionAnnotationSingle     `json:"Action"`
 }
 
 type XgenCursorPaginationInput struct {
@@ -91,9 +91,9 @@ type XgenIntrospection struct {
 }
 
 type XgenObjectDefinition struct {
-	Action     *Action     `json:"Action,omitempty"`
-	Resource   *Resource   `json:"Resource,omitempty"`
 	ListAction *ListAction `json:"ListAction,omitempty"`
+	Resource   *Resource   `json:"Resource,omitempty"`
+	Action     *Action     `json:"Action,omitempty"`
 }
 
 type XgenObjectField struct {
@@ -102,17 +102,17 @@ type XgenObjectField struct {
 }
 
 type XgenObjectMap struct {
-	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
-	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
-	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
-	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
-	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
-	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
-	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
-	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
 	XgenSortInput                  *XgenSortInputXgenDef                  `json:"XgenSortInput,omitempty"`
 	XgenCursorPaginationInput      *XgenCursorPaginationInputXgenDef      `json:"XgenCursorPaginationInput,omitempty"`
+	XgenSortResourceConfigInput    *XgenSortResourceConfigInputXgenDef    `json:"XgenSortResourceConfigInput,omitempty"`
+	XgenSortDirection              *XgenSortDirectionXgenDef              `json:"XgenSortDirection,omitempty"`
+	XgenPaginationInput            *XgenPaginationInputXgenDef            `json:"XgenPaginationInput,omitempty"`
+	XgenSortResourceConfig         *XgenSortResourceConfigXgenDef         `json:"XgenSortResourceConfig,omitempty"`
+	XgenResourceActionType         *XgenResourceActionTypeXgenDef         `json:"XgenResourceActionType,omitempty"`
+	XgenResourceListActionType     *XgenResourceListActionTypeXgenDef     `json:"XgenResourceListActionType,omitempty"`
+	XgenSort                       *XgenSortXgenDef                       `json:"XgenSort,omitempty"`
 	XgenResourceFieldDbConfigInput *XgenResourceFieldDbConfigInputXgenDef `json:"XgenResourceFieldDbConfigInput,omitempty"`
+	XgenResourceDbConfigInput      *XgenResourceDbConfigInputXgenDef      `json:"XgenResourceDbConfigInput,omitempty"`
 }
 
 type XgenPaginationInput struct {

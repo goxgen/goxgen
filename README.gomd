@@ -30,11 +30,21 @@ and a Command-Line Interface for server operations.
 - 📚 **Domain Driven Design:** Extensible project structure
 - 🛡️ **Future-Ready:** Plans to roll out UI for admin back-office, along with comprehensive authentication and authorization features.
 
-## 📦 Dependencies
+# Schema definition
 
-- [gqlgen](https://github.com/99designs/gqlgen)
-- [gorm](https://gorm.io/index.html)
-- [urfave/cli](https://cli.urfave.org)
+**goxgen** using a directives for business logic and domain definition.
+
+All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.user.graphql`
+
+## Resource directives
+Resource directives is a main directives for domain resource definition.
+* `@Resource` - Your domain resource
+* `@Field` - Field of resource
+
+## Action Directives
+* `@Action` - Action that can be done for single resource
+* `@ListAction` - Action that can be done for bulk resources
+* `@ActionField` - Field of action or list action
 
 # 🚀 Quick Start
 
@@ -64,9 +74,9 @@ After running `go generate` command, goxgen will generate project structure like
 
 ### 📑 Providing schema
 
-You should provide a schema for each project and run `go generate` again.
+Check the [schema definition](#schema-definition) section for more information.
 
-All schema files in xgen has this format `schema.{some_name}.graphql`, for example `schema.user.graphql`
+You should provide a schema for each project and run `go generate` again.
 
 #### Gorm example
 
@@ -77,17 +87,13 @@ The connection to the GORM database can be configured from the gqlgen standard `
 
 {{ embedFile "cmd/internal/integration/gorm_example/resolver.go" | codeBlock "go"}}
 
-### Example of schema file `schema.user.graphql`
+### Creating a example schema for resources
 
+**schema.user.graphql**
 {{ embedFile "cmd/internal/integration/gorm_example/schema.user.graphql" | codeBlock "graphql" }}
 
-The directives used in the example above are standard `xgen` directives, intended to provide metadata.
-
-* `Resource` - Entity or object or thing
-* `Field` - Field of resource
-* `Action` - Action that can be done for single resource
-* `ListAction` - Action that can be done for bulk resources
-* `ActionField` - Field of action or list action
+**schema.phone.graphql**
+{{ embedFile "cmd/internal/integration/gorm_example/schema.phone.graphql" | codeBlock "graphql" }}
 
 After writing a custom schema You should run again `gogen` command.
 
@@ -258,6 +264,12 @@ To simplify the development process, we use Makefile.
 - `make runtime-generate` - Generate a runtime project that using for goxgen code generation
 - `make build-readme` - Build README.md file from README.gomd
 - `make build` - Build all and prepare release
+
+## 📦 Dependencies
+
+- [gqlgen](https://github.com/99designs/gqlgen)
+- [gorm](https://gorm.io/index.html)
+- [urfave/cli](https://cli.urfave.org)
 
 ## 📝 License
 
